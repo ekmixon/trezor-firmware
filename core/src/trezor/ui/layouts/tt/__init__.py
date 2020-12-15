@@ -4,7 +4,6 @@ from ubinascii import hexlify
 from trezor import ui, wire
 from trezor.enums import ButtonRequestType
 from trezor.ui.container import Container
-from trezor.ui.loader import LoaderDanger
 from trezor.ui.popup import Popup
 from trezor.ui.qr import Qr
 from trezor.utils import chunks, chunks_intersperse
@@ -39,7 +38,7 @@ from ...constants.tt import (
 from ..common import button_request, interact
 
 if False:
-    from typing import Awaitable, Iterable, Iterator, NoReturn, Sequence
+    from typing import Awaitable, Callable, Iterable, Iterator, NoReturn, Sequence
 
     from ..common import PropertyType, ExceptionType
 
@@ -127,7 +126,11 @@ async def confirm_action(
             param_font=description_param_font,
         )
 
-    cls = HoldToConfirm if hold else Confirm
+    cls: Callable = Confirm
+    if hold:
+        cls = HoldToConfirm
+        if verb == Confirm.DEFAULT_CONFIRM:
+            verb = "Hold to confirm"
     kwargs = {}
     if hold_danger:
         kwargs = {"loader_style": LoaderDanger, "confirm_style": ButtonCancel}
@@ -367,7 +370,7 @@ def show_pubkey(
     return confirm_blob(
         ctx,
         br_type="show_pubkey",
-        title="Confirm public key",
+        title=title,
         data=pubkey,
         br_code=ButtonRequestType.PublicKey,
         icon=ui.ICON_RECEIVE,
