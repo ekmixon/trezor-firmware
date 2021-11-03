@@ -23,7 +23,7 @@ map_type_to_class = {}
 map_class_to_type = {}
 
 
-def build_map():
+def build_map() -> None:
     for entry in messages.MessageType:
         msg_class = getattr(messages, entry.name, None)
         if msg_class is None:
@@ -39,7 +39,7 @@ def build_map():
         register_message(msg_class)
 
 
-def register_message(msg_class):
+def register_message(msg_class) -> None:
     if msg_class.MESSAGE_WIRE_TYPE in map_type_to_class:
         raise Exception(
             f"Message for wire type {msg_class.MESSAGE_WIRE_TYPE} is already registered by {get_class(msg_class.MESSAGE_WIRE_TYPE)}"

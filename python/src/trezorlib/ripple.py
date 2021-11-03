@@ -15,27 +15,32 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 from . import messages
+from .client import TrezorClient
 from .protobuf import dict_to_proto
-from .tools import dict_from_camelcase, expect
+from .tools import Address, dict_from_camelcase, expect
 
 REQUIRED_FIELDS = ("Fee", "Sequence", "TransactionType", "Payment")
 REQUIRED_PAYMENT_FIELDS = ("Amount", "Destination")
 
 
 @expect(messages.RippleAddress, field="address")
-def get_address(client, address_n, show_display=False):
+def get_address(
+    client: TrezorClient, address_n: Address, show_display: bool = False
+) -> str:
     return client.call(
         messages.RippleGetAddress(address_n=address_n, show_display=show_display)
     )
 
 
 @expect(messages.RippleSignedTx)
-def sign_tx(client, address_n, msg: messages.RippleSignTx):
+def sign_tx(
+    client: TrezorClient, address_n: Address, msg: messages.RippleSignTx
+) -> messages.RippleSignedTx:
     msg.address_n = address_n
     return client.call(msg)
 
 
-def create_sign_tx_msg(transaction) -> messages.RippleSignTx:
+def create_sign_tx_msg(transaction: dict) -> messages.RippleSignTx:
     if not all(transaction.get(k) for k in REQUIRED_FIELDS):
         raise ValueError("Some of the required fields missing")
     if not all(transaction["Payment"].get(k) for k in REQUIRED_PAYMENT_FIELDS):

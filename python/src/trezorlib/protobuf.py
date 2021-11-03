@@ -55,7 +55,7 @@ _UVARINT_BUFFER = bytearray(1)
 LOG = logging.getLogger(__name__)
 
 
-def safe_issubclass(value, cls):
+def safe_issubclass(value, cls) -> bool:
     return isinstance(value, type) and issubclass(value, cls)
 
 
@@ -177,7 +177,7 @@ class Field:
 
 
 class _MessageTypeMeta(type):
-    def __init__(cls, name, bases, d) -> None:
+    def __init__(cls, name: str, bases: tuple, d: dict) -> None:
         super().__init__(name, bases, d)
         if name != "MessageType":
             cls.__init__ = MessageType.__init__

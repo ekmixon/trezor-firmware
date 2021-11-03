@@ -17,7 +17,8 @@ from decimal import Decimal
 from typing import Union
 
 from . import exceptions, messages
-from .tools import expect
+from .client import TrezorClient
+from .tools import Address, expect
 
 try:
     from stellar_sdk import (
@@ -59,7 +60,7 @@ except ImportError:
 DEFAULT_BIP32_PATH = "m/44h/148h/0h"
 
 
-def from_envelope(envelope: "TransactionEnvelope"):
+def from_envelope(envelope: "TransactionEnvelope") -> tuple:
     """Parses transaction envelope into a map with the following keys:
     tx - a StellarSignTx describing the transaction header
     operations - an array of protobuf message objects for each operation
@@ -301,15 +302,21 @@ def _read_asset(asset: "Asset") -> messages.StellarAsset:
 
 
 @expect(messages.StellarAddress, field="address")
-def get_address(client, address_n, show_display=False):
+def get_address(
+    client: TrezorClient, address_n: Address, show_display: bool = False
+) -> str:
     return client.call(
         messages.StellarGetAddress(address_n=address_n, show_display=show_display)
     )
 
 
 def sign_tx(
-    client, tx, operations, address_n, network_passphrase=DEFAULT_NETWORK_PASSPHRASE
-):
+    client: TrezorClient,
+    tx,
+    operations: list,
+    address_n: Address,
+    network_passphrase=DEFAULT_NETWORK_PASSPHRASE,
+) -> messages.StellarSignedTx:
     tx.network_passphrase = network_passphrase
     tx.address_n = address_n
     tx.num_operations = len(operations)

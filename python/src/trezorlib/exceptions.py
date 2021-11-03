@@ -20,13 +20,13 @@ class TrezorException(Exception):
 
 
 class TrezorFailure(TrezorException):
-    def __init__(self, failure):
+    def __init__(self, failure) -> None:
         self.failure = failure
         self.code = failure.code
         self.message = failure.message
         super().__init__(self.code, self.message, self.failure)
 
-    def __str__(self):
+    def __str__(self) -> str:
         from .messages import FailureType
 
         types = {

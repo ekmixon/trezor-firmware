@@ -22,7 +22,7 @@ if False:
 
 
 @expect(messages.Entropy, field="entropy")
-def get_entropy(client: "TrezorClient", size: int) -> messages.Entropy:
+def get_entropy(client: "TrezorClient", size: int) -> bytes:
     return client.call(messages.GetEntropy(size=size))
 
 
@@ -69,7 +69,7 @@ def encrypt_keyvalue(
     ask_on_encrypt: bool = True,
     ask_on_decrypt: bool = True,
     iv: bytes = b"",
-) -> messages.CipheredKeyValue:
+) -> bytes:
     return client.call(
         messages.CipherKeyValue(
             address_n=n,
@@ -92,7 +92,7 @@ def decrypt_keyvalue(
     ask_on_encrypt: bool = True,
     ask_on_decrypt: bool = True,
     iv: bytes = b"",
-) -> messages.CipheredKeyValue:
+) -> bytes:
     return client.call(
         messages.CipherKeyValue(
             address_n=n,

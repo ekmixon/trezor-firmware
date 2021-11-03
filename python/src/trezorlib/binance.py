@@ -15,26 +15,33 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 from . import messages
+from .client import TrezorClient
 from .protobuf import dict_to_proto
-from .tools import expect, session
+from .tools import Address, expect, session
 
 
 @expect(messages.BinanceAddress, field="address")
-def get_address(client, address_n, show_display=False):
+def get_address(
+    client: TrezorClient, address_n: Address, show_display: bool = False
+) -> str:
     return client.call(
         messages.BinanceGetAddress(address_n=address_n, show_display=show_display)
     )
 
 
 @expect(messages.BinancePublicKey, field="public_key")
-def get_public_key(client, address_n, show_display=False):
+def get_public_key(
+    client: TrezorClient, address_n: Address, show_display: bool = False
+) -> bytes:
     return client.call(
         messages.BinanceGetPublicKey(address_n=address_n, show_display=show_display)
     )
 
 
 @session
-def sign_tx(client, address_n, tx_json):
+def sign_tx(
+    client: TrezorClient, address_n: Address, tx_json: dict
+) -> messages.BinanceSignedTx:
     msg = tx_json["msgs"][0]
     envelope = dict_to_proto(messages.BinanceSignTx, tx_json)
     envelope.msg_count = 1

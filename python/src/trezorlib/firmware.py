@@ -22,6 +22,7 @@ import construct as c
 import ecdsa
 
 from . import cosi, messages, tools
+from .client import TrezorClient
 
 try:
     from hashlib import blake2s
@@ -351,7 +352,7 @@ def calculate_code_hashes(
     hash_function: Callable = blake2s,
     chunk_size: int = V2_CHUNK_SIZE,
     padding_byte: bytes = None,
-) -> None:
+) -> List[bytes]:
     hashes = []
     # End offset for each chunk. Normally this would be (i+1)*chunk_size for i-th chunk,
     # but the first chunk is shorter by code_offset, so all end offsets are shifted.
@@ -484,7 +485,7 @@ def validate(
 
 
 @tools.session
-def update(client, data):
+def update(client: TrezorClient, data: bytes) -> None:
     if client.features.bootloader_mode is False:
         raise RuntimeError("Device must be in bootloader mode")
 

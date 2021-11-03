@@ -45,7 +45,9 @@ class PrettyProtobufFormatter(logging.Formatter):
         return message
 
 
-def enable_debug_output(verbosity: int = 1, handler: Optional[logging.Handler] = None):
+def enable_debug_output(
+    verbosity: int = 1, handler: Optional[logging.Handler] = None
+) -> None:
     if handler is None:
         handler = logging.StreamHandler()
 

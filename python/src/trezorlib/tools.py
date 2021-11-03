@@ -19,7 +19,7 @@ import hashlib
 import re
 import struct
 import unicodedata
-from typing import List, NewType
+from typing import Any, Dict, List, NewType, Optional, Union
 
 HARDENED_FLAG = 1 << 31
 
@@ -33,14 +33,14 @@ def H_(x: int) -> int:
     return x | HARDENED_FLAG
 
 
-def btc_hash(data):
+def btc_hash(data: bytes) -> bytes:
     """
     Double-SHA256 hash as used in BTC
     """
     return hashlib.sha256(hashlib.sha256(data).digest()).digest()
 
 
-def tx_hash(data):
+def tx_hash(data: bytes) -> bytes:
     """Calculate and return double-SHA256 hash in reverse order.
 
     This is what Bitcoin uses as txids.
@@ -48,26 +48,28 @@ def tx_hash(data):
     return btc_hash(data)[::-1]
 
 
-def hash_160(public_key):
+def hash_160(public_key: bytes) -> bytes:
     md = hashlib.new("ripemd160")
     md.update(hashlib.sha256(public_key).digest())
     return md.digest()
 
 
-def hash_160_to_bc_address(h160, address_type):
+def hash_160_to_bc_address(h160: bytes, address_type) -> str:
     vh160 = struct.pack("<B", address_type) + h160
     h = btc_hash(vh160)
     addr = vh160 + h[0:4]
     return b58encode(addr)
 
 
-def compress_pubkey(public_key):
+def compress_pubkey(public_key: bytes) -> bytes:
     if public_key[0] == 4:
         return bytes((public_key[64] & 1) + 2) + public_key[1:33]
     raise ValueError("Pubkey is already compressed")
 
 
-def public_key_to_bc_address(public_key, address_type, compress=True):
+def public_key_to_bc_address(
+    public_key: bytes, address_type, compress: bool = True
+) -> str:
     if public_key[0] == "\x04" and compress:
         public_key = compress_pubkey(public_key)
 
@@ -79,7 +81,7 @@ __b58chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 __b58base = len(__b58chars)
 
 
-def b58encode(v):
+def b58encode(v: bytes) -> str:
     """ encode v, which is a string of bytes, to base58."""
 
     long_value = 0
@@ -105,7 +107,7 @@ def b58encode(v):
     return (__b58chars[0] * nPad) + result
 
 
-def b58decode(v, length=None):
+def b58decode(v: Union[str, bytes], length: Optional[int] = None) -> bytes:
     """ decode v into a string of len bytes."""
     if isinstance(v, bytes):
         v = v.decode()
@@ -139,12 +141,12 @@ def b58decode(v, length=None):
     return result
 
 
-def b58check_encode(v):
+def b58check_encode(v: bytes) -> str:
     checksum = btc_hash(v)[:4]
     return b58encode(v + checksum)
 
 
-def b58check_decode(v, length=None):
+def b58check_decode(v: Union[str, bytes], length: Optional[int] = None) -> bytes:
     dec = b58decode(v, length)
     data, checksum = dec[:-4], dec[-4:]
     if btc_hash(data)[:4] != checksum:
@@ -185,7 +187,7 @@ def parse_path(nstr: str) -> Address:
         raise ValueError("Invalid BIP32 path", nstr) from e
 
 
-def normalize_nfc(txt):
+def normalize_nfc(txt: Union[str, bytes]) -> bytes:
     """
     Normalize message to NFC and return bytes suitable for protobuf.
     This seems to be bitcoin-qt standard of doing things.
@@ -199,7 +201,7 @@ class expect:
     # Decorator checks if the method
     # returned one of expected protobuf messages
     # or raises an exception
-    def __init__(self, expected, field=None):
+    def __init__(self, expected, field: Optional[str] = None) -> None:
         self.expected = expected
         self.field = field
 
@@ -240,19 +242,19 @@ FIRST_CAP_RE = re.compile("(.)([A-Z][a-z]+)")
 ALL_CAP_RE = re.compile("([a-z0-9])([A-Z])")
 
 
-def from_camelcase(s):
+def from_camelcase(s: str) -> str:
     s = FIRST_CAP_RE.sub(r"\1_\2", s)
     return ALL_CAP_RE.sub(r"\1_\2", s).lower()
 
 
-def dict_from_camelcase(d, renames=None):
+def dict_from_camelcase(d: dict, renames: Optional[dict] = None) -> dict:
     if not isinstance(d, dict):
         return d
 
     if renames is None:
         renames = {}
 
-    res = {}
+    res: Dict[str, Any] = {}
     for key, value in d.items():
         newkey = from_camelcase(key)
         renamed_key = renames.get(newkey) or renames.get(key)

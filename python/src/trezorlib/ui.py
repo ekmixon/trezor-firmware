@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import os
-from typing import Union
+from typing import Callable, Optional, Union
 
 import click
 from mnemonic import Mnemonic
@@ -75,19 +75,19 @@ def prompt(*args, **kwargs):
 
 
 class ClickUI:
-    def __init__(self, always_prompt=False, passphrase_on_host=False):
+    def __init__(self, always_prompt: bool = False, passphrase_on_host: bool = False) -> None:
         self.pinmatrix_shown = False
         self.prompt_shown = False
         self.always_prompt = always_prompt
         self.passphrase_on_host = passphrase_on_host
 
-    def button_request(self, _br):
+    def button_request(self, _br) -> None:
         if not self.prompt_shown:
             echo("Please confirm action on your Trezor device.")
         if not self.always_prompt:
             self.prompt_shown = True
 
-    def get_pin(self, code=None):
+    def get_pin(self, code: Optional[PinMatrixRequestType] = None) -> str:
         if code == PIN_CURRENT:
             desc = "current PIN"
         elif code == PIN_NEW:
@@ -125,7 +125,7 @@ class ClickUI:
             else:
                 return pin
 
-    def get_passphrase(self, available_on_device):
+    def get_passphrase(self, available_on_device: bool) -> str:
         if available_on_device and not self.passphrase_on_host:
             return PASSPHRASE_ON_DEVICE
 
@@ -155,13 +155,13 @@ class ClickUI:
                 raise Cancelled from None
 
 
-def mnemonic_words(expand=False, language="english"):
+def mnemonic_words(expand: bool = False, language: str = "english") -> Callable[[WordRequestType], str]:
     if expand:
         wordlist = Mnemonic(language).wordlist
     else:
         wordlist = set()
 
-    def expand_word(word):
+    def expand_word(word: str) -> str:
         if not expand:
             return word
         if word in wordlist:
@@ -172,7 +172,7 @@ def mnemonic_words(expand=False, language="english"):
         echo("Choose one of: " + ", ".join(matches))
         raise KeyError(word)
 
-    def get_word(type):
+    def get_word(type: WordRequestType) -> str:
         assert type == WordRequestType.Plain
         while True:
             try:
@@ -186,7 +186,7 @@ def mnemonic_words(expand=False, language="english"):
     return get_word
 
 
-def matrix_words(type):
+def matrix_words(type: WordRequestType) -> str:
     while True:
         try:
             ch = click.getchar()

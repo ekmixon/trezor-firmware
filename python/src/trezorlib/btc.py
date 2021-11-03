@@ -17,17 +17,15 @@
 import warnings
 from copy import copy
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Dict, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from . import exceptions, messages
-from .tools import expect, normalize_nfc, session
-
-if TYPE_CHECKING:
-    from .client import TrezorClient
+from .client import TrezorClient
+from .tools import Address, expect, normalize_nfc, session
 
 
-def from_json(json_dict):
-    def make_input(vin):
+def from_json(json_dict: dict) -> messages.TransactionType:
+    def make_input(vin: dict) -> messages.TxInputType:
         if "coinbase" in vin:
             return messages.TxInputType(
                 prev_hash=b"\0" * 32,
@@ -44,7 +42,7 @@ def from_json(json_dict):
                 sequence=vin["sequence"],
             )
 
-    def make_bin_output(vout):
+    def make_bin_output(vout: dict) -> messages.TxOutputBinType:
         return messages.TxOutputBinType(
             amount=int(Decimal(vout["value"]) * (10 ** 8)),
             script_pubkey=bytes.fromhex(vout["scriptPubKey"]["hex"]),
@@ -67,7 +65,7 @@ def get_public_node(
     coin_name=None,
     script_type=messages.InputScriptType.SPENDADDRESS,
     ignore_xpub_magic=False,
-):
+) -> messages.PublicKey:
     return client.call(
         messages.GetPublicKey(
             address_n=n,
@@ -82,14 +80,14 @@ def get_public_node(
 
 @expect(messages.Address, field="address")
 def get_address(
-    client,
-    coin_name,
-    n,
-    show_display=False,
-    multisig=None,
-    script_type=messages.InputScriptType.SPENDADDRESS,
-    ignore_xpub_magic=False,
-):
+    client: TrezorClient,
+    coin_name: str,
+    n: Address,
+    show_display: bool = False,
+    multisig: Optional[messages.MultisigRedeemScriptType] = None,
+    script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
+    ignore_xpub_magic: bool = False,
+) -> str:
     return client.call(
         messages.GetAddress(
             address_n=n,
@@ -104,12 +102,12 @@ def get_address(
 
 @expect(messages.OwnershipId, field="ownership_id")
 def get_ownership_id(
-    client,
-    coin_name,
-    n,
-    multisig=None,
-    script_type=messages.InputScriptType.SPENDADDRESS,
-):
+    client: TrezorClient,
+    coin_name: str,
+    n: Address,
+    multisig: Optional[messages.MultisigRedeemScriptType] = None,
+    script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
+) -> bytes:
     return client.call(
         messages.GetOwnershipId(
             address_n=n,
@@ -121,16 +119,16 @@ def get_ownership_id(
 
 
 def get_ownership_proof(
-    client,
-    coin_name,
-    n,
-    multisig=None,
-    script_type=messages.InputScriptType.SPENDADDRESS,
-    user_confirmation=False,
-    ownership_ids=None,
-    commitment_data=None,
-    preauthorized=False,
-):
+    client: TrezorClient,
+    coin_name: str,
+    n: Address,
+    multisig: Optional[messages.MultisigRedeemScriptType] = None,
+    script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
+    user_confirmation: bool = False,
+    ownership_ids: Optional[List[bytes]] = None,
+    commitment_data: Optional[bytes] = None,
+    preauthorized: bool = False,
+) -> Tuple[bytes, bytes]:
     if preauthorized:
         res = client.call(messages.DoPreauthorized())
         if not isinstance(res, messages.PreauthorizedRequest):
@@ -156,13 +154,13 @@ def get_ownership_proof(
 
 @expect(messages.MessageSignature)
 def sign_message(
-    client,
-    coin_name,
-    n,
-    message,
-    script_type=messages.InputScriptType.SPENDADDRESS,
-    no_script_type=False,
-):
+    client: TrezorClient,
+    coin_name: str,
+    n: Address,
+    message: bytes,
+    script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
+    no_script_type: bool = False,
+) -> messages.MessageSignature:
     message = normalize_nfc(message)
     return client.call(
         messages.SignMessage(
@@ -175,7 +173,9 @@ def sign_message(
     )
 
 
-def verify_message(client, coin_name, address, signature, message):
+def verify_message(
+    client: TrezorClient, coin_name: str, address: str, signature: bytes, message: bytes
+) -> bool:
     message = normalize_nfc(message)
     try:
         resp = client.call(
@@ -193,7 +193,7 @@ def verify_message(client, coin_name, address, signature, message):
 
 @session
 def sign_tx(
-    client: "TrezorClient",
+    client: TrezorClient,
     coin_name: str,
     inputs: Sequence[messages.TxInputType],
     outputs: Sequence[messages.TxOutputType],
@@ -333,14 +333,14 @@ def sign_tx(
 
 @expect(messages.Success, field="message")
 def authorize_coinjoin(
-    client,
-    coordinator,
-    max_total_fee,
-    n,
-    coin_name,
-    fee_per_anonymity=None,
-    script_type=messages.InputScriptType.SPENDADDRESS,
-):
+    client: TrezorClient,
+    coordinator: str,
+    max_total_fee: int,
+    n: Address,
+    coin_name: str,
+    fee_per_anonymity: Optional[int] = None,
+    script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
+) -> str:
     return client.call(
         messages.AuthorizeCoinJoin(
             coordinator=coordinator,

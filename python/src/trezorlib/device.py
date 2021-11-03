@@ -16,8 +16,10 @@
 
 import os
 import time
+from typing import Callable, Optional
 
 from . import messages
+from .client import TrezorClient
 from .exceptions import Cancelled
 from .tools import expect, session
 
@@ -27,17 +29,17 @@ RECOVERY_BACK = "\x08"  # backspace character, sent literally
 @expect(messages.Success, field="message")
 @session
 def apply_settings(
-    client,
-    label=None,
-    language=None,
-    use_passphrase=None,
-    homescreen=None,
-    passphrase_always_on_device=None,
-    auto_lock_delay_ms=None,
-    display_rotation=None,
-    safety_checks=None,
-    experimental_features=None,
-):
+    client: TrezorClient,
+    label: Optional[str] = None,
+    language: Optional[str] = None,
+    use_passphrase: Optional[bool] = None,
+    homescreen: Optional[bytes] = None,
+    passphrase_always_on_device: Optional[bool] = None,
+    auto_lock_delay_ms: Optional[int] = None,
+    display_rotation: Optional[int] = None,
+    safety_checks: Optional[messages.SafetyCheckLevel] = None,
+    experimental_features: Optional[bool] = None,
+) -> str:
     settings = messages.ApplySettings(
         label=label,
         language=language,
@@ -57,7 +59,7 @@ def apply_settings(
 
 @expect(messages.Success, field="message")
 @session
-def apply_flags(client, flags):
+def apply_flags(client: TrezorClient, flags: int) -> str:
     out = client.call(messages.ApplyFlags(flags=flags))
     client.refresh_features()
     return out
@@ -65,7 +67,7 @@ def apply_flags(client, flags):
 
 @expect(messages.Success, field="message")
 @session
-def change_pin(client, remove=False):
+def change_pin(client: TrezorClient, remove: bool = False) -> str:
     ret = client.call(messages.ChangePin(remove=remove))
     client.refresh_features()
     return ret
@@ -73,7 +75,7 @@ def change_pin(client, remove=False):
 
 @expect(messages.Success, field="message")
 @session
-def change_wipe_code(client, remove=False):
+def change_wipe_code(client: TrezorClient, remove: bool = False) -> str:
     ret = client.call(messages.ChangeWipeCode(remove=remove))
     client.refresh_features()
     return ret
@@ -81,7 +83,7 @@ def change_wipe_code(client, remove=False):
 
 @expect(messages.Success, field="message")
 @session
-def sd_protect(client, operation):
+def sd_protect(client: TrezorClient, operation: messages.SdProtectOperationType) -> str:
     ret = client.call(messages.SdProtect(operation=operation))
     client.refresh_features()
     return ret
@@ -89,7 +91,7 @@ def sd_protect(client, operation):
 
 @expect(messages.Success, field="message")
 @session
-def wipe(client):
+def wipe(client: TrezorClient) -> str:
     ret = client.call(messages.WipeDevice())
     client.init_device()
     return ret
@@ -97,16 +99,16 @@ def wipe(client):
 
 @session
 def recover(
-    client,
-    word_count=24,
-    passphrase_protection=False,
-    pin_protection=True,
-    label=None,
-    language="en-US",
-    input_callback=None,
-    type=messages.RecoveryDeviceType.ScrambledWords,
-    dry_run=False,
-    u2f_counter=None,
+    client: TrezorClient,
+    word_count: int = 24,
+    passphrase_protection: bool = False,
+    pin_protection: bool = True,
+    label: Optional[str] = None,
+    language: str = "en-US",
+    input_callback: Optional[Callable] = None,
+    type: messages.RecoveryDeviceType = messages.RecoveryDeviceType.ScrambledWords,
+    dry_run: bool = False,
+    u2f_counter: Optional[int] = None,
 ):
     if client.features.model == "1" and input_callback is None:
         raise RuntimeError("Input callback required for Trezor One")
@@ -150,18 +152,18 @@ def recover(
 @expect(messages.Success, field="message")
 @session
 def reset(
-    client,
-    display_random=False,
-    strength=None,
-    passphrase_protection=False,
-    pin_protection=True,
-    label=None,
-    language="en-US",
-    u2f_counter=0,
-    skip_backup=False,
-    no_backup=False,
-    backup_type=messages.BackupType.Bip39,
-):
+    client: TrezorClient,
+    display_random: bool = False,
+    strength: Optional[int] = None,
+    passphrase_protection: bool = False,
+    pin_protection: bool = True,
+    label: Optional[str] = None,
+    language: str = "en-US",
+    u2f_counter: int = 0,
+    skip_backup: bool = False,
+    no_backup: bool = False,
+    backup_type: messages.BackupType = messages.BackupType.Bip39,
+) -> str:
     if client.features.initialized:
         raise RuntimeError(
             "Device is initialized already. Call wipe_device() and try again."
@@ -200,18 +202,18 @@ def reset(
 
 @expect(messages.Success, field="message")
 @session
-def backup(client):
+def backup(client: TrezorClient) -> str:
     ret = client.call(messages.BackupDevice())
     client.refresh_features()
     return ret
 
 
 @expect(messages.Success, field="message")
-def cancel_authorization(client):
+def cancel_authorization(client: TrezorClient) -> str:
     return client.call(messages.CancelAuthorization())
 
 
 @session
 @expect(messages.Success, field="message")
-def reboot_to_bootloader(client):
+def reboot_to_bootloader(client: TrezorClient) -> str:
     return client.call(messages.RebootToBootloader())

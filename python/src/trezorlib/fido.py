@@ -14,32 +14,35 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
+from typing import List
+
 from . import messages
+from .client import TrezorClient
 from .tools import expect
 
 
 @expect(messages.WebAuthnCredentials, field="credentials")
-def list_credentials(client):
+def list_credentials(client: TrezorClient) -> List[messages.WebAuthnCredential]:
     return client.call(messages.WebAuthnListResidentCredentials())
 
 
 @expect(messages.Success, field="message")
-def add_credential(client, credential_id):
+def add_credential(client: TrezorClient, credential_id: bytes) -> str:
     return client.call(
         messages.WebAuthnAddResidentCredential(credential_id=credential_id)
     )
 
 
 @expect(messages.Success, field="message")
-def remove_credential(client, index):
+def remove_credential(client: TrezorClient, index: int) -> str:
     return client.call(messages.WebAuthnRemoveResidentCredential(index=index))
 
 
 @expect(messages.Success, field="message")
-def set_counter(client, u2f_counter):
+def set_counter(client: TrezorClient, u2f_counter: int) -> str:
     return client.call(messages.SetU2FCounter(u2f_counter=u2f_counter))
 
 
 @expect(messages.NextU2FCounter, field="u2f_counter")
-def get_next_counter(client):
+def get_next_counter(client: TrezorClient) -> int:
     return client.call(messages.GetNextU2FCounter())

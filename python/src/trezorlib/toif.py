@@ -68,7 +68,7 @@ class Toif:
     data: bytes = attr.ib()
 
     @data.validator
-    def check_data_size(self, _, value):
+    def check_data_size(self, _, value) -> None:
         width, height = self.size
         if self.mode is firmware.ToifMode.grayscale:
             expected_size = width * height // 2

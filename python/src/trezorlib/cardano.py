@@ -612,7 +612,7 @@ def get_address(
     network_id: int = NETWORK_IDS["mainnet"],
     show_display: bool = False,
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
-) -> messages.CardanoAddress:
+) -> str:
     return client.call(
         messages.CardanoGetAddress(
             address_parameters=address_parameters,

@@ -15,13 +15,14 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import re
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from . import exceptions, messages
-from .tools import expect, normalize_nfc, session
+from .client import TrezorClient
+from .tools import Address, expect, normalize_nfc, session
 
 
-def int_to_big_endian(value) -> bytes:
+def int_to_big_endian(value: int) -> bytes:
     return value.to_bytes((value.bit_length() + 7) // 8, "big")
 
 
@@ -136,14 +137,16 @@ def encode_data(value: Any, type_name: str) -> bytes:
 
 
 @expect(messages.EthereumAddress, field="address")
-def get_address(client, n, show_display=False, multisig=None):
+def get_address(client: TrezorClient, n: Address, show_display: bool = False) -> str:
     return client.call(
         messages.EthereumGetAddress(address_n=n, show_display=show_display)
     )
 
 
 @expect(messages.EthereumPublicKey)
-def get_public_node(client, n, show_display=False):
+def get_public_node(
+    client: TrezorClient, n: Address, show_display: bool = False
+) -> messages.EthereumPublicKey:
     return client.call(
         messages.EthereumGetPublicKey(address_n=n, show_display=show_display)
     )
@@ -151,17 +154,17 @@ def get_public_node(client, n, show_display=False):
 
 @session
 def sign_tx(
-    client,
-    n,
-    nonce,
-    gas_price,
-    gas_limit,
-    to,
-    value,
-    data=None,
-    chain_id=None,
-    tx_type=None,
-):
+    client: TrezorClient,
+    n: Address,
+    nonce: int,
+    gas_price: int,
+    gas_limit: int,
+    to: str,
+    value: int,
+    data: Optional[bytes] = None,
+    chain_id: Optional[int] = None,
+    tx_type: Optional[int] = None,
+) -> Tuple[int, bytes, bytes]:
     msg = messages.EthereumSignTx(
         address_n=n,
         nonce=int_to_big_endian(nonce),
@@ -195,19 +198,19 @@ def sign_tx(
 
 @session
 def sign_tx_eip1559(
-    client,
-    n,
+    client: TrezorClient,
+    n: Address,
     *,
-    nonce,
-    gas_limit,
-    to,
-    value,
-    data=b"",
-    chain_id,
-    max_gas_fee,
-    max_priority_fee,
-    access_list=(),
-):
+    nonce: int,
+    gas_limit: int,
+    to: str,
+    value: int,
+    data: bytes = b"",
+    chain_id: int,
+    max_gas_fee: int,
+    max_priority_fee: int,
+    access_list: List[messages.EthereumAccessList] = (),
+) -> Tuple[int, bytes, bytes]:
     length = len(data)
     data, chunk = data[1024:], data[:1024]
     msg = messages.EthereumSignTxEIP1559(
@@ -235,15 +238,21 @@ def sign_tx_eip1559(
 
 
 @expect(messages.EthereumMessageSignature)
-def sign_message(client, n, message):
+def sign_message(
+    client: TrezorClient, n: Address, message: bytes
+) -> messages.EthereumMessageSignature:
     message = normalize_nfc(message)
     return client.call(messages.EthereumSignMessage(address_n=n, message=message))
 
 
 @expect(messages.EthereumTypedDataSignature)
 def sign_typed_data(
-    client, n: List[int], data: Dict[str, Any], *, metamask_v4_compat: bool = True
-):
+    client: TrezorClient,
+    n: Address,
+    data: Dict[str, Any],
+    *,
+    metamask_v4_compat: bool = True,
+) -> messages.EthereumTypedDataSignature:
     data = sanitize_typed_data(data)
     types = data["types"]
 
@@ -309,7 +318,9 @@ def sign_typed_data(
     return response
 
 
-def verify_message(client, address, signature, message):
+def verify_message(
+    client: TrezorClient, address: str, signature: bytes, message: bytes
+) -> bool:
     message = normalize_nfc(message)
     try:
         resp = client.call(

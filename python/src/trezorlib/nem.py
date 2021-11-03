@@ -17,7 +17,8 @@
 import json
 
 from . import exceptions, messages
-from .tools import expect
+from .client import TrezorClient
+from .tools import Address, expect
 
 TYPE_TRANSACTION_TRANSFER = 0x0101
 TYPE_IMPORTANCE_TRANSFER = 0x0801
@@ -29,7 +30,7 @@ TYPE_MOSAIC_CREATION = 0x4001
 TYPE_MOSAIC_SUPPLY_CHANGE = 0x4002
 
 
-def create_transaction_common(transaction):
+def create_transaction_common(transaction: dict) -> messages.NEMTransactionCommon:
     msg = messages.NEMTransactionCommon()
     msg.network = (transaction["version"] >> 24) & 0xFF
     msg.timestamp = transaction["timeStamp"]
@@ -42,7 +43,7 @@ def create_transaction_common(transaction):
     return msg
 
 
-def create_transfer(transaction):
+def create_transfer(transaction: dict) -> messages.NEMTransfer:
     msg = messages.NEMTransfer()
     msg.recipient = transaction["recipient"]
     msg.amount = transaction["amount"]
@@ -66,23 +67,25 @@ def create_transfer(transaction):
     return msg
 
 
-def create_aggregate_modification(transactions):
+def create_aggregate_modification(
+    transaction: dict,
+) -> messages.NEMAggregateModification:
     msg = messages.NEMAggregateModification()
     msg.modifications = [
         messages.NEMCosignatoryModification(
             type=modification["modificationType"],
             public_key=bytes.fromhex(modification["cosignatoryAccount"]),
         )
-        for modification in transactions["modifications"]
+        for modification in transaction["modifications"]
     ]
 
-    if "minCosignatories" in transactions:
-        msg.relative_change = transactions["minCosignatories"]["relativeChange"]
+    if "minCosignatories" in transaction:
+        msg.relative_change = transaction["minCosignatories"]["relativeChange"]
 
     return msg
 
 
-def create_provision_namespace(transaction):
+def create_provision_namespace(transaction: dict) -> messages.NEMProvisionNamespace:
     msg = messages.NEMProvisionNamespace()
     msg.namespace = transaction["newPart"]
 
@@ -94,7 +97,7 @@ def create_provision_namespace(transaction):
     return msg
 
 
-def create_mosaic_creation(transaction):
+def create_mosaic_creation(transaction: dict) -> messages.NEMMosaicCreation:
     definition = transaction["mosaicDefinition"]
     msg = messages.NEMMosaicCreation()
     msg.definition = messages.NEMMosaicDefinition()
@@ -128,7 +131,7 @@ def create_mosaic_creation(transaction):
     return msg
 
 
-def create_supply_change(transaction):
+def create_supply_change(transaction: dict) -> messages.NEMMosaicSupplyChange:
     msg = messages.NEMMosaicSupplyChange()
     msg.namespace = transaction["mosaicId"]["namespaceId"]
     msg.mosaic = transaction["mosaicId"]["name"]
@@ -137,14 +140,14 @@ def create_supply_change(transaction):
     return msg
 
 
-def create_importance_transfer(transaction):
+def create_importance_transfer(transaction: dict) -> messages.NEMImportanceTransfer:
     msg = messages.NEMImportanceTransfer()
     msg.mode = transaction["importanceTransfer"]["mode"]
     msg.public_key = bytes.fromhex(transaction["importanceTransfer"]["publicKey"])
     return msg
 
 
-def fill_transaction_by_type(msg, transaction):
+def fill_transaction_by_type(msg: messages.NEMSignTx, transaction: dict) -> None:
     if transaction["type"] == TYPE_TRANSACTION_TRANSFER:
         msg.transfer = create_transfer(transaction)
     elif transaction["type"] == TYPE_AGGREGATE_MODIFICATION:
@@ -161,7 +164,7 @@ def fill_transaction_by_type(msg, transaction):
         raise ValueError("Unknown transaction type")
 
 
-def create_sign_tx(transaction):
+def create_sign_tx(transaction: dict) -> messages.NEMSignTx:
     msg = messages.NEMSignTx()
     msg.transaction = create_transaction_common(transaction)
     msg.cosigning = transaction["type"] == TYPE_MULTISIG_SIGNATURE
@@ -182,14 +185,16 @@ def create_sign_tx(transaction):
 
 
 @expect(messages.NEMAddress, field="address")
-def get_address(client, n, network, show_display=False):
+def get_address(
+    client: TrezorClient, n: Address, network: int, show_display: bool = False
+) -> str:
     return client.call(
         messages.NEMGetAddress(address_n=n, network=network, show_display=show_display)
     )
 
 
 @expect(messages.NEMSignedTx)
-def sign_tx(client, n, transaction):
+def sign_tx(client: TrezorClient, n: Address, transaction: dict):
     try:
         msg = create_sign_tx(transaction)
     except ValueError as e:

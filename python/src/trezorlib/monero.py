@@ -15,7 +15,8 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 from . import messages as proto
-from .tools import expect
+from .client import TrezorClient
+from .tools import Address, expect
 
 # MAINNET = 0
 # TESTNET = 1
@@ -24,7 +25,9 @@ from .tools import expect
 
 
 @expect(proto.MoneroAddress, field="address")
-def get_address(client, n, show_display=False, network_type=0):
+def get_address(
+    client: TrezorClient, n: Address, show_display: bool = False, network_type: int = 0
+) -> bytes:
     return client.call(
         proto.MoneroGetAddress(
             address_n=n, show_display=show_display, network_type=network_type
@@ -33,5 +36,7 @@ def get_address(client, n, show_display=False, network_type=0):
 
 
 @expect(proto.MoneroWatchKey)
-def get_watch_key(client, n, network_type=0):
+def get_watch_key(
+    client: TrezorClient, n: Address, network_type: int = 0
+) -> proto.MoneroWatchKey:
     return client.call(proto.MoneroGetWatchKey(address_n=n, network_type=network_type))
