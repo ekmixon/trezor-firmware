@@ -28,7 +28,7 @@ def cli():
 @click.argument("message_name_or_type")
 @click.argument("hex_data")
 @click.pass_obj
-def send_bytes(obj, message_name_or_type, hex_data):
+def send_bytes(obj, message_name_or_type: str, hex_data: str) -> None:
     """Send raw bytes to Trezor.
 
     Message type and message data must be specified separately, due to how message

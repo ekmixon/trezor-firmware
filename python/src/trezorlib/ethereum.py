@@ -319,7 +319,7 @@ def sign_typed_data(
 
 
 def verify_message(
-    client: TrezorClient, address: str, signature: bytes, message: bytes
+    client: TrezorClient, address: str, signature: bytes, message: Union[bytes, str]
 ) -> bool:
     message = normalize_nfc(message)
     try:

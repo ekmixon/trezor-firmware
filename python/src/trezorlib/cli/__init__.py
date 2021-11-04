@@ -17,21 +17,22 @@
 import functools
 import sys
 from contextlib import contextmanager
+from typing import Callable
 
 import click
 
 from .. import exceptions
 from ..client import TrezorClient
-from ..transport import get_transport
+from ..transport import Transport, get_transport
 from ..ui import ClickUI
 
 
 class ChoiceType(click.Choice):
-    def __init__(self, typemap):
+    def __init__(self, typemap: dict) -> None:
         super().__init__(typemap.keys())
         self.typemap = typemap
 
-    def convert(self, value, param, ctx):
+    def convert(self, value: str, param, ctx):
         if value in self.typemap.values():
             return value
         value = super().convert(value, param, ctx)
@@ -39,12 +40,12 @@ class ChoiceType(click.Choice):
 
 
 class TrezorConnection:
-    def __init__(self, path, session_id, passphrase_on_host):
+    def __init__(self, path: str, session_id: bytes, passphrase_on_host: bool) -> None:
         self.path = path
         self.session_id = session_id
         self.passphrase_on_host = passphrase_on_host
 
-    def get_transport(self):
+    def get_transport(self) -> Transport:
         try:
             # look for transport without prefix search
             return get_transport(self.path, prefix_search=False)
@@ -56,10 +57,10 @@ class TrezorConnection:
         # if this fails, we want the exception to bubble up to the caller
         return get_transport(self.path, prefix_search=True)
 
-    def get_ui(self):
+    def get_ui(self) -> ClickUI:
         return ClickUI(passphrase_on_host=self.passphrase_on_host)
 
-    def get_client(self):
+    def get_client(self) -> TrezorClient:
         transport = self.get_transport()
         ui = self.get_ui()
         return TrezorClient(transport, ui=ui, session_id=self.session_id)
@@ -93,7 +94,7 @@ class TrezorConnection:
             # other exceptions may cause a traceback
 
 
-def with_client(func):
+def with_client(func: Callable):
     """Wrap a Click command in `with obj.client_context() as client`.
 
     Sessions are handled transparently. The user is warned when session did not resume

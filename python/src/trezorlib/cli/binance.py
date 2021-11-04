@@ -15,10 +15,12 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import json
+from typing import TextIO
 
 import click
 
 from .. import binance, tools
+from ..client import TrezorClient
 from . import with_client
 
 PATH_HELP = "BIP-32 path to key, e.g. m/44'/714'/0'/0/0"
@@ -33,7 +35,7 @@ def cli():
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_address(client, address, show_display):
+def get_address(client: TrezorClient, address: str, show_display: bool) -> str:
     """Get Binance address for specified path."""
     address_n = tools.parse_path(address)
     return binance.get_address(client, address_n, show_display)
@@ -43,7 +45,7 @@ def get_address(client, address, show_display):
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_public_key(client, address, show_display):
+def get_public_key(client: TrezorClient, address: str, show_display: bool) -> bytes:
     """Get Binance public key."""
     address_n = tools.parse_path(address)
     return binance.get_public_key(client, address_n, show_display).hex()
@@ -54,7 +56,7 @@ def get_public_key(client, address, show_display):
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-f", "--file", "_ignore", is_flag=True, hidden=True, expose_value=False)
 @with_client
-def sign_tx(client, address, file):
+def sign_tx(client: TrezorClient, address: str, file: TextIO):
     """Sign Binance transaction.
 
     Transaction must be provided as a JSON file.

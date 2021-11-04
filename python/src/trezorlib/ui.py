@@ -75,7 +75,9 @@ def prompt(*args, **kwargs):
 
 
 class ClickUI:
-    def __init__(self, always_prompt: bool = False, passphrase_on_host: bool = False) -> None:
+    def __init__(
+        self, always_prompt: bool = False, passphrase_on_host: bool = False
+    ) -> None:
         self.pinmatrix_shown = False
         self.prompt_shown = False
         self.always_prompt = always_prompt
@@ -155,7 +157,9 @@ class ClickUI:
                 raise Cancelled from None
 
 
-def mnemonic_words(expand: bool = False, language: str = "english") -> Callable[[WordRequestType], str]:
+def mnemonic_words(
+    expand: bool = False, language: str = "english"
+) -> Callable[[WordRequestType], str]:
     if expand:
         wordlist = Mnemonic(language).wordlist
     else:

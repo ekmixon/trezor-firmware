@@ -15,10 +15,12 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import json
+from typing import TextIO
 
 import click
 
-from .. import eos, tools
+from .. import eos, messages, tools
+from ..client import TrezorClient
 from . import with_client
 
 PATH_HELP = "BIP-32 path, e.g. m/44'/194'/0'/0/0"
@@ -33,7 +35,7 @@ def cli():
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_public_key(client, address, show_display):
+def get_public_key(client: TrezorClient, address: str, show_display: bool) -> str:
     """Get Eos public key in base58 encoding."""
     address_n = tools.parse_path(address)
     res = eos.get_public_key(client, address_n, show_display)
@@ -45,7 +47,9 @@ def get_public_key(client, address, show_display):
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-f", "--file", "_ignore", is_flag=True, hidden=True, expose_value=False)
 @with_client
-def sign_transaction(client, address, file):
+def sign_transaction(
+    client: TrezorClient, address: str, file: TextIO
+) -> messages.EosSignedTx:
     """Sign EOS transaction."""
     tx_json = json.load(file)
 

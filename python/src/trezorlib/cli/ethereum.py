@@ -18,11 +18,12 @@ import json
 import re
 import sys
 from decimal import Decimal
-from typing import List
+from typing import List, Optional, TextIO, Union
 
 import click
 
 from .. import ethereum, tools
+from ..client import TrezorClient
 from . import with_client
 
 try:
@@ -61,7 +62,7 @@ ETHER_UNITS = {
 # fmt: on
 
 
-def _amount_to_int(ctx, param, value):
+def _amount_to_int(ctx, param, value: Optional[str]) -> Optional[int]:
     if value is None:
         return None
     if value.isdigit():
@@ -76,7 +77,9 @@ def _amount_to_int(ctx, param, value):
         raise click.BadParameter("Amount not understood")
 
 
-def _parse_access_list(ctx, param, value):
+def _parse_access_list(
+    ctx, param, value: str
+) -> List[ethereum.messages.EthereumAccessList]:
     try:
         return [_parse_access_list_item(val) for val in value]
 
@@ -84,7 +87,7 @@ def _parse_access_list(ctx, param, value):
         raise click.BadParameter("Access List format invalid")
 
 
-def _parse_access_list_item(value):
+def _parse_access_list_item(value: str) -> ethereum.messages.EthereumAccessList:
     try:
         arr = value.split(":")
         address, storage_keys = arr[0], arr[1:]
@@ -95,7 +98,7 @@ def _parse_access_list_item(value):
         raise click.BadParameter("Access List format invalid")
 
 
-def _list_units(ctx, param, value):
+def _list_units(ctx, param, value: bool) -> None:
     if not value or ctx.resilient_parsing:
         return
     maxlen = max(len(k) for k in ETHER_UNITS.keys()) + 1
@@ -104,7 +107,9 @@ def _list_units(ctx, param, value):
     ctx.exit()
 
 
-def _erc20_contract(w3, token_address, to_address, amount):
+def _erc20_contract(
+    w3: web3.Web3, token_address: str, to_address: str, amount: int
+) -> str:
     min_abi = [
         {
             "name": "transfer",
@@ -121,12 +126,12 @@ def _erc20_contract(w3, token_address, to_address, amount):
     return contract.encodeABI("transfer", [to_address, amount])
 
 
-def _format_access_list(access_list: List[ethereum.messages.EthereumAccessList]):
-    mapped = map(
-        lambda item: [ethereum.decode_hex(item.address), item.storage_keys],
-        access_list,
-    )
-    return list(mapped)
+def _format_access_list(
+    access_list: List[ethereum.messages.EthereumAccessList],
+) -> List[List[Union[bytes, List[bytes]]]]:
+    return [
+        [ethereum.decode_hex(item.address), item.storage_keys] for item in access_list
+    ]
 
 
 #####################
@@ -143,7 +148,7 @@ def cli():
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_address(client, address, show_display):
+def get_address(client: TrezorClient, address, show_display) -> str:
     """Get Ethereum address in hex encoding."""
     address_n = tools.parse_path(address)
     return ethereum.get_address(client, address_n, show_display)
@@ -153,7 +158,7 @@ def get_address(client, address, show_display):
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_public_node(client, address, show_display):
+def get_public_node(client: TrezorClient, address, show_display):
     """Get Ethereum public node of given path."""
     address_n = tools.parse_path(address)
     result = ethereum.get_public_node(client, address_n, show_display=show_display)
@@ -216,23 +221,23 @@ def get_public_node(client, address, show_display):
 @click.argument("amount", callback=_amount_to_int)
 @with_client
 def sign_tx(
-    client,
-    chain_id,
-    address,
-    amount,
-    gas_limit,
-    gas_price,
-    nonce,
-    data,
-    publish,
-    to_address,
-    tx_type,
-    token,
-    max_gas_fee,
-    max_priority_fee,
-    access_list,
-    eip2718_type,
-):
+    client: TrezorClient,
+    chain_id: int,
+    address: str,
+    amount: int,
+    gas_limit: int,
+    gas_price: int,
+    nonce: int,
+    data: str,
+    publish: bool,
+    to_address: str,
+    tx_type: int,
+    token: str,
+    max_gas_fee: int,
+    max_priority_fee: int,
+    access_list: List[ethereum.messages.EthereumAccessList],
+    eip2718_type: int,
+) -> str:
     """Sign (and optionally publish) Ethereum transaction.
 
     Use TO_ADDRESS as destination address, or set to "" for contract creation.
@@ -371,7 +376,7 @@ def sign_tx(
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.argument("message")
 @with_client
-def sign_message(client, address, message):
+def sign_message(client: TrezorClient, address: str, message: str) -> dict:
     """Sign message with Ethereum address."""
     address_n = tools.parse_path(address)
     ret = ethereum.sign_message(client, address_n, message)
@@ -392,7 +397,9 @@ def sign_message(client, address, message):
 )
 @click.argument("file", type=click.File("r"))
 @with_client
-def sign_typed_data(client, address, metamask_v4_compat, file):
+def sign_typed_data(
+    client: TrezorClient, address: str, metamask_v4_compat: bool, file: TextIO
+):
     """Sign typed data (EIP-712) with Ethereum address.
 
     Currently NOT supported:
@@ -416,7 +423,9 @@ def sign_typed_data(client, address, metamask_v4_compat, file):
 @click.argument("signature")
 @click.argument("message")
 @with_client
-def verify_message(client, address, signature, message):
+def verify_message(
+    client: TrezorClient, address: str, signature: str, message: str
+) -> bool:
     """Verify message signed with Ethereum address."""
     signature = ethereum.decode_hex(signature)
     return ethereum.verify_message(client, address, signature, message)

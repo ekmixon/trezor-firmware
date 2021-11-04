@@ -20,6 +20,7 @@ import sys
 import click
 
 from .. import stellar, tools
+from ..client import TrezorClient
 from . import with_client
 
 try:
@@ -48,7 +49,7 @@ def cli():
 )
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_address(client, address, show_display):
+def get_address(client: TrezorClient, address: str, show_display: bool) -> str:
     """Get Stellar public address."""
     address_n = tools.parse_path(address)
     return stellar.get_address(client, address_n, show_display)
@@ -71,7 +72,9 @@ def get_address(client, address, show_display):
 )
 @click.argument("b64envelope")
 @with_client
-def sign_transaction(client, b64envelope, address, network_passphrase):
+def sign_transaction(
+    client: TrezorClient, b64envelope: str, address: str, network_passphrase: str
+) -> bytes:
     """Sign a base64-encoded transaction envelope.
 
     For testnet transactions, use the following network passphrase:

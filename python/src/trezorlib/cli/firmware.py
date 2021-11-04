@@ -20,6 +20,7 @@ from typing import BinaryIO
 from urllib.parse import urlparse
 
 import click
+import construct as c
 import requests
 
 from .. import exceptions, firmware
@@ -56,8 +57,8 @@ def _get_file_name_from_url(url: str) -> str:
 
 
 def print_firmware_version(
-    version: str,
-    fw: firmware.ParsedFirmware,
+    version: firmware.FirmwareFormat,
+    fw: c.Container,
 ) -> None:
     """Print out the firmware version and details."""
     if version == firmware.FirmwareFormat.TREZOR_ONE:
@@ -78,8 +79,8 @@ def print_firmware_version(
 
 
 def validate_signatures(
-    version: str,
-    fw: firmware.ParsedFirmware,
+    version: firmware.FirmwareFormat,
+    fw: c.Container,
 ) -> None:
     """Check the signatures on the firmware.
 
@@ -107,7 +108,7 @@ def validate_signatures(
 
 
 def validate_fingerprint(
-    version: str, fw: firmware.ParsedFirmware, expected_fingerprint: str = None
+    version: firmware.FirmwareFormat, fw: c.Container, expected_fingerprint: str = None
 ) -> None:
     """Determine and validate the firmware fingerprint.
 
@@ -128,8 +129,8 @@ def validate_fingerprint(
 
 
 def check_device_match(
-    version: str,
-    fw: firmware.ParsedFirmware,
+    version: firmware.FirmwareFormat,
+    fw: c.Container,
     bootloader_onev2: bool,
     trezor_major_version: int,
 ) -> None:

@@ -45,7 +45,7 @@ Or visit https://suite.trezor.io/
 """.strip()
 
 
-def get_default_client(path=None, ui=None, **kwargs) -> TrezorClient:
+def get_default_client(path=None, ui=None, **kwargs) -> "TrezorClient":
     """Get a client for a connected Trezor device.
 
     Returns a TrezorClient instance with minimum fuss.

@@ -19,7 +19,8 @@ import sys
 import click
 
 from .. import debuglink, device, exceptions, messages, ui
-from . import ChoiceType, with_client
+from ..client import TrezorClient
+from . import ChoiceType, TrezorConnection, with_client
 
 RECOVERY_TYPE = {
     "scrambled": messages.RecoveryDeviceType.ScrambledWords,
@@ -46,7 +47,7 @@ def cli():
 
 @cli.command()
 @with_client
-def self_test(client):
+def self_test(client: TrezorClient) -> str:
     """Perform a self-test."""
     return debuglink.self_test(client)
 
@@ -59,7 +60,7 @@ def self_test(client):
     is_flag=True,
 )
 @with_client
-def wipe(client, bootloader):
+def wipe(client: TrezorClient, bootloader: bool) -> str:
     """Reset device to factory defaults and remove all private data."""
     if bootloader:
         if not client.features.bootloader_mode:
@@ -98,15 +99,15 @@ def wipe(client, bootloader):
 @click.option("-n", "--no-backup", is_flag=True)
 @with_client
 def load(
-    client,
-    mnemonic,
-    pin,
-    passphrase_protection,
-    label,
-    ignore_checksum,
-    slip0014,
-    needs_backup,
-    no_backup,
+    client: TrezorClient,
+    mnemonic: list,
+    pin: str,
+    passphrase_protection: bool,
+    label: str,
+    ignore_checksum: bool,
+    slip0014: bool,
+    needs_backup: bool,
+    no_backup: bool,
 ):
     """Upload seed and custom configuration to the device.
 
@@ -146,15 +147,15 @@ def load(
 @click.option("-d", "--dry-run", is_flag=True)
 @with_client
 def recover(
-    client,
-    words,
-    expand,
-    pin_protection,
-    passphrase_protection,
-    label,
-    u2f_counter,
-    rec_type,
-    dry_run,
+    client: TrezorClient,
+    words: str,
+    expand: bool,
+    pin_protection: bool,
+    passphrase_protection: bool,
+    label: str,
+    u2f_counter: int,
+    rec_type: messages.RecoveryDeviceType,
+    dry_run: bool,
 ):
     """Start safe recovery workflow."""
     if rec_type == messages.RecoveryDeviceType.ScrambledWords:
@@ -189,16 +190,16 @@ def recover(
 @click.option("-b", "--backup-type", type=ChoiceType(BACKUP_TYPE), default="single")
 @with_client
 def setup(
-    client,
-    show_entropy,
-    strength,
-    passphrase_protection,
-    pin_protection,
-    label,
-    u2f_counter,
-    skip_backup,
-    no_backup,
-    backup_type,
+    client: TrezorClient,
+    show_entropy: bool,
+    strength: int,
+    passphrase_protection: bool,
+    pin_protection: bool,
+    label: str,
+    u2f_counter: int,
+    skip_backup: bool,
+    no_backup: bool,
+    backup_type: messages.BackupType,
 ):
     """Perform device setup and generate new seed."""
     if strength:
@@ -233,7 +234,7 @@ def setup(
 
 @cli.command()
 @with_client
-def backup(client):
+def backup(client: TrezorClient) -> str:
     """Perform device seed backup."""
     return device.backup(client)
 
@@ -241,7 +242,7 @@ def backup(client):
 @cli.command()
 @click.argument("operation", type=ChoiceType(SD_PROTECT_OPERATIONS))
 @with_client
-def sd_protect(client, operation):
+def sd_protect(client: TrezorClient, operation: messages.SdProtectOperationType) -> str:
     """Secure the device with SD card protection.
 
     When SD card protection is enabled, a randomly generated secret is stored
@@ -262,7 +263,7 @@ def sd_protect(client, operation):
 
 @cli.command()
 @click.pass_obj
-def reboot_to_bootloader(obj):
+def reboot_to_bootloader(obj: TrezorConnection) -> str:
     """Reboot device into bootloader mode.
 
     Currently only supported on Trezor Model One.

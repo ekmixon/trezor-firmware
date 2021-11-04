@@ -15,10 +15,12 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import json
+from typing import TextIO
 
 import click
 
 from .. import cardano, messages, tools
+from ..client import TrezorClient
 from . import ChoiceType, with_client
 
 PATH_HELP = "BIP-32 path to key, e.g. m/44'/1815'/0'/0/0"
@@ -51,8 +53,14 @@ def cli():
 )
 @with_client
 def sign_tx(
-    client, file, signing_mode, protocol_magic, network_id, testnet, derivation_type
-):
+    client: TrezorClient,
+    file: TextIO,
+    signing_mode: messages.CardanoTxSigningMode,
+    protocol_magic: int,
+    network_id: int,
+    testnet: bool,
+    derivation_type: messages.CardanoDerivationType,
+) -> cardano.SignTxResponse:
     """Sign Cardano transaction."""
     transaction = json.load(file)
 
@@ -152,22 +160,22 @@ def sign_tx(
 )
 @with_client
 def get_address(
-    client,
-    address,
-    address_type,
-    staking_address,
-    staking_key_hash,
-    block_index,
-    tx_index,
-    certificate_index,
-    script_payment_hash,
-    script_staking_hash,
-    protocol_magic,
-    network_id,
-    show_display,
-    testnet,
-    derivation_type,
-):
+    client: TrezorClient,
+    address: str,
+    address_type: messages.CardanoAddressType,
+    staking_address: str,
+    staking_key_hash: str,
+    block_index: int,
+    tx_index: int,
+    certificate_index: int,
+    script_payment_hash: str,
+    script_staking_hash: str,
+    protocol_magic: int,
+    network_id: int,
+    show_display: bool,
+    testnet: bool,
+    derivation_type: messages.CardanoDerivationType,
+) -> str:
     """
     Get Cardano address.
 
@@ -222,7 +230,11 @@ def get_address(
     default=messages.CardanoDerivationType.ICARUS,
 )
 @with_client
-def get_public_key(client, address, derivation_type):
+def get_public_key(
+    client: TrezorClient,
+    address: str,
+    derivation_type: messages.CardanoDerivationType,
+) -> messages.CardanoPublicKey:
     """Get Cardano public key."""
     address_n = tools.parse_path(address)
     client.init_device(derive_cardano=True)
@@ -244,7 +256,12 @@ def get_public_key(client, address, derivation_type):
     default=messages.CardanoDerivationType.ICARUS,
 )
 @with_client
-def get_native_script_hash(client, file, display_format, derivation_type):
+def get_native_script_hash(
+    client: TrezorClient,
+    file: TextIO,
+    display_format: messages.CardanoNativeScriptHashDisplayFormat,
+    derivation_type: messages.CardanoDerivationType,
+) -> messages.CardanoNativeScriptHash:
     """Get Cardano native script hash."""
     native_script_json = json.load(file)
     native_script = cardano.parse_native_script(native_script_json)

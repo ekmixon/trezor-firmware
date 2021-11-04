@@ -16,7 +16,8 @@
 
 import click
 
-from .. import cosi, tools
+from .. import cosi, messages, tools
+from ..client import TrezorClient
 from . import with_client
 
 PATH_HELP = "BIP-32 path, e.g. m/44'/0'/0'/0/0"
@@ -31,7 +32,7 @@ def cli():
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.argument("data")
 @with_client
-def commit(client, address, data):
+def commit(client: TrezorClient, address: str, data: str) -> messages.CosiCommitment:
     """Ask device to commit to CoSi signing."""
     address_n = tools.parse_path(address)
     return cosi.commit(client, address_n, bytes.fromhex(data))
@@ -43,7 +44,13 @@ def commit(client, address, data):
 @click.argument("global_commitment")
 @click.argument("global_pubkey")
 @with_client
-def sign(client, address, data, global_commitment, global_pubkey):
+def sign(
+    client: TrezorClient,
+    address: str,
+    data: str,
+    global_commitment: str,
+    global_pubkey: str,
+) -> messages.CosiSignature:
     """Ask device to sign using CoSi."""
     address_n = tools.parse_path(address)
     return cosi.sign(

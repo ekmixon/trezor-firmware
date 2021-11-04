@@ -37,7 +37,7 @@ LayoutLines = namedtuple("LayoutLines", "lines text")
 LOG = logging.getLogger(__name__)
 
 
-def layout_lines(lines) -> LayoutLines:
+def layout_lines(lines: List[str]) -> LayoutLines:
     return LayoutLines(lines, " ".join(lines))
 
 
@@ -52,7 +52,9 @@ class DebugLink:
     def close(self) -> None:
         self.transport.end_session()
 
-    def _call(self, msg, nowait: bool = False):
+    def _call(
+        self, msg: protobuf.MessageType, nowait: bool = False
+    ) -> protobuf.MessageType:
         LOG.debug(
             f"sending message: {msg.__class__.__name__}",
             extra={"protobuf": msg},
@@ -172,7 +174,7 @@ class DebugLink:
     def stop(self) -> None:
         self._call(messages.DebugLinkStop(), nowait=True)
 
-    def reseed(self, value: int):
+    def reseed(self, value: int) -> protobuf.MessageType:
         return self._call(messages.DebugLinkReseedRandom(value=value))
 
     def start_recording(self, directory: str) -> None:
@@ -209,7 +211,9 @@ class NullDebugLink(DebugLink):
     def close(self) -> None:
         pass
 
-    def _call(self, msg, nowait: bool = False) -> Optional[messages.DebugLinkState]:
+    def _call(
+        self, msg: protobuf.MessageType, nowait: bool = False
+    ) -> Optional[messages.DebugLinkState]:
         if not nowait:
             if isinstance(msg, messages.DebugLinkGetState):
                 return messages.DebugLinkState()
@@ -229,7 +233,7 @@ class DebugUI:
         self.passphrase = ""
         self.input_flow = None
 
-    def button_request(self, br) -> None:
+    def button_request(self, br: messages.ButtonRequest) -> None:
         if self.input_flow is None:
             if br.code == messages.ButtonRequestType.PinEntry:
                 self.debuglink.input(self.get_pin())
@@ -260,7 +264,7 @@ class DebugUI:
 
 
 class MessageFilter:
-    def __init__(self, message_type, **fields) -> None:
+    def __init__(self, message_type: protobuf.MessageType, **fields) -> None:
         self.message_type = message_type
         self.fields = {}
         self.update_fields(**fields)
@@ -287,7 +291,7 @@ class MessageFilter:
         raise TypeError("Invalid kind of expected response")
 
     @classmethod
-    def from_message(cls, message):
+    def from_message(cls, message: protobuf.MessageType):
         fields = {}
         for field in message.FIELDS.values():
             value = getattr(message, field.name)
@@ -296,7 +300,7 @@ class MessageFilter:
             fields[field.name] = value
         return cls(type(message), **fields)
 
-    def match(self, message) -> bool:
+    def match(self, message: protobuf.MessageType) -> bool:
         if type(message) != self.message_type:
             return False
 
@@ -341,7 +345,7 @@ class MessageFilter:
 
 
 class MessageFilterGenerator:
-    def __getattr__(self, key: str):
+    def __getattr__(self, key: str) -> MessageFilter:
         message_type = getattr(messages, key)
         return MessageFilter(message_type).update_fields
 

@@ -15,12 +15,12 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import io
-from typing import Tuple
+from typing import Dict, Tuple
 
 from . import messages, protobuf
 
-map_type_to_class = {}
-map_class_to_type = {}
+map_type_to_class: Dict[int, protobuf.MessageType] = {}
+map_class_to_type: Dict[protobuf.MessageType, int] = {}
 
 
 def build_map() -> None:
@@ -39,7 +39,7 @@ def build_map() -> None:
         register_message(msg_class)
 
 
-def register_message(msg_class) -> None:
+def register_message(msg_class: protobuf.MessageType) -> None:
     if msg_class.MESSAGE_WIRE_TYPE in map_type_to_class:
         raise Exception(
             f"Message for wire type {msg_class.MESSAGE_WIRE_TYPE} is already registered by {get_class(msg_class.MESSAGE_WIRE_TYPE)}"
@@ -49,11 +49,11 @@ def register_message(msg_class) -> None:
     map_type_to_class[msg_class.MESSAGE_WIRE_TYPE] = msg_class
 
 
-def get_type(msg):
+def get_type(msg: protobuf.MessageType) -> int:
     return map_class_to_type[msg.__class__]
 
 
-def get_class(t):
+def get_class(t: int) -> protobuf.MessageType:
     return map_type_to_class[t]
 
 

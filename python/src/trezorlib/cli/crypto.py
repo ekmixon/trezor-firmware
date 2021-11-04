@@ -17,6 +17,7 @@
 import click
 
 from .. import misc, tools
+from ..client import TrezorClient
 from . import with_client
 
 
@@ -28,7 +29,7 @@ def cli():
 @cli.command()
 @click.argument("size", type=int)
 @with_client
-def get_entropy(client, size):
+def get_entropy(client: TrezorClient, size: int) -> str:
     """Get random bytes from device."""
     return misc.get_entropy(client, size).hex()
 
@@ -38,7 +39,7 @@ def get_entropy(client, size):
 @click.argument("key")
 @click.argument("value")
 @with_client
-def encrypt_keyvalue(client, address, key, value):
+def encrypt_keyvalue(client: TrezorClient, address: str, key: str, value: str) -> str:
     """Encrypt value by given key and path."""
     address_n = tools.parse_path(address)
     return misc.encrypt_keyvalue(client, address_n, key, value.encode()).hex()
@@ -49,7 +50,7 @@ def encrypt_keyvalue(client, address, key, value):
 @click.argument("key")
 @click.argument("value")
 @with_client
-def decrypt_keyvalue(client, address, key, value):
+def decrypt_keyvalue(client: TrezorClient, address: str, key: str, value: str) -> bytes:
     """Decrypt value by given key and path."""
     address_n = tools.parse_path(address)
     return misc.decrypt_keyvalue(client, address_n, key, bytes.fromhex(value))

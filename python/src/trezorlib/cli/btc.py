@@ -16,11 +16,13 @@
 
 import base64
 import json
+from typing import List, TextIO, Tuple
 
 import click
 import construct as c
 
 from .. import btc, messages, protobuf, tools
+from ..client import TrezorClient
 from . import ChoiceType, with_client
 
 INPUT_SCRIPTS = {
@@ -57,7 +59,7 @@ XpubStruct = c.Struct(
 )
 
 
-def xpub_deserialize(xpubstr):
+def xpub_deserialize(xpubstr: str) -> Tuple[str, messages.HDNodeType]:
     xpub_bytes = tools.b58check_decode(xpubstr)
     data = XpubStruct.parse(xpub_bytes)
     if data.key[0] == 0:
@@ -105,15 +107,15 @@ def cli():
 )
 @with_client
 def get_address(
-    client,
-    coin,
-    address,
-    script_type,
-    show_display,
-    multisig_xpub,
-    multisig_threshold,
-    multisig_suffix_length,
-):
+    client: TrezorClient,
+    coin: str,
+    address: str,
+    script_type: messages.InputScriptType,
+    show_display: bool,
+    multisig_xpub: List[str],
+    multisig_threshold: int,
+    multisig_suffix_length: int,
+) -> str:
     """Get address for specified path.
 
     To obtain a multisig address, provide XPUBs of all signers (including your own) in
@@ -168,7 +170,14 @@ def get_address(
 @click.option("-t", "--script-type", type=ChoiceType(INPUT_SCRIPTS), default="address")
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_public_node(client, coin, address, curve, script_type, show_display):
+def get_public_node(
+    client: TrezorClient,
+    coin: str,
+    address: str,
+    curve: str,
+    script_type: messages.InputScriptType,
+    show_display: bool,
+) -> dict:
     """Get public node of given path."""
     coin = coin or DEFAULT_COIN
     address_n = tools.parse_path(address)
@@ -197,7 +206,13 @@ def _append_descriptor_checksum(desc: str) -> str:
     return f"{desc}#{checksum}"
 
 
-def _get_descriptor(client, coin, account, script_type, show_display):
+def _get_descriptor(
+    client: TrezorClient,
+    coin: str,
+    account: str,
+    script_type: messages.InputScriptType,
+    show_display: bool,
+) -> Tuple[str, str]:
     coin = coin or DEFAULT_COIN
     if script_type == messages.InputScriptType.SPENDADDRESS:
         acc_type = 44
@@ -245,7 +260,13 @@ def _get_descriptor(client, coin, account, script_type, show_display):
 @click.option("-t", "--script-type", type=ChoiceType(INPUT_SCRIPTS), default="address")
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_descriptor(client, coin, account, script_type, show_display):
+def get_descriptor(
+    client: TrezorClient,
+    coin: str,
+    account: str,
+    script_type: messages.InputScriptType,
+    show_display: bool,
+) -> None:
     """Get descriptor of given account."""
     try:
         return _get_descriptor(client, coin, account, script_type, show_display)
@@ -262,7 +283,7 @@ def get_descriptor(client, coin, account, script_type, show_display):
 @click.option("-c", "--coin", is_flag=True, hidden=True, expose_value=False)
 @click.argument("json_file", type=click.File())
 @with_client
-def sign_tx(client, json_file):
+def sign_tx(client: TrezorClient, json_file: TextIO) -> None:
     """Sign transaction.
 
     Transaction data must be provided in a JSON file. See `transaction-format.md` for
@@ -311,7 +332,13 @@ def sign_tx(client, json_file):
 @click.option("-t", "--script-type", type=ChoiceType(INPUT_SCRIPTS), default="address")
 @click.argument("message")
 @with_client
-def sign_message(client, coin, address, message, script_type):
+def sign_message(
+    client: TrezorClient,
+    coin: str,
+    address: str,
+    message: str,
+    script_type: messages.InputScriptType,
+) -> dict:
     """Sign message using address of given path."""
     coin = coin or DEFAULT_COIN
     address_n = tools.parse_path(address)
@@ -329,7 +356,9 @@ def sign_message(client, coin, address, message, script_type):
 @click.argument("signature")
 @click.argument("message")
 @with_client
-def verify_message(client, coin, address, signature, message):
+def verify_message(
+    client: TrezorClient, coin: str, address: str, signature: str, message: str
+) -> bool:
     """Verify message."""
     signature = base64.b64decode(signature)
     coin = coin or DEFAULT_COIN

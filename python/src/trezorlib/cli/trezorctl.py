@@ -99,7 +99,7 @@ class TrezorctlGroup(click.Group):
     subcommand of "binance" group.
     """
 
-    def get_command(self, ctx, cmd_name):
+    def get_command(self, ctx, cmd_name: str):
         cmd_name = cmd_name.replace("_", "-")
         # try to look up the real name
         cmd = super().get_command(ctx, cmd_name)
@@ -126,7 +126,7 @@ class TrezorctlGroup(click.Group):
         return None
 
 
-def configure_logging(verbose: int):
+def configure_logging(verbose: int) -> None:
     if verbose:
         log.enable_debug_output(verbose)
         log.OMITTED_MESSAGES.add(messages.Features)
@@ -158,7 +158,14 @@ def configure_logging(verbose: int):
 )
 @click.version_option()
 @click.pass_context
-def cli(ctx, path, verbose, is_json, passphrase_on_host, session_id):
+def cli(
+    ctx,
+    path: str,
+    verbose: int,
+    is_json: bool,
+    passphrase_on_host: bool,
+    session_id: str,
+) -> None:
     configure_logging(verbose)
 
     if session_id is not None:
@@ -171,7 +178,7 @@ def cli(ctx, path, verbose, is_json, passphrase_on_host, session_id):
 
 
 @cli.resultcallback()
-def print_result(res, is_json, **kwargs):
+def print_result(res, is_json: bool, **kwargs) -> None:
     if is_json:
         if isinstance(res, protobuf.MessageType):
             click.echo(json.dumps({res.__class__.__name__: res.__dict__}))
@@ -194,7 +201,7 @@ def print_result(res, is_json, **kwargs):
             click.echo(res)
 
 
-def format_device_name(features):
+def format_device_name(features: messages.Features) -> str:
     model = features.model or "1"
     if features.bootloader_mode:
         return f"Trezor {model} bootloader"
@@ -210,7 +217,7 @@ def format_device_name(features):
 
 @cli.command(name="list")
 @click.option("-n", "no_resolve", is_flag=True, help="Do not resolve Trezor names")
-def list_devices(no_resolve):
+def list_devices(no_resolve: bool):
     """List connected Trezor devices."""
     if no_resolve:
         return enumerate_devices()
@@ -222,7 +229,7 @@ def list_devices(no_resolve):
 
 
 @cli.command()
-def version():
+def version() -> str:
     """Show version of trezorctl/trezorlib."""
     from .. import __version__ as VERSION
 
@@ -238,14 +245,14 @@ def version():
 @click.argument("message")
 @click.option("-b", "--button-protection", is_flag=True)
 @with_client
-def ping(client, message, button_protection):
+def ping(client: TrezorClient, message: str, button_protection: bool) -> str:
     """Send ping message."""
     return client.ping(message, button_protection=button_protection)
 
 
 @cli.command()
 @click.pass_obj
-def get_session(obj):
+def get_session(obj: TrezorConnection) -> str:
     """Get a session ID for subsequent commands.
 
     Unlocks Trezor with a passphrase and returns a session ID. Use this session ID with
@@ -273,20 +280,20 @@ def get_session(obj):
 
 @cli.command()
 @with_client
-def clear_session(client):
+def clear_session(client: TrezorClient) -> None:
     """Clear session (remove cached PIN, passphrase, etc.)."""
     return client.clear_session()
 
 
 @cli.command()
 @with_client
-def get_features(client):
+def get_features(client: TrezorClient) -> messages.Features:
     """Retrieve device features and settings."""
     return client.features
 
 
 @cli.command()
-def usb_reset():
+def usb_reset() -> None:
     """Perform USB reset on stuck devices.
 
     This can fix LIBUSB_ERROR_PIPE and similar errors when connecting to a device
@@ -300,7 +307,7 @@ def usb_reset():
 @cli.command()
 @click.option("-t", "--timeout", type=float, default=10, help="Timeout in seconds")
 @click.pass_obj
-def wait_for_emulator(obj, timeout):
+def wait_for_emulator(obj: TrezorConnection, timeout: float) -> None:
     """Wait until Trezor Emulator comes up.
 
     Tries to connect to emulator and returns when it succeeds.

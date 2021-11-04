@@ -17,7 +17,7 @@
 import warnings
 from copy import copy
 from decimal import Decimal
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from . import exceptions, messages
 from .client import TrezorClient
@@ -174,7 +174,11 @@ def sign_message(
 
 
 def verify_message(
-    client: TrezorClient, coin_name: str, address: str, signature: bytes, message: bytes
+    client: TrezorClient,
+    coin_name: str,
+    address: str,
+    signature: bytes,
+    message: Union[str, bytes],
 ) -> bool:
     message = normalize_nfc(message)
     try:

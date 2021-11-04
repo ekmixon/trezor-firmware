@@ -15,11 +15,13 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import json
+from typing import TextIO
 
 import click
 import requests
 
 from .. import nem, tools
+from ..client import TrezorClient
 from . import with_client
 
 PATH_HELP = "BIP-32 path, e.g. m/44'/134'/0'/0'"
@@ -35,7 +37,9 @@ def cli():
 @click.option("-N", "--network", type=int, default=0x68)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_address(client, address, network, show_display):
+def get_address(
+    client: TrezorClient, address: str, network: int, show_display: bool
+) -> str:
     """Get NEM address for specified path."""
     address_n = tools.parse_path(address)
     return nem.get_address(client, address_n, network, show_display)
@@ -47,7 +51,7 @@ def get_address(client, address, network, show_display):
 @click.option("-f", "--file", "_ignore", is_flag=True, hidden=True, expose_value=False)
 @click.option("-b", "--broadcast", help="NIS to announce transaction to")
 @with_client
-def sign_tx(client, address, file, broadcast):
+def sign_tx(client: TrezorClient, address: str, file: TextIO, broadcast: str) -> dict:
     """Sign (and optionally broadcast) NEM transaction.
 
     Transaction file is expected in the NIS (RequestPrepareAnnounce) format.
