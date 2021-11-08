@@ -133,7 +133,7 @@ class ClickUI:
 
         if os.getenv("PASSPHRASE") is not None:
             echo("Passphrase required. Using PASSPHRASE environment variable.")
-            return os.getenv("PASSPHRASE")
+            return os.getenv("PASSPHRASE", "")
 
         while True:
             try:
@@ -163,7 +163,7 @@ def mnemonic_words(
     if expand:
         wordlist = Mnemonic(language).wordlist
     else:
-        wordlist = set()
+        wordlist = list()
 
     def expand_word(word: str) -> str:
         if not expand:

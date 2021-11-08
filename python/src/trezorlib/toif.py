@@ -1,6 +1,6 @@
 import struct
 import zlib
-from typing import Sequence, Tuple
+from typing import Literal, Sequence, Tuple
 
 import attr
 
@@ -8,8 +8,10 @@ from . import firmware
 
 try:
     from PIL import Image
+
+    PIL_AVAILABLE = True
 except ImportError:
-    Image = None
+    PIL_AVAILABLE = False
 
 
 RGBPixel = Tuple[int, int, int]
@@ -81,13 +83,14 @@ class Toif:
             )
 
     def to_image(self) -> "Image":
-        if Image is None:
+        if not PIL_AVAILABLE:
             raise RuntimeError(
                 "PIL is not available. Please install via 'pip install Pillow'"
             )
 
         uncompressed = _decompress(self.data)
 
+        pil_mode: Literal["L", "RGB"]
         if self.mode is firmware.ToifMode.grayscale:
             pil_mode = "L"
             raw_data = _to_grayscale(uncompressed)
@@ -118,8 +121,8 @@ def load(filename: str) -> Toif:
         return from_bytes(f.read())
 
 
-def from_image(image: "Image", background=(0, 0, 0, 255)) -> Toif:
-    if Image is None:
+def from_image(image: Image, background=(0, 0, 0, 255)) -> Toif:
+    if not PIL_AVAILABLE:
         raise RuntimeError(
             "PIL is not available. Please install via 'pip install Pillow'"
         )

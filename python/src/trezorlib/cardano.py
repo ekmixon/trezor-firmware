@@ -16,9 +16,10 @@
 
 from ipaddress import ip_address
 from itertools import chain
-from typing import Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from . import exceptions, messages, tools
+from .client import TrezorClient
 from .tools import expect
 
 SIGNING_MODE_IDS = {
@@ -85,7 +86,7 @@ def parse_optional_bytes(value: Optional[str]) -> Optional[bytes]:
     return bytes.fromhex(value) if value is not None else None
 
 
-def parse_optional_int(value) -> Optional[int]:
+def parse_optional_int(value: Optional[str]) -> Optional[int]:
     return int(value) if value is not None else None
 
 
@@ -122,7 +123,9 @@ def create_address_parameters(
 
 
 def _create_certificate_pointer(
-    block_index: int, tx_index: int, certificate_index: int
+    block_index: Optional[int],
+    tx_index: Optional[int],
+    certificate_index: Optional[int],
 ) -> messages.CardanoBlockchainPointerType:
     if block_index is None or tx_index is None or certificate_index is None:
         raise ValueError("Invalid pointer parameters")
@@ -132,7 +135,7 @@ def _create_certificate_pointer(
     )
 
 
-def parse_input(tx_input) -> InputWithPath:
+def parse_input(tx_input: dict) -> InputWithPath:
     if not all(k in tx_input for k in REQUIRED_FIELDS_INPUT):
         raise ValueError("The input is missing some fields")
 
@@ -146,7 +149,7 @@ def parse_input(tx_input) -> InputWithPath:
     )
 
 
-def parse_output(output) -> OutputWithAssetGroups:
+def parse_output(output: dict) -> OutputWithAssetGroups:
     contains_address = "address" in output
     contains_address_type = "addressType" in output
 
@@ -181,7 +184,9 @@ def parse_output(output) -> OutputWithAssetGroups:
     )
 
 
-def _parse_token_bundle(token_bundle, is_mint: bool) -> List[AssetGroupWithTokens]:
+def _parse_token_bundle(
+    token_bundle: Iterable, is_mint: bool
+) -> List[AssetGroupWithTokens]:
     error_message: str
     if is_mint:
         error_message = INVALID_MINT_TOKEN_BUNDLE_ENTRY
@@ -200,7 +205,6 @@ def _parse_token_bundle(token_bundle, is_mint: bool) -> List[AssetGroupWithToken
                 messages.CardanoAssetGroup(
                     policy_id=bytes.fromhex(token_group["policy_id"]),
                     tokens_count=len(tokens),
-                    is_mint=is_mint,
                 ),
                 tokens,
             )
@@ -244,7 +248,7 @@ def _parse_tokens(tokens, is_mint: bool) -> List[messages.CardanoToken]:
 
 
 def _parse_address_parameters(
-    address_parameters, error_message: str
+    address_parameters: dict, error_message: str
 ) -> messages.CardanoAddressParametersType:
     if "addressType" not in address_parameters:
         raise ValueError(error_message)
@@ -262,7 +266,7 @@ def _parse_address_parameters(
     )
 
     return create_address_parameters(
-        int(address_parameters["addressType"]),
+        messages.CardanoAddressType(int(address_parameters["addressType"])),
         payment_path,
         staking_path,
         staking_key_hash_bytes,
@@ -353,6 +357,7 @@ def parse_certificate(certificate) -> CertificateWithPoolOwnersAndRelays:
         ):
             raise CERTIFICATE_MISSING_FIELDS_ERROR
 
+        pool_metadata: Optional[messages.CardanoPoolMetadataType]
         if pool_parameters.get("metadata") is not None:
             pool_metadata = messages.CardanoPoolMetadataType(
                 url=pool_parameters["metadata"]["url"],
@@ -416,7 +421,7 @@ def _parse_pool_owner(pool_owner) -> messages.CardanoPoolOwner:
 
 
 def _parse_pool_relay(pool_relay) -> messages.CardanoPoolRelayParameters:
-    pool_relay_type = int(pool_relay["type"])
+    pool_relay_type = messages.CardanoPoolRelayType(int(pool_relay["type"]))
 
     if pool_relay_type == messages.CardanoPoolRelayType.SINGLE_HOST_IP:
         ipv4_address_packed = (
@@ -470,7 +475,9 @@ def parse_withdrawal(withdrawal) -> messages.CardanoTxWithdrawal:
     )
 
 
-def parse_auxiliary_data(auxiliary_data) -> messages.CardanoTxAuxiliaryData:
+def parse_auxiliary_data(
+    auxiliary_data: Optional[dict],
+) -> Optional[messages.CardanoTxAuxiliaryData]:
     if auxiliary_data is None:
         return None
 
@@ -498,7 +505,7 @@ def parse_auxiliary_data(auxiliary_data) -> messages.CardanoTxAuxiliaryData:
                 nonce=catalyst_registration["nonce"],
                 reward_address_parameters=_parse_address_parameters(
                     catalyst_registration["reward_address_parameters"],
-                    AUXILIARY_DATA_MISSING_FIELDS_ERROR,
+                    str(AUXILIARY_DATA_MISSING_FIELDS_ERROR),
                 ),
             )
         )
@@ -606,7 +613,7 @@ def _get_mint_items(mint: List[AssetGroupWithTokens]) -> Iterator[MintItem]:
 
 @expect(messages.CardanoAddress, field="address")
 def get_address(
-    client,
+    client: TrezorClient,
     address_parameters: messages.CardanoAddressParametersType,
     protocol_magic: int = PROTOCOL_MAGICS["mainnet"],
     network_id: int = NETWORK_IDS["mainnet"],
@@ -626,7 +633,7 @@ def get_address(
 
 @expect(messages.CardanoPublicKey)
 def get_public_key(
-    client,
+    client: TrezorClient,
     address_n: List[int],
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
 ) -> messages.CardanoPublicKey:
@@ -639,7 +646,7 @@ def get_public_key(
 
 @expect(messages.CardanoNativeScriptHash)
 def get_native_script_hash(
-    client,
+    client: TrezorClient,
     native_script: messages.CardanoNativeScript,
     display_format: messages.CardanoNativeScriptHashDisplayFormat = messages.CardanoNativeScriptHashDisplayFormat.HIDE,
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
@@ -654,20 +661,20 @@ def get_native_script_hash(
 
 
 def sign_tx(
-    client,
+    client: TrezorClient,
     signing_mode: messages.CardanoTxSigningMode,
     inputs: List[InputWithPath],
     outputs: List[OutputWithAssetGroups],
     fee: int,
     ttl: Optional[int],
     validity_interval_start: Optional[int],
-    certificates: List[CertificateWithPoolOwnersAndRelays] = (),
-    withdrawals: List[messages.CardanoTxWithdrawal] = (),
+    certificates: List[CertificateWithPoolOwnersAndRelays] = [],
+    withdrawals: List[messages.CardanoTxWithdrawal] = [],
     protocol_magic: int = PROTOCOL_MAGICS["mainnet"],
     network_id: int = NETWORK_IDS["mainnet"],
     auxiliary_data: messages.CardanoTxAuxiliaryData = None,
-    mint: List[AssetGroupWithTokens] = (),
-    additional_witness_requests: List[Path] = (),
+    mint: List[AssetGroupWithTokens] = [],
+    additional_witness_requests: List[Path] = [],
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
 ) -> SignTxResponse:
     UNEXPECTED_RESPONSE_ERROR = exceptions.TrezorException("Unexpected response")
@@ -707,7 +714,7 @@ def sign_tx(
         if not isinstance(response, messages.CardanoTxItemAck):
             raise UNEXPECTED_RESPONSE_ERROR
 
-    sign_tx_response = {}
+    sign_tx_response: Dict[str, Any] = {}
 
     if auxiliary_data is not None:
         auxiliary_data_supplement = client.call(auxiliary_data)

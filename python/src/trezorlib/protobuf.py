@@ -299,6 +299,7 @@ def decode_varint_field(field: Field, reader: Reader) -> Union[int, bool, IntEnu
     field_type_object = get_field_type_object(field)
     if safe_issubclass(field_type_object, IntEnum):
         try:
+            assert field_type_object is not None
             return field_type_object(value)
         except ValueError as e:
             # treat enum errors as warnings
@@ -342,13 +343,14 @@ def decode_length_delimited_field(
 
     field_type_object = get_field_type_object(field)
     if safe_issubclass(field_type_object, MessageType):
+        assert field_type_object is not None
         return load_message(LimitedReader(reader, value), field_type_object)
 
     raise TypeError  # field type is unknown
 
 
 def load_message(reader: Reader, msg_type: Type[MT]) -> MT:
-    msg_dict = {}
+    msg_dict: Dict[str, Any] = {}
     # pre-seed the dict
     for field in msg_type.FIELDS.values():
         if field.repeated:
@@ -365,9 +367,7 @@ def load_message(reader: Reader, msg_type: Type[MT]) -> MT:
         ftag = fkey >> 3
         wtype = fkey & 7
 
-        field = msg_type.FIELDS.get(ftag, None)
-
-        if field is None:  # unknown field, skip it
+        if ftag not in msg_type.FIELDS:  # unknown field, skip it
             if wtype == WIRE_TYPE_INT:
                 load_uvarint(reader)
             elif wtype == WIRE_TYPE_LENGTH:
@@ -376,6 +376,8 @@ def load_message(reader: Reader, msg_type: Type[MT]) -> MT:
             else:
                 raise ValueError
             continue
+
+        field = msg_type.FIELDS[ftag]
 
         if (
             wtype == WIRE_TYPE_LENGTH
@@ -493,7 +495,6 @@ def format_message(
     def pformat(name: str, value: Any, indent: int) -> str:
         level = sep * indent
         leadin = sep * (indent + 1)
-        field = pb.get_field(name)
 
         if isinstance(value, MessageType):
             return format_message(value, indent, sep)
@@ -529,11 +530,13 @@ def format_message(
                 output = "0x" + value.hex()
             return f"{length} bytes {output}{suffix}"
 
-        if isinstance(value, int) and safe_issubclass(field.type, IntEnum):
-            try:
-                return f"{field.type(value).name} ({value})"
-            except ValueError:
-                return str(value)
+        field = pb.get_field(name)
+        if field is not None:
+            if isinstance(value, int) and safe_issubclass(field.type, IntEnum):
+                try:
+                    return f"{field.type(value).name} ({value})"
+                except ValueError:
+                    return str(value)
 
         return repr(value)
 
@@ -550,6 +553,7 @@ def value_to_proto(field: Field, value: Any) -> Any:
         raise TypeError("value_to_proto only converts simple values")
 
     if safe_issubclass(field_type_object, IntEnum):
+        assert field_type_object is not None
         if isinstance(value, str):
             return field_type_object.__members__[value]
         else:
@@ -589,6 +593,7 @@ def dict_to_proto(message_type: Type[MT], d: Dict[str, Any]) -> MT:
 
         field_type_object = get_field_type_object(field)
         if safe_issubclass(field_type_object, MessageType):
+            assert field_type_object is not None
             newvalue = [dict_to_proto(field_type_object, v) for v in value]
         else:
             newvalue = [value_to_proto(field, v) for v in value]
@@ -601,13 +606,13 @@ def dict_to_proto(message_type: Type[MT], d: Dict[str, Any]) -> MT:
 
 
 def to_dict(msg: MessageType, hexlify_bytes: bool = True) -> Dict[str, Any]:
-    def convert_value(field: Field, value: Any) -> Any:
+    def convert_value(value: Any) -> Any:
         if hexlify_bytes and isinstance(value, bytes):
             return value.hex()
         elif isinstance(value, MessageType):
             return to_dict(value, hexlify_bytes)
         elif isinstance(value, list):
-            return [convert_value(field, v) for v in value]
+            return [convert_value(v) for v in value]
         elif isinstance(value, IntEnum):
             return value.name
         else:
@@ -617,6 +622,6 @@ def to_dict(msg: MessageType, hexlify_bytes: bool = True) -> Dict[str, Any]:
     for key, value in msg.__dict__.items():
         if value is None or value == []:
             continue
-        res[key] = convert_value(msg.get_field(key), value)
+        res[key] = convert_value(value)
 
     return res

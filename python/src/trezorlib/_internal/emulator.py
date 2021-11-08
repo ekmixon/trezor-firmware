@@ -19,6 +19,7 @@ import os
 import subprocess
 import time
 from pathlib import Path
+from typing import Dict, List, Optional, Sequence, TextIO, Union
 
 from ..debuglink import TrezorClientDebugLink
 from ..transport.udp import UdpTransport
@@ -28,7 +29,7 @@ LOG = logging.getLogger(__name__)
 EMULATOR_WAIT_TIME = 60
 
 
-def _rm_f(path):
+def _rm_f(path: Path) -> None:
     try:
         path.unlink()
     except FileNotFoundError:
@@ -36,19 +37,19 @@ def _rm_f(path):
 
 
 class Emulator:
-    STORAGE_FILENAME = None
+    STORAGE_FILENAME: Optional[str] = None
 
     def __init__(
         self,
-        executable,
-        profile_dir,
+        executable: Path,
+        profile_dir: str,
         *,
-        logfile=None,
-        storage=None,
-        headless=False,
-        debug=True,
+        logfile: Optional[Path] = None,
+        storage: Optional[bytes] = None,
+        headless: bool = False,
+        debug: bool = True,
         extra_args=(),
-    ):
+    ) -> None:
         self.executable = Path(executable).resolve()
         if not executable.exists():
             raise ValueError(f"emulator executable not found: {self.executable}")
@@ -61,6 +62,7 @@ class Emulator:
 
         self.workdir = self.profile_dir
 
+        assert self.STORAGE_FILENAME is not None
         self.storage = self.profile_dir / self.STORAGE_FILENAME
         if storage:
             self.storage.write_bytes(storage)
@@ -70,24 +72,25 @@ class Emulator:
         else:
             self.logfile = self.profile_dir / "trezor.log"
 
-        self.client = None
-        self.process = None
+        self.client: Optional[TrezorClientDebugLink] = None
+        self.process: Optional[subprocess.Popen] = None
 
         self.port = 21324
         self.headless = headless
         self.debug = debug
         self.extra_args = list(extra_args)
 
-    def make_args(self):
+    def make_args(self) -> list:
         return []
 
-    def make_env(self):
+    def make_env(self) -> Dict[str, str]:
         return os.environ.copy()
 
-    def _get_transport(self):
+    def _get_transport(self) -> UdpTransport:
         return UdpTransport(f"127.0.0.1:{self.port}")
 
-    def wait_until_ready(self, timeout=EMULATOR_WAIT_TIME):
+    def wait_until_ready(self, timeout: int = EMULATOR_WAIT_TIME) -> None:
+        assert self.process is not None
         transport = self._get_transport()
         transport.open()
         LOG.info("Waiting for emulator to come up...")
@@ -109,16 +112,18 @@ class Emulator:
 
         LOG.info(f"Emulator ready after {time.monotonic() - start:.3f} seconds")
 
-    def wait(self, timeout=None):
+    def wait(self, timeout: Optional[float] = None) -> int:
+        assert self.process is not None
         ret = self.process.wait(timeout=timeout)
         self.process = None
         self.stop()
         return ret
 
-    def launch_process(self):
+    def launch_process(self) -> subprocess.Popen:
         args = self.make_args()
         env = self.make_env()
 
+        output: Union[Path, TextIO]
         if hasattr(self.logfile, "write"):
             output = self.logfile
         else:
@@ -132,7 +137,7 @@ class Emulator:
             env=env,
         )
 
-    def start(self):
+    def start(self) -> None:
         if self.process:
             if self.process.poll() is not None:
                 # process has died, stop and start again
@@ -159,7 +164,7 @@ class Emulator:
 
         self.client.open()
 
-    def stop(self):
+    def stop(self) -> None:
         if self.client:
             self.client.close()
         self.client = None
@@ -180,17 +185,17 @@ class Emulator:
         _rm_f(self.profile_dir / "trezor.port")
         self.process = None
 
-    def restart(self):
+    def restart(self) -> None:
         self.stop()
         self.start()
 
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.stop()
 
-    def get_storage(self):
+    def get_storage(self) -> bytes:
         return self.storage.read_bytes()
 
 
@@ -200,14 +205,14 @@ class CoreEmulator(Emulator):
     def __init__(
         self,
         *args,
-        port=None,
-        main_args=("-m", "main"),
-        workdir=None,
-        sdcard=None,
-        disable_animation=True,
-        heap_size="20M",
+        port: Optional[int] = None,
+        main_args: Sequence[str] = ("-m", "main"),
+        workdir: Optional[Path] = None,
+        sdcard: Optional[bytes] = None,
+        disable_animation: bool = True,
+        heap_size: str = "20M",
         **kwargs,
-    ):
+    ) -> None:
         super().__init__(*args, **kwargs)
         if workdir is not None:
             self.workdir = Path(workdir).resolve()
@@ -222,7 +227,7 @@ class CoreEmulator(Emulator):
         self.main_args = list(main_args)
         self.heap_size = heap_size
 
-    def make_env(self):
+    def make_env(self) -> Dict[str, str]:
         env = super().make_env()
         env.update(
             TREZOR_PROFILE_DIR=str(self.profile_dir),
@@ -237,7 +242,7 @@ class CoreEmulator(Emulator):
 
         return env
 
-    def make_args(self):
+    def make_args(self) -> List[str]:
         pyopt = "-O0" if self.debug else "-O1"
         return (
             [pyopt, "-X", f"heapsize={self.heap_size}"]
@@ -249,7 +254,7 @@ class CoreEmulator(Emulator):
 class LegacyEmulator(Emulator):
     STORAGE_FILENAME = "emulator.img"
 
-    def make_env(self):
+    def make_env(self) -> Dict[str, str]:
         env = super().make_env()
         if self.headless:
             env["SDL_VIDEODRIVER"] = "dummy"

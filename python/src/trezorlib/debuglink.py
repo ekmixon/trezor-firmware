@@ -20,7 +20,7 @@ from collections import namedtuple
 from copy import deepcopy
 from enum import IntEnum
 from itertools import zip_longest
-from typing import List, Optional, Tuple
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Type
 
 from mnemonic import Mnemonic
 
@@ -52,9 +52,7 @@ class DebugLink:
     def close(self) -> None:
         self.transport.end_session()
 
-    def _call(
-        self, msg: protobuf.MessageType, nowait: bool = False
-    ) -> protobuf.MessageType:
+    def _call(self, msg: protobuf.MessageType, nowait: bool = False) -> Any:
         LOG.debug(
             f"sending message: {msg.__class__.__name__}",
             extra={"protobuf": msg},
@@ -134,7 +132,7 @@ class DebugLink:
         hold_ms: Optional[int] = None,
     ) -> Optional[LayoutLines]:
         if not self.allow_interactions:
-            return
+            return None
 
         args = sum(a is not None for a in (word, button, swipe, x))
         if args != 1:
@@ -146,6 +144,8 @@ class DebugLink:
         ret = self._call(decision, nowait=not wait)
         if ret is not None:
             return layout_lines(ret.lines)
+
+        return None
 
     def click(
         self, click: Tuple[int, int], wait: bool = False
@@ -220,6 +220,8 @@ class NullDebugLink(DebugLink):
             else:
                 raise RuntimeError("unexpected call to a fake debuglink")
 
+        return None
+
 
 class DebugUI:
     INPUT_FLOW_DONE = object()
@@ -229,7 +231,7 @@ class DebugUI:
         self.clear()
 
     def clear(self) -> None:
-        self.pins = None
+        self.pins: Optional[Iterator[str]] = None
         self.passphrase = ""
         self.input_flow = None
 
@@ -264,12 +266,12 @@ class DebugUI:
 
 
 class MessageFilter:
-    def __init__(self, message_type: protobuf.MessageType, **fields) -> None:
+    def __init__(self, message_type: Type[protobuf.MessageType], **fields) -> None:
         self.message_type = message_type
-        self.fields = {}
+        self.fields: Dict[str, Any] = {}
         self.update_fields(**fields)
 
-    def update_fields(self, **fields):
+    def update_fields(self, **fields) -> "MessageFilter":
         for name, value in fields.items():
             try:
                 self.fields[name] = self.from_message_or_type(value)
@@ -279,7 +281,7 @@ class MessageFilter:
         return self
 
     @classmethod
-    def from_message_or_type(cls, message_or_type):
+    def from_message_or_type(cls, message_or_type) -> "MessageFilter":
         if isinstance(message_or_type, cls):
             return message_or_type
         if isinstance(message_or_type, protobuf.MessageType):
@@ -291,7 +293,7 @@ class MessageFilter:
         raise TypeError("Invalid kind of expected response")
 
     @classmethod
-    def from_message(cls, message: protobuf.MessageType):
+    def from_message(cls, message: protobuf.MessageType) -> "MessageFilter":
         fields = {}
         for field in message.FIELDS.values():
             value = getattr(message, field.name)
@@ -345,7 +347,7 @@ class MessageFilter:
 
 
 class MessageFilterGenerator:
-    def __getattr__(self, key: str) -> MessageFilter:
+    def __getattr__(self, key: str) -> Callable:
         message_type = getattr(messages, key)
         return MessageFilter(message_type).update_fields
 
@@ -388,9 +390,12 @@ class TrezorClientDebugLink(TrezorClient):
         """
         self.ui = DebugUI(self.debug)
         self.in_with_statement = False
-        self.expected_responses = None
-        self.actual_responses = None
-        self.filters = {}
+        self.expected_responses: Optional[list] = None
+        self.actual_responses: Optional[list] = None
+        self.filters: Dict[
+            Type[protobuf.MessageType],
+            Callable[[protobuf.MessageType], protobuf.MessageType],
+        ] = {}
 
     def open(self) -> None:
         super().open()
@@ -402,7 +407,11 @@ class TrezorClientDebugLink(TrezorClient):
             self.debug.close()
         super().close()
 
-    def set_filter(self, message_type, callback) -> None:
+    def set_filter(
+        self,
+        message_type: Type[protobuf.MessageType],
+        callback: Callable[[protobuf.MessageType], protobuf.MessageType],
+    ) -> None:
         """Configure a filter function for a specified message type.
 
         The `callback` must be a function that accepts a protobuf message, and returns
@@ -417,7 +426,7 @@ class TrezorClientDebugLink(TrezorClient):
 
         self.filters[message_type] = callback
 
-    def _filter_message(self, msg):
+    def _filter_message(self, msg: protobuf.MessageType) -> protobuf.MessageType:
         message_type = msg.__class__
         callback = self.filters.get(message_type)
         if callable(callback):
@@ -492,6 +501,8 @@ class TrezorClientDebugLink(TrezorClient):
         if exc_type is None:
             # If no other exception was raised, evaluate missed responses
             # (raises AssertionError on mismatch)
+            assert expected_responses is not None
+            assert actual_responses is not None
             self._verify_responses(expected_responses, actual_responses)
 
     def set_expected_responses(self, expected: list) -> None:
@@ -609,8 +620,10 @@ class TrezorClientDebugLink(TrezorClient):
     def mnemonic_callback(self, _) -> str:
         word, pos = self.debug.read_recovery_word()
         if word != "":
+            assert word is not None
             return word
         if pos != 0:
+            assert pos is not None
             return self.mnemonic[pos - 1]
 
         raise RuntimeError("Unexpected call")

@@ -15,12 +15,12 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import io
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Type
 
 from . import messages, protobuf
 
-map_type_to_class: Dict[int, protobuf.MessageType] = {}
-map_class_to_type: Dict[protobuf.MessageType, int] = {}
+map_type_to_class: Dict[int, Type[protobuf.MessageType]] = {}
+map_class_to_type: Dict[Type[protobuf.MessageType], int] = {}
 
 
 def build_map() -> None:
@@ -39,21 +39,22 @@ def build_map() -> None:
         register_message(msg_class)
 
 
-def register_message(msg_class: protobuf.MessageType) -> None:
+def register_message(msg_class: Type[protobuf.MessageType]) -> None:
     if msg_class.MESSAGE_WIRE_TYPE in map_type_to_class:
         raise Exception(
             f"Message for wire type {msg_class.MESSAGE_WIRE_TYPE} is already registered by {get_class(msg_class.MESSAGE_WIRE_TYPE)}"
         )
 
+    assert msg_class.MESSAGE_WIRE_TYPE is not None
     map_class_to_type[msg_class] = msg_class.MESSAGE_WIRE_TYPE
     map_type_to_class[msg_class.MESSAGE_WIRE_TYPE] = msg_class
 
 
-def get_type(msg: protobuf.MessageType) -> int:
+def get_type(msg: Type[protobuf.MessageType]) -> int:
     return map_class_to_type[msg.__class__]
 
 
-def get_class(t: int) -> protobuf.MessageType:
+def get_class(t: int) -> Type[protobuf.MessageType]:
     return map_type_to_class[t]
 
 
@@ -61,6 +62,7 @@ def encode(msg: protobuf.MessageType) -> Tuple[int, bytes]:
     message_type = msg.MESSAGE_WIRE_TYPE
     buf = io.BytesIO()
     protobuf.dump_message(buf, msg)
+    assert message_type is not None
     return message_type, buf.getvalue()
 
 

@@ -107,7 +107,7 @@ def b58encode(v: bytes) -> str:
     return (__b58chars[0] * nPad) + result
 
 
-def b58decode(v: Union[str, bytes], length: Optional[int] = None) -> bytes:
+def b58decode(v: Union[str, bytes], expected_length: Optional[int] = None) -> bytes:
     """ decode v into a string of len bytes."""
     if isinstance(v, bytes):
         v = v.decode()
@@ -135,8 +135,8 @@ def b58decode(v: Union[str, bytes], length: Optional[int] = None) -> bytes:
             break
 
     result = b"\x00" * nPad + result
-    if length is not None and len(result) != length:
-        return None
+    if expected_length is not None and len(result) != expected_length:
+        raise ValueError("Result length does not match expected_length")
 
     return result
 
@@ -154,7 +154,7 @@ def b58check_decode(v: Union[str, bytes], length: Optional[int] = None) -> bytes
     return data
 
 
-def parse_path(nstr: str) -> Address:
+def parse_path(nstr: Optional[str]) -> Address:
     """
     Convert BIP32 path string to list of uint32 integers with hardened flags.
     Several conventions are supported to set the hardened flag: -1, 1', 1h

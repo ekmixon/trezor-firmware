@@ -14,10 +14,11 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 from decimal import Decimal
-from typing import Union
+from typing import List, Tuple, Union
 
 from . import exceptions, messages
 from .client import TrezorClient
+from .protobuf import MessageType
 from .tools import Address, expect
 
 try:
@@ -60,7 +61,9 @@ except ImportError:
 DEFAULT_BIP32_PATH = "m/44h/148h/0h"
 
 
-def from_envelope(envelope: "TransactionEnvelope") -> tuple:
+def from_envelope(
+    envelope: "TransactionEnvelope",
+) -> Tuple[messages.StellarSignTx, List[MessageType]]:
     """Parses transaction envelope into a map with the following keys:
     tx - a StellarSignTx describing the transaction header
     operations - an array of protobuf message objects for each operation
@@ -113,7 +116,7 @@ def from_envelope(envelope: "TransactionEnvelope") -> tuple:
     return tx, operations
 
 
-def _read_operation(op: "Operation"):
+def _read_operation(op: "Operation") -> MessageType:
     # TODO: Let's add muxed account support later.
     if op.source:
         _raise_if_account_muxed_id_exists(op.source)
@@ -136,7 +139,7 @@ def _read_operation(op: "Operation"):
         )
     if isinstance(op, PathPaymentStrictReceive):
         _raise_if_account_muxed_id_exists(op.destination)
-        operation = messages.StellarPathPaymentStrictReceiveOp(
+        return messages.StellarPathPaymentStrictReceiveOp(
             source_account=source_account,
             send_asset=_read_asset(op.send_asset),
             send_max=_read_amount(op.send_max),
@@ -145,7 +148,6 @@ def _read_operation(op: "Operation"):
             destination_amount=_read_amount(op.dest_amount),
             paths=[_read_asset(asset) for asset in op.path],
         )
-        return operation
     if isinstance(op, ManageSellOffer):
         price = _read_price(op.price)
         return messages.StellarManageSellOfferOp(

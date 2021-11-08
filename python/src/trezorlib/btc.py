@@ -249,7 +249,7 @@ def sign_tx(
     res = client.call(signtx)
 
     # Prepare structure for signatures
-    signatures = [None] * len(inputs)
+    signatures: List[Optional[bytes]] = [None] * len(inputs)
     serialized_tx = b""
 
     def copy_tx_meta(tx: messages.TransactionType) -> messages.TransactionType:
@@ -265,8 +265,8 @@ def sign_tx(
         return tx_copy
 
     this_tx = messages.TransactionType(
-        inputs=inputs,
-        outputs=outputs,
+        inputs=list(inputs),
+        outputs=list(outputs),
         inputs_cnt=len(inputs),
         outputs_cnt=len(outputs),
         # pick either kw-provided or default value from the SignTx request

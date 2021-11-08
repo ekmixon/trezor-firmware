@@ -16,7 +16,7 @@
 
 import hashlib
 from enum import Enum
-from typing import Callable, List, Tuple
+from typing import Callable, List, Optional, Tuple
 
 import construct as c
 import ecdsa
@@ -375,6 +375,8 @@ def calculate_code_hashes(
 
 
 def validate_code_hashes(fw: c.Container, version: FirmwareFormat) -> None:
+    hash_function: Callable
+    padding_byte: Optional[bytes]
     if version == FirmwareFormat.TREZOR_ONE_V2:
         image = fw
         hash_function = hashlib.sha256
@@ -501,6 +503,8 @@ def update(client: TrezorClient, data: bytes) -> None:
 
     # TREZORv2 method
     while isinstance(resp, messages.FirmwareRequest):
+        assert resp.offset is not None
+        assert resp.length is not None
         payload = data[resp.offset : resp.offset + resp.length]
         digest = blake2s(payload).digest()
         resp = client.call(messages.FirmwareUpload(payload=payload, hash=digest))

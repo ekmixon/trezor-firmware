@@ -68,7 +68,7 @@ def all_zero(data: bytes) -> bool:
 
 def _check_signature_any(
     header: c.Container, m: int, pubkeys: List[bytes], is_devel: bool
-) -> Optional[bool]:
+) -> Status:
     if all_zero(header.signature) and header.sigmask == 0:
         return Status.MISSING
     try:
@@ -161,14 +161,14 @@ def _format_version(version: c.Container) -> str:
 
 class SignableImage:
     NAME = "Unrecognized image"
-    BIP32_INDEX = None
-    DEV_KEYS = []
+    BIP32_INDEX: Optional[int] = None
+    DEV_KEYS: List[bytes] = []
     DEV_KEY_SIGMASK = 0b11
 
     def __init__(self, fw: c.Container) -> None:
         self.fw = fw
-        self.header = None
-        self.public_keys = None
+        self.header: Any
+        self.public_keys: List[bytes]
         self.sigs_required = firmware.V2_SIGS_REQUIRED
 
     def digest(self) -> bytes:
@@ -196,7 +196,7 @@ class VendorHeader(SignableImage):
     BIP32_INDEX = 1
     DEV_KEYS = _make_dev_keys(b"\x44", b"\x45")
 
-    def __init__(self, fw):
+    def __init__(self, fw: c.Container) -> None:
         super().__init__(fw)
         self.header = fw.vendor_header
         self.public_keys = firmware.V2_BOOTLOADER_KEYS
@@ -239,7 +239,7 @@ class VendorHeader(SignableImage):
 
 
 class BinImage(SignableImage):
-    def __init__(self, fw):
+    def __init__(self, fw: c.Container) -> None:
         super().__init__(fw)
         self.header = self.fw.image.header
         self.code_hashes = firmware.calculate_code_hashes(
@@ -331,7 +331,7 @@ class BootloaderImage(BinImage):
     BIP32_INDEX = 0
     DEV_KEYS = _make_dev_keys(b"\x41", b"\x42")
 
-    def __init__(self, fw):
+    def __init__(self, fw: c.Container) -> None:
         super().__init__(fw)
         self._identify_dev_keys()
 
@@ -339,7 +339,7 @@ class BootloaderImage(BinImage):
         super().insert_signature(signature, sigmask)
         self._identify_dev_keys()
 
-    def _identify_dev_keys(self):
+    def _identify_dev_keys(self) -> None:
         # try checking signature with dev keys first
         self.public_keys = firmware.V2_BOARDLOADER_DEV_KEYS
         if not self.check_signature().is_ok():
@@ -355,7 +355,7 @@ class BootloaderImage(BinImage):
         )
 
 
-def parse_image(image: bytes):
+def parse_image(image: bytes) -> SignableImage:
     fw = AnyFirmware.parse(image)
     if fw.vendor_header and not fw.image:
         return VendorHeader(fw)

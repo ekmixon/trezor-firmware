@@ -140,6 +140,7 @@ def recover(
 
     while isinstance(res, messages.WordRequest):
         try:
+            assert input_callback is not None
             inp = input_callback(res.type)
             res = client.call(messages.WordAck(word=inp))
         except Cancelled:

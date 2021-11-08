@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import re
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 from . import exceptions, messages
 from .client import TrezorClient
@@ -51,10 +51,14 @@ def typeof_array(type_name: str) -> str:
 
 def parse_type_n(type_name: str) -> int:
     """Parse N from type<N>. Example: "uint256" -> 256."""
-    return int(re.search(r"\d+$", type_name).group(0))
+    match = re.search(r"\d+$", type_name)
+    if match:
+        return int(match.group(0))
+    else:
+        raise ValueError(f"Could not parse type<N> from {type_name}.")
 
 
-def parse_array_n(type_name: str) -> Union[int, str]:
+def parse_array_n(type_name: str) -> Union[int, Literal["dynamic"]]:
     """Parse N in type[<N>] where "type" can itself be an array type."""
     if type_name.endswith("[]"):
         return "dynamic"
@@ -185,12 +189,14 @@ def sign_tx(
 
     while response.data_length is not None:
         data_length = response.data_length
+        assert data is not None
         data, chunk = data[data_length:], data[:data_length]
         response = client.call(messages.EthereumTxAck(data_chunk=chunk))
 
     # https://github.com/trezor/trezor-core/pull/311
     # only signature bit returned. recalculate signature_v
     if response.signature_v <= 1:
+        assert chain_id is not None
         response.signature_v += 2 * chain_id + 35
 
     return response.signature_v, response.signature_r, response.signature_s
@@ -209,7 +215,7 @@ def sign_tx_eip1559(
     chain_id: int,
     max_gas_fee: int,
     max_priority_fee: int,
-    access_list: List[messages.EthereumAccessList] = (),
+    access_list: List[messages.EthereumAccessList] = [],
 ) -> Tuple[int, bytes, bytes]:
     length = len(data)
     data, chunk = data[1024:], data[:1024]
@@ -256,7 +262,7 @@ def sign_typed_data(
     data = sanitize_typed_data(data)
     types = data["types"]
 
-    request = messages.EthereumSignTypedData(
+    request: Any = messages.EthereumSignTypedData(
         address_n=n,
         primary_type=data["primaryType"],
         metamask_v4_compat=metamask_v4_compat,
