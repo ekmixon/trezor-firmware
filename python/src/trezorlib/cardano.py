@@ -213,7 +213,7 @@ def _parse_token_bundle(
     return result
 
 
-def _parse_tokens(tokens, is_mint: bool) -> List[messages.CardanoToken]:
+def _parse_tokens(tokens: Iterable, is_mint: bool) -> List[messages.CardanoToken]:
     error_message: str
     if is_mint:
         error_message = INVALID_MINT_TOKEN_BUNDLE_ENTRY
@@ -278,7 +278,7 @@ def _parse_address_parameters(
     )
 
 
-def parse_native_script(native_script) -> messages.CardanoNativeScript:
+def parse_native_script(native_script: dict) -> messages.CardanoNativeScript:
     if "type" not in native_script:
         raise ValueError("Script is missing some fields")
 
@@ -307,7 +307,7 @@ def parse_native_script(native_script) -> messages.CardanoNativeScript:
     )
 
 
-def parse_certificate(certificate) -> CertificateWithPoolOwnersAndRelays:
+def parse_certificate(certificate: dict) -> CertificateWithPoolOwnersAndRelays:
     CERTIFICATE_MISSING_FIELDS_ERROR = ValueError(
         "The certificate is missing some fields"
     )
@@ -398,7 +398,7 @@ def parse_certificate(certificate) -> CertificateWithPoolOwnersAndRelays:
 
 
 def _parse_path_or_script_hash(
-    obj, error: ValueError
+    obj: dict, error: ValueError
 ) -> Tuple[List[int], Optional[bytes]]:
     if "path" not in obj and "script_hash" not in obj:
         raise error
@@ -409,7 +409,7 @@ def _parse_path_or_script_hash(
     return path, script_hash
 
 
-def _parse_pool_owner(pool_owner) -> messages.CardanoPoolOwner:
+def _parse_pool_owner(pool_owner: dict) -> messages.CardanoPoolOwner:
     if "staking_key_path" in pool_owner:
         return messages.CardanoPoolOwner(
             staking_key_path=tools.parse_path(pool_owner["staking_key_path"])
@@ -420,7 +420,7 @@ def _parse_pool_owner(pool_owner) -> messages.CardanoPoolOwner:
     )
 
 
-def _parse_pool_relay(pool_relay) -> messages.CardanoPoolRelayParameters:
+def _parse_pool_relay(pool_relay: dict) -> messages.CardanoPoolRelayParameters:
     pool_relay_type = messages.CardanoPoolRelayType(int(pool_relay["type"]))
 
     if pool_relay_type == messages.CardanoPoolRelayType.SINGLE_HOST_IP:
@@ -456,7 +456,7 @@ def _parse_pool_relay(pool_relay) -> messages.CardanoPoolRelayParameters:
     raise ValueError("Unknown pool relay type")
 
 
-def parse_withdrawal(withdrawal) -> messages.CardanoTxWithdrawal:
+def parse_withdrawal(withdrawal: dict) -> messages.CardanoTxWithdrawal:
     WITHDRAWAL_MISSING_FIELDS_ERROR = ValueError(
         "The withdrawal is missing some fields"
     )
@@ -519,12 +519,12 @@ def parse_auxiliary_data(
     )
 
 
-def parse_mint(mint) -> List[AssetGroupWithTokens]:
+def parse_mint(mint: Iterable) -> List[AssetGroupWithTokens]:
     return _parse_token_bundle(mint, is_mint=True)
 
 
 def parse_additional_witness_request(
-    additional_witness_request,
+    additional_witness_request: dict,
 ) -> Path:
     if "path" not in additional_witness_request:
         raise ValueError("Invalid additional witness request")

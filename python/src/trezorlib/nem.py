@@ -194,7 +194,9 @@ def get_address(
 
 
 @expect(messages.NEMSignedTx)
-def sign_tx(client: TrezorClient, n: Address, transaction: dict):
+def sign_tx(
+    client: TrezorClient, n: Address, transaction: dict
+) -> messages.NEMSignedTx:
     try:
         msg = create_sign_tx(transaction)
     except ValueError as e:

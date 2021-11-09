@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import os
-from typing import Callable, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 import click
 from mnemonic import Mnemonic
@@ -66,11 +66,11 @@ class TrezorClientUI(Protocol):
         ...
 
 
-def echo(*args, **kwargs):
+def echo(*args: Any, **kwargs: Any) -> None:
     return click.echo(*args, err=True, **kwargs)
 
 
-def prompt(*args, **kwargs):
+def prompt(*args: Any, **kwargs: Any) -> Any:
     return click.prompt(*args, err=True, **kwargs)
 
 

@@ -111,7 +111,7 @@ class HeaderType(Enum):
 
 
 class EnumAdapter(c.Adapter):
-    def __init__(self, subcon, enum):
+    def __init__(self, subcon, enum) -> None:
         self.enum = enum
         super().__init__(subcon)
 

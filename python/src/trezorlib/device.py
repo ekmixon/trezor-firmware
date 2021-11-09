@@ -22,6 +22,7 @@ from . import messages
 from .client import TrezorClient
 from .exceptions import Cancelled
 from .tools import expect, session
+from .protobuf import MessageType
 
 RECOVERY_BACK = "\x08"  # backspace character, sent literally
 
@@ -109,7 +110,7 @@ def recover(
     type: messages.RecoveryDeviceType = messages.RecoveryDeviceType.ScrambledWords,
     dry_run: bool = False,
     u2f_counter: Optional[int] = None,
-):
+) -> MessageType:
     if client.features.model == "1" and input_callback is None:
         raise RuntimeError("Input callback required for Trezor One")
 

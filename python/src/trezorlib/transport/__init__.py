@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import logging
-from typing import Iterable, List, Tuple, Type
+from typing import Iterable, List, Optional, Tuple, Type
 
 from ..exceptions import TrezorException
 
@@ -58,7 +58,7 @@ class Transport:
     a Trezor device to a computer.
     """
 
-    PATH_PREFIX: str = None
+    PATH_PREFIX = ""
     ENABLED = False
 
     def __str__(self) -> str:

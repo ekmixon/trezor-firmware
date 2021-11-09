@@ -58,13 +58,13 @@ def from_json(json_dict: dict) -> messages.TransactionType:
 
 @expect(messages.PublicKey)
 def get_public_node(
-    client,
-    n,
-    ecdsa_curve_name=None,
-    show_display=False,
-    coin_name=None,
-    script_type=messages.InputScriptType.SPENDADDRESS,
-    ignore_xpub_magic=False,
+    client: TrezorClient,
+    n: Address,
+    ecdsa_curve_name: Optional[str] = None,
+    show_display: bool = False,
+    coin_name: Optional[str] = None,
+    script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
+    ignore_xpub_magic: bool = False,
 ) -> messages.PublicKey:
     return client.call(
         messages.GetPublicKey(

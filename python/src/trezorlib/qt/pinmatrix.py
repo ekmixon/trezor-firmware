@@ -48,7 +48,7 @@ except Exception:
 
 
 class PinButton(QPushButton):
-    def __init__(self, password, encoded_value):
+    def __init__(self, password: QLineEdit, encoded_value: int) -> None:
         super(PinButton, self).__init__("?")
         self.password = password
         self.encoded_value = encoded_value
@@ -60,7 +60,7 @@ class PinButton(QPushButton):
         else:
             raise RuntimeError("Unsupported Qt version")
 
-    def _pressed(self):
+    def _pressed(self) -> None:
         self.password.setText(self.password.text() + str(self.encoded_value))
         self.password.setFocus()
 
@@ -74,7 +74,7 @@ class PinMatrixWidget(QWidget):
     show_strength=True may be useful for entering new PIN
     """
 
-    def __init__(self, show_strength=True, parent=None):
+    def __init__(self, show_strength: bool = True, parent=None) -> None:
         super(PinMatrixWidget, self).__init__(parent)
 
         self.password = QLineEdit()
@@ -114,7 +114,7 @@ class PinMatrixWidget(QWidget):
         vbox.addLayout(hbox)
         self.setLayout(vbox)
 
-    def _set_strength(self, strength):
+    def _set_strength(self, strength: float) -> None:
         if strength < 3000:
             self.strength.setText("weak")
             self.strength.setStyleSheet("QLabel { color : #d00; }")
@@ -128,15 +128,15 @@ class PinMatrixWidget(QWidget):
             self.strength.setText("ULTIMATE")
             self.strength.setStyleSheet("QLabel { color : #000; font-weight: bold;}")
 
-    def _password_changed(self, password):
+    def _password_changed(self, password) -> None:
         self._set_strength(self.get_strength())
 
-    def get_strength(self):
+    def get_strength(self) -> float:
         digits = len(set(str(self.password.text())))
         strength = math.factorial(9) / math.factorial(9 - digits)
         return strength
 
-    def get_value(self):
+    def get_value(self) -> str:
         return self.password.text()
 
 
@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
     matrix = PinMatrixWidget()
 
-    def clicked():
+    def clicked() -> None:
         print("PinMatrix value is", matrix.get_value())
         print("Possible button combinations:", matrix.get_strength())
         sys.exit()

@@ -94,7 +94,7 @@ class WebUsbTransport(ProtocolBasedTransport):
     context = None
 
     def __init__(
-        self, device: str, handle: WebUsbHandle = None, debug: bool = False
+        self, device: str, handle: Optional[WebUsbHandle] = None, debug: bool = False
     ) -> None:
         if handle is None:
             handle = WebUsbHandle(device, debug)
@@ -109,7 +109,7 @@ class WebUsbTransport(ProtocolBasedTransport):
         return f"{self.PATH_PREFIX}:{dev_to_str(self.device)}"
 
     @classmethod
-    def enumerate(cls, usb_reset=False) -> Iterable["WebUsbTransport"]:
+    def enumerate(cls, usb_reset: bool = False) -> Iterable["WebUsbTransport"]:
         if cls.context is None:
             cls.context = usb1.USBContext()
             cls.context.open()

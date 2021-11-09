@@ -1,6 +1,6 @@
 import struct
 import zlib
-from typing import Literal, Sequence, Tuple
+from typing import Any, Literal, Sequence, Tuple
 
 import attr
 
@@ -70,7 +70,7 @@ class Toif:
     data: bytes = attr.ib()
 
     @data.validator
-    def check_data_size(self, _, value) -> None:
+    def check_data_size(self, _, value: Any) -> None:
         width, height = self.size
         if self.mode is firmware.ToifMode.grayscale:
             expected_size = width * height // 2
@@ -121,15 +121,15 @@ def load(filename: str) -> Toif:
         return from_bytes(f.read())
 
 
-def from_image(image: Image, background=(0, 0, 0, 255)) -> Toif:
+def from_image(image: Image, background: Tuple[int, ...] = (0, 0, 0, 255)) -> Toif:
     if not PIL_AVAILABLE:
         raise RuntimeError(
             "PIL is not available. Please install via 'pip install Pillow'"
         )
 
     if image.mode == "RGBA":
-        background = Image.new("RGBA", image.size, background)
-        blend = Image.alpha_composite(background, image)
+        img_background = Image.new("RGBA", image.size, background)
+        blend = Image.alpha_composite(img_background, image)
         image = blend.convert("RGB")
 
     if image.mode == "L":

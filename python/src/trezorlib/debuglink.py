@@ -20,7 +20,18 @@ from collections import namedtuple
 from copy import deepcopy
 from enum import IntEnum
 from itertools import zip_longest
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Type
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 from mnemonic import Mnemonic
 
@@ -29,6 +40,7 @@ from .client import TrezorClient
 from .exceptions import TrezorFailure
 from .log import DUMP_BYTES
 from .tools import expect
+from .transport import Transport
 
 EXPECTED_RESPONSES_CONTEXT_LINES = 3
 
@@ -159,7 +171,7 @@ class DebugLink:
     def press_no(self) -> None:
         self.input(button=False)
 
-    def swipe_up(self, wait: bool = False):
+    def swipe_up(self, wait: bool = False) -> None:
         self.input(swipe=messages.DebugSwipeDirection.UP, wait=wait)
 
     def swipe_down(self) -> None:
@@ -266,12 +278,12 @@ class DebugUI:
 
 
 class MessageFilter:
-    def __init__(self, message_type: Type[protobuf.MessageType], **fields) -> None:
+    def __init__(self, message_type: Type[protobuf.MessageType], **fields: Any) -> None:
         self.message_type = message_type
         self.fields: Dict[str, Any] = {}
         self.update_fields(**fields)
 
-    def update_fields(self, **fields) -> "MessageFilter":
+    def update_fields(self, **fields: Any) -> "MessageFilter":
         for name, value in fields.items():
             try:
                 self.fields[name] = self.from_message_or_type(value)
@@ -281,7 +293,9 @@ class MessageFilter:
         return self
 
     @classmethod
-    def from_message_or_type(cls, message_or_type) -> "MessageFilter":
+    def from_message_or_type(
+        cls, message_or_type: Union[protobuf.MessageType, Type[protobuf.MessageType]]
+    ) -> "MessageFilter":
         if isinstance(message_or_type, cls):
             return message_or_type
         if isinstance(message_or_type, protobuf.MessageType):
@@ -366,7 +380,7 @@ class TrezorClientDebugLink(TrezorClient):
     # without special DebugLink interface provided
     # by the device.
 
-    def __init__(self, transport, auto_interact: bool = True) -> None:
+    def __init__(self, transport: Transport, auto_interact: bool = True) -> None:
         try:
             debug_transport = transport.find_debug()
             self.debug = DebugLink(debug_transport, auto_interact)
@@ -482,7 +496,7 @@ class TrezorClientDebugLink(TrezorClient):
             # - TT < 2.3.0 does not reply to unknown debuglink messages due to a bug
             self.debug.watch_layout(watch)
 
-    def __enter__(self):
+    def __enter__(self) -> "TrezorClientDebugLink":
         # For usage in with/expected_responses
         if self.in_with_statement:
             raise RuntimeError("Do not nest!")
@@ -541,7 +555,7 @@ class TrezorClientDebugLink(TrezorClient):
         ]
         self.actual_responses = []
 
-    def use_pin_sequence(self, pins) -> None:
+    def use_pin_sequence(self, pins: Iterable) -> None:
         """Respond to PIN prompts from device with the provided PINs.
         The sequence must be at least as long as the expected number of PIN prompts.
         """
@@ -556,7 +570,7 @@ class TrezorClientDebugLink(TrezorClient):
         Only applies to T1, where device prompts the host for mnemonic words."""
         self.mnemonic = Mnemonic.normalize_string(mnemonic).split(" ")
 
-    def _raw_read(self):
+    def _raw_read(self) -> protobuf.MessageType:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
 
         resp = super()._raw_read()
@@ -565,7 +579,7 @@ class TrezorClientDebugLink(TrezorClient):
             self.actual_responses.append(resp)
         return resp
 
-    def _raw_write(self, msg):
+    def _raw_write(self, msg: protobuf.MessageType) -> None:
         return super()._raw_write(self._filter_message(msg))
 
     @staticmethod

@@ -27,7 +27,7 @@ import warnings
 from enum import IntEnum
 from io import BytesIO
 from itertools import zip_longest
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union, Tuple
 
 import attr
 from typing_extensions import Protocol
@@ -55,7 +55,7 @@ _UVARINT_BUFFER = bytearray(1)
 LOG = logging.getLogger(__name__)
 
 
-def safe_issubclass(value, cls) -> bool:
+def safe_issubclass(value: Any, cls: Union[type, Tuple[type, ...]]) -> bool:
     return isinstance(value, type) and issubclass(value, cls)
 
 
@@ -193,7 +193,7 @@ class MessageType(metaclass=_MessageTypeMeta):
     def get_field(cls, name: str) -> Optional[Field]:
         return next((f for f in cls.FIELDS.values() if f.name == name), None)
 
-    def __init__(self, *args, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         if args:
             warnings.warn(
                 "Positional arguments for MessageType are deprecated",
@@ -215,6 +215,7 @@ class MessageType(metaclass=_MessageTypeMeta):
                 # set in args but not in kwargs
                 setattr(self, field.name, val)
             else:
+                default: Any
                 # not set at all, pick a default
                 if field.repeated:
                     default = []
@@ -534,6 +535,7 @@ def format_message(
         if field is not None:
             if isinstance(value, int) and safe_issubclass(field.type, IntEnum):
                 try:
+                    assert isinstance(field.type, IntEnum)
                     return f"{field.type(value).name} ({value})"
                 except ValueError:
                     return str(value)

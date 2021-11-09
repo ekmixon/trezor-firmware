@@ -19,7 +19,10 @@ import hashlib
 import re
 import struct
 import unicodedata
-from typing import Any, Dict, List, NewType, Optional, Union
+from typing import Any, Callable, Dict, List, NewType, Optional, Type, Union
+
+from .protobuf import MessageType
+from .client import TrezorClient
 
 HARDENED_FLAG = 1 << 31
 
@@ -54,7 +57,7 @@ def hash_160(public_key: bytes) -> bytes:
     return md.digest()
 
 
-def hash_160_to_bc_address(h160: bytes, address_type) -> str:
+def hash_160_to_bc_address(h160: bytes, address_type: int) -> str:
     vh160 = struct.pack("<B", address_type) + h160
     h = btc_hash(vh160)
     addr = vh160 + h[0:4]
@@ -68,7 +71,7 @@ def compress_pubkey(public_key: bytes) -> bytes:
 
 
 def public_key_to_bc_address(
-    public_key: bytes, address_type, compress: bool = True
+    public_key: bytes, address_type: int, compress: bool = True
 ) -> str:
     if public_key[0] == "\x04" and compress:
         public_key = compress_pubkey(public_key)
@@ -201,13 +204,15 @@ class expect:
     # Decorator checks if the method
     # returned one of expected protobuf messages
     # or raises an exception
-    def __init__(self, expected, field: Optional[str] = None) -> None:
+    def __init__(
+        self, expected: Type[MessageType], field: Optional[str] = None
+    ) -> None:
         self.expected = expected
         self.field = field
 
-    def __call__(self, f):
+    def __call__(self, f: Callable) -> Callable:
         @functools.wraps(f)
-        def wrapped_f(*args, **kwargs):
+        def wrapped_f(*args: Any, **kwargs: Any) -> Any:
             __tracebackhide__ = True  # for pytest # pylint: disable=W0612
             ret = f(*args, **kwargs)
             if not isinstance(ret, self.expected):
@@ -220,11 +225,11 @@ class expect:
         return wrapped_f
 
 
-def session(f):
+def session(f: Callable) -> Callable:
     # Decorator wraps a BaseClient method
     # with session activation / deactivation
     @functools.wraps(f)
-    def wrapped_f(client, *args, **kwargs):
+    def wrapped_f(client: TrezorClient, *args: Any, **kwargs: Any) -> Any:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
         client.open()
         try:

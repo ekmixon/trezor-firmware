@@ -15,6 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 from datetime import datetime
+from typing import List, Tuple
 
 from . import exceptions, messages
 from .client import TrezorClient
@@ -68,7 +69,7 @@ def parse_asset(asset: str) -> messages.EosAsset:
     return messages.EosAsset(amount=amount, symbol=symbol)
 
 
-def public_key_to_buffer(pub_key) -> tuple:
+def public_key_to_buffer(pub_key: str) -> tuple:
     _t = 0
     if pub_key[:3] == "EOS":
         pub_key = pub_key[3:]
@@ -291,7 +292,9 @@ def parse_action(action: dict) -> messages.EosTxActionAck:
     return tx_action
 
 
-def parse_transaction_json(transaction):
+def parse_transaction_json(
+    transaction: dict,
+) -> Tuple[messages.EosTxHeader, List[messages.EosTxActionAck]]:
     header = messages.EosTxHeader(
         expiration=int(
             (

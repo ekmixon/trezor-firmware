@@ -80,7 +80,7 @@ class Emulator:
         self.debug = debug
         self.extra_args = list(extra_args)
 
-    def make_args(self) -> list:
+    def make_args(self) -> List[str]:
         return []
 
     def make_env(self) -> Dict[str, str]:
@@ -89,7 +89,7 @@ class Emulator:
     def _get_transport(self) -> UdpTransport:
         return UdpTransport(f"127.0.0.1:{self.port}")
 
-    def wait_until_ready(self, timeout: int = EMULATOR_WAIT_TIME) -> None:
+    def wait_until_ready(self, timeout: float = EMULATOR_WAIT_TIME) -> None:
         assert self.process is not None
         transport = self._get_transport()
         transport.open()

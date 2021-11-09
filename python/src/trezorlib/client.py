@@ -17,13 +17,16 @@
 import logging
 import os
 import warnings
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from mnemonic import Mnemonic
 
 from . import MINIMUM_FIRMWARE_VERSION, exceptions, mapping, messages, tools
 from .log import DUMP_BYTES
 from .messages import Capability
+from .transport import Transport
+from .ui import ClickUI
+from .protobuf import MessageType
 
 if TYPE_CHECKING:
     from .ui import TrezorClientUI
@@ -45,7 +48,9 @@ Or visit https://suite.trezor.io/
 """.strip()
 
 
-def get_default_client(path=None, ui=None, **kwargs) -> "TrezorClient":
+def get_default_client(
+    path: Optional[str] = None, ui: Optional[ClickUI] = None, **kwargs: Any
+) -> "TrezorClient":
     """Get a client for a connected Trezor device.
 
     Returns a TrezorClient instance with minimum fuss.
@@ -115,12 +120,12 @@ class TrezorClient:
     def cancel(self) -> None:
         self._raw_write(messages.Cancel())
 
-    def call_raw(self, msg):
+    def call_raw(self, msg: MessageType) -> MessageType:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
         self._raw_write(msg)
         return self._raw_read()
 
-    def _raw_write(self, msg) -> None:
+    def _raw_write(self, msg: MessageType) -> None:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
         LOG.debug(
             f"sending message: {msg.__class__.__name__}",
@@ -133,7 +138,7 @@ class TrezorClient:
         )
         self.transport.write(msg_type, msg_bytes)
 
-    def _raw_read(self):
+    def _raw_read(self) -> MessageType:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
         msg_type, msg_bytes = self.transport.read()
         LOG.log(
@@ -147,7 +152,7 @@ class TrezorClient:
         )
         return msg
 
-    def _callback_pin(self, msg):
+    def _callback_pin(self, msg: messages.PinMatrixRequest) -> MessageType:
         try:
             pin = self.ui.get_pin(msg.type)
         except exceptions.Cancelled:
@@ -170,10 +175,12 @@ class TrezorClient:
         else:
             return resp
 
-    def _callback_passphrase(self, msg: messages.PassphraseRequest):
+    def _callback_passphrase(self, msg: messages.PassphraseRequest) -> MessageType:
         available_on_device = Capability.PassphraseEntry in self.features.capabilities
 
-        def send_passphrase(passphrase=None, on_device=None):
+        def send_passphrase(
+            passphrase: Optional[str] = None, on_device: Optional[bool] = None
+        ) -> MessageType:
             msg = messages.PassphraseAck(passphrase=passphrase, on_device=on_device)
             resp = self.call_raw(msg)
             if isinstance(resp, messages.Deprecated_PassphraseStateRequest):
@@ -206,7 +213,7 @@ class TrezorClient:
 
         return send_passphrase(passphrase, on_device=False)
 
-    def _callback_button(self, msg):
+    def _callback_button(self, msg: messages.ButtonRequest) -> MessageType:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
         # do this raw - send ButtonAck first, notify UI later
         self._raw_write(messages.ButtonAck())
@@ -214,7 +221,7 @@ class TrezorClient:
         return self._raw_read()
 
     @tools.session
-    def call(self, msg):
+    def call(self, msg: MessageType) -> MessageType:
         self.check_firmware_version()
         resp = self.call_raw(msg)
         while True:
