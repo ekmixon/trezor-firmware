@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import time
+from typing import Optional
 
 import click
 
@@ -164,17 +165,18 @@ def cli(
     verbose: int,
     is_json: bool,
     passphrase_on_host: bool,
-    session_id: str,
+    session_id: Optional[str],
 ) -> None:
     configure_logging(verbose)
 
+    bytes_session_id: Optional[bytes] = None
     if session_id is not None:
         try:
-            session_id = bytes.fromhex(session_id)
+            bytes_session_id = bytes.fromhex(session_id)
         except ValueError:
             raise click.ClickException(f"Not a valid session id: {session_id}")
 
-    ctx.obj = TrezorConnection(path, session_id, passphrase_on_host)
+    ctx.obj = TrezorConnection(path, bytes_session_id, passphrase_on_host)
 
 
 @cli.resultcallback()

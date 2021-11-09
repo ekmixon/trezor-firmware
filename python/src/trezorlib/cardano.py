@@ -676,7 +676,7 @@ def sign_tx(
     mint: List[AssetGroupWithTokens] = [],
     additional_witness_requests: List[Path] = [],
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
-) -> SignTxResponse:
+) -> Dict[str, Any]:
     UNEXPECTED_RESPONSE_ERROR = exceptions.TrezorException("Unexpected response")
 
     witness_requests = _get_witness_requests(

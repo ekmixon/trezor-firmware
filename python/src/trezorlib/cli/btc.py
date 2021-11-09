@@ -16,7 +16,7 @@
 
 import base64
 import json
-from typing import List, TextIO, Tuple
+from typing import List, Optional, TextIO, Tuple
 
 import click
 import construct as c
@@ -139,6 +139,7 @@ def get_address(
     coin = coin or DEFAULT_COIN
     address_n = tools.parse_path(address)
 
+    multisig: Optional[messages.MultisigRedeemScriptType]
     if multisig_xpub:
         if multisig_threshold is None:
             raise click.ClickException("Please specify signature threshold")
@@ -271,7 +272,7 @@ def get_descriptor(
     try:
         return _get_descriptor(client, coin, account, script_type, show_display)
     except ValueError as e:
-        raise click.ClickException(e.msg)
+        raise click.ClickException(str(e))
 
 
 #
@@ -360,9 +361,9 @@ def verify_message(
     client: TrezorClient, coin: str, address: str, signature: str, message: str
 ) -> bool:
     """Verify message."""
-    signature = base64.b64decode(signature)
+    signature_bytes = base64.b64decode(signature)
     coin = coin or DEFAULT_COIN
-    return btc.verify_message(client, coin, address, signature, message)
+    return btc.verify_message(client, coin, address, signature_bytes, message)
 
 
 #

@@ -17,7 +17,7 @@
 import functools
 import sys
 from contextlib import contextmanager
-from typing import Callable
+from typing import Callable, Optional
 
 import click
 
@@ -40,7 +40,9 @@ class ChoiceType(click.Choice):
 
 
 class TrezorConnection:
-    def __init__(self, path: str, session_id: bytes, passphrase_on_host: bool) -> None:
+    def __init__(
+        self, path: str, session_id: Optional[bytes], passphrase_on_host: bool
+    ) -> None:
         self.path = path
         self.session_id = session_id
         self.passphrase_on_host = passphrase_on_host

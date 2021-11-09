@@ -16,7 +16,7 @@
 
 import os
 import sys
-from typing import BinaryIO
+from typing import BinaryIO, Optional
 from urllib.parse import urlparse
 
 import click
@@ -108,7 +108,9 @@ def validate_signatures(
 
 
 def validate_fingerprint(
-    version: firmware.FirmwareFormat, fw: c.Container, expected_fingerprint: str = None
+    version: firmware.FirmwareFormat,
+    fw: c.Container,
+    expected_fingerprint: Optional[str] = None,
 ) -> None:
     """Determine and validate the firmware fingerprint.
 
@@ -330,9 +332,9 @@ def download_firmware_data(url: str) -> bytes:
 
 def validate_firmware(
     firmware_data: bytes,
-    fingerprint: str = None,
-    bootloader_onev2: bool = None,
-    trezor_major_version: int = None,
+    fingerprint: Optional[str] = None,
+    bootloader_onev2: Optional[bool] = None,
+    trezor_major_version: Optional[int] = None,
 ) -> None:
     """Validate the firmware through multiple tests.
 
@@ -423,6 +425,8 @@ def verify(
     In case of validation failure exits with the appropriate exit code.
     """
     # Deciding if to take the device into account
+    bootloader_onev2: Optional[bool]
+    trezor_major_version: Optional[int]
     if check_device:
         with obj.client_context() as client:
             bootloader_onev2 = _is_bootloader_onev2(client)

@@ -40,8 +40,7 @@ def get_address(
 ) -> bytes:
     """Get Monero address for specified path."""
     address_n = tools.parse_path(address)
-    network_type = int(network_type)
-    return monero.get_address(client, address_n, show_display, network_type)
+    return monero.get_address(client, address_n, show_display, int(network_type))
 
 
 @cli.command()
@@ -53,7 +52,6 @@ def get_address(
 def get_watch_key(client: TrezorClient, address: str, network_type: str) -> dict:
     """Get Monero watch key for specified path."""
     address_n = tools.parse_path(address)
-    network_type = int(network_type)
-    res = monero.get_watch_key(client, address_n, network_type)
+    res = monero.get_watch_key(client, address_n, int(network_type))
     output = {"address": res.address.decode(), "watch_key": res.watch_key.hex()}
     return output

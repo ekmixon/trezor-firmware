@@ -588,7 +588,9 @@ class TrezorClientDebugLink(TrezorClient):
         return output
 
     @classmethod
-    def _verify_responses(cls, expected: Optional[list], actual: Optional[list]) -> None:
+    def _verify_responses(
+        cls, expected: Optional[list], actual: Optional[list]
+    ) -> None:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
 
         if expected is None and actual is None:

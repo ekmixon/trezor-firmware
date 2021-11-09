@@ -68,7 +68,7 @@ def _amount_to_int(ctx, param, value: Optional[str]) -> Optional[int]:
     if value.isdigit():
         return int(value)
     try:
-        number, unit = re.match(r"^(\d+(?:.\d+)?)([a-z]+)", value).groups()
+        number, unit = re.match(r"^(\d+(?:.\d+)?)([a-z]+)", value).groups()  # type: ignore
         scale = ETHER_UNITS[unit]
         decoded_number = Decimal(number)
         return int(decoded_number * scale)
@@ -92,7 +92,9 @@ def _parse_access_list_item(value: str) -> ethereum.messages.EthereumAccessList:
         arr = value.split(":")
         address, storage_keys = arr[0], arr[1:]
         storage_keys_bytes = [ethereum.decode_hex(key) for key in storage_keys]
-        return ethereum.messages.EthereumAccessList(address, storage_keys_bytes)
+        return ethereum.messages.EthereumAccessList(
+            address=address, storage_keys=storage_keys_bytes
+        )
 
     except Exception:
         raise click.BadParameter("Access List format invalid")
@@ -427,5 +429,5 @@ def verify_message(
     client: TrezorClient, address: str, signature: str, message: str
 ) -> bool:
     """Verify message signed with Ethereum address."""
-    signature = ethereum.decode_hex(signature)
-    return ethereum.verify_message(client, address, signature, message)
+    signature_bytes = ethereum.decode_hex(signature)
+    return ethereum.verify_message(client, address, signature_bytes, message)

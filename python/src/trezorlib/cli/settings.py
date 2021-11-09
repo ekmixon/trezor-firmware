@@ -22,9 +22,10 @@ from . import ChoiceType, with_client
 
 try:
     from PIL import Image
-except ImportError:
-    Image = None
 
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
 
 ROTATION = {"north": 0, "east": 90, "south": 180, "west": 270}
 SAFETY_LEVELS = {
@@ -34,7 +35,7 @@ SAFETY_LEVELS = {
 
 
 def image_to_t1(filename: str) -> bytes:
-    if Image is None:
+    if not PIL_AVAILABLE:
         raise click.ClickException(
             "Image library is missing. Please install via 'pip install Pillow'."
         )
@@ -61,7 +62,7 @@ def image_to_tt(filename: str) -> bytes:
         except Exception as e:
             raise click.ClickException("TOIF file is corrupted") from e
 
-    elif Image is None:
+    elif not PIL_AVAILABLE:
         raise click.ClickException(
             "Image library is missing. Please install via 'pip install Pillow'."
         )
@@ -155,14 +156,13 @@ def auto_lock_delay(client: TrezorClient, delay: str) -> str:
 @with_client
 def flags(client: TrezorClient, flags: str) -> str:
     """Set device flags."""
-    flags = flags.lower()
-    if flags.startswith("0b"):
-        flags = int(flags, 2)
-    elif flags.startswith("0x"):
-        flags = int(flags, 16)
+    if flags.lower().startswith("0b"):
+        flags_int = int(flags, 2)
+    elif flags.lower().startswith("0x"):
+        flags_int = int(flags, 16)
     else:
-        flags = int(flags)
-    return device.apply_flags(client, flags=flags)
+        flags_int = int(flags)
+    return device.apply_flags(client, flags=flags_int)
 
 
 @cli.command()
