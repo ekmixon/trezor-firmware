@@ -501,8 +501,6 @@ class TrezorClientDebugLink(TrezorClient):
         if exc_type is None:
             # If no other exception was raised, evaluate missed responses
             # (raises AssertionError on mismatch)
-            assert expected_responses is not None
-            assert actual_responses is not None
             self._verify_responses(expected_responses, actual_responses)
 
     def set_expected_responses(self, expected: list) -> None:
@@ -590,11 +588,14 @@ class TrezorClientDebugLink(TrezorClient):
         return output
 
     @classmethod
-    def _verify_responses(cls, expected: list, actual: list) -> None:
+    def _verify_responses(cls, expected: Optional[list], actual: Optional[list]) -> None:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
 
         if expected is None and actual is None:
             return
+
+        assert expected is not None
+        assert actual is not None
 
         for i, (exp, act) in enumerate(zip_longest(expected, actual)):
             if exp is None:
