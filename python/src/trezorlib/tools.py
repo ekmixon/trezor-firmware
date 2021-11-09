@@ -31,10 +31,9 @@ from typing import (
     Union,
 )
 
-from .protobuf import MessageType
-
 if TYPE_CHECKING:
     from .client import TrezorClient
+    from .protobuf import MessageType
 
 HARDENED_FLAG = 1 << 31
 
@@ -217,7 +216,7 @@ class expect:
     # returned one of expected protobuf messages
     # or raises an exception
     def __init__(
-        self, expected: Type[MessageType], field: Optional[str] = None
+        self, expected: Type["MessageType"], field: Optional[str] = None
     ) -> None:
         self.expected = expected
         self.field = field

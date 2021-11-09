@@ -15,13 +15,15 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import json
-from typing import TextIO
+from typing import TYPE_CHECKING, TextIO
 
 import click
 
 from .. import cardano, messages, tools
-from ..client import TrezorClient
 from . import ChoiceType, with_client
+
+if TYPE_CHECKING:
+    from ..client import TrezorClient
 
 PATH_HELP = "BIP-32 path to key, e.g. m/44'/1815'/0'/0/0"
 
@@ -53,7 +55,7 @@ def cli() -> None:
 )
 @with_client
 def sign_tx(
-    client: TrezorClient,
+    client: "TrezorClient",
     file: TextIO,
     signing_mode: messages.CardanoTxSigningMode,
     protocol_magic: int,
@@ -160,7 +162,7 @@ def sign_tx(
 )
 @with_client
 def get_address(
-    client: TrezorClient,
+    client: "TrezorClient",
     address: str,
     address_type: messages.CardanoAddressType,
     staking_address: str,
@@ -231,7 +233,7 @@ def get_address(
 )
 @with_client
 def get_public_key(
-    client: TrezorClient,
+    client: "TrezorClient",
     address: str,
     derivation_type: messages.CardanoDerivationType,
 ) -> messages.CardanoPublicKey:
@@ -257,7 +259,7 @@ def get_public_key(
 )
 @with_client
 def get_native_script_hash(
-    client: TrezorClient,
+    client: "TrezorClient",
     file: TextIO,
     display_format: messages.CardanoNativeScriptHashDisplayFormat,
     derivation_type: messages.CardanoDerivationType,

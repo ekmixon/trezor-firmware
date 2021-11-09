@@ -21,6 +21,7 @@ from copy import deepcopy
 from enum import IntEnum
 from itertools import zip_longest
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -40,7 +41,10 @@ from .client import TrezorClient
 from .exceptions import TrezorFailure
 from .log import DUMP_BYTES
 from .tools import expect
-from .transport import Transport
+
+if TYPE_CHECKING:
+    from .transport import Transport
+
 
 EXPECTED_RESPONSES_CONTEXT_LINES = 3
 
@@ -54,7 +58,7 @@ def layout_lines(lines: List[str]) -> LayoutLines:
 
 
 class DebugLink:
-    def __init__(self, transport: Transport, auto_interact: bool = True) -> None:
+    def __init__(self, transport: "Transport", auto_interact: bool = True) -> None:
         self.transport = transport
         self.allow_interactions = auto_interact
 
@@ -380,7 +384,7 @@ class TrezorClientDebugLink(TrezorClient):
     # without special DebugLink interface provided
     # by the device.
 
-    def __init__(self, transport: Transport, auto_interact: bool = True) -> None:
+    def __init__(self, transport: "Transport", auto_interact: bool = True) -> None:
         try:
             debug_transport = transport.find_debug()
             self.debug = DebugLink(debug_transport, auto_interact)
@@ -648,7 +652,7 @@ class TrezorClientDebugLink(TrezorClient):
 
 @expect(messages.Success, field="message")
 def load_device(
-    client: TrezorClient,
+    client: "TrezorClient",
     mnemonic: list,
     pin: str,
     passphrase_protection: bool,
@@ -689,7 +693,7 @@ load_device_by_mnemonic = load_device
 
 
 @expect(messages.Success, field="message")
-def self_test(client: TrezorClient) -> str:
+def self_test(client: "TrezorClient") -> str:
     if client.features.bootloader_mode is not True:
         raise RuntimeError("Device must be in bootloader mode")
 

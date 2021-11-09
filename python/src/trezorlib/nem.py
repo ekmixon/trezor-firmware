@@ -14,11 +14,16 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
+from typing import TYPE_CHECKING
+
 import json
 
 from . import exceptions, messages
-from .client import TrezorClient
-from .tools import Address, expect
+from .tools import expect
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
+    from .tools import Address
 
 TYPE_TRANSACTION_TRANSFER = 0x0101
 TYPE_IMPORTANCE_TRANSFER = 0x0801
@@ -186,7 +191,7 @@ def create_sign_tx(transaction: dict) -> messages.NEMSignTx:
 
 @expect(messages.NEMAddress, field="address")
 def get_address(
-    client: TrezorClient, n: Address, network: int, show_display: bool = False
+    client: "TrezorClient", n: "Address", network: int, show_display: bool = False
 ) -> str:
     return client.call(
         messages.NEMGetAddress(address_n=n, network=network, show_display=show_display)
@@ -195,7 +200,7 @@ def get_address(
 
 @expect(messages.NEMSignedTx)
 def sign_tx(
-    client: TrezorClient, n: Address, transaction: dict
+    client: "TrezorClient", n: "Address", transaction: dict
 ) -> messages.NEMSignedTx:
     try:
         msg = create_sign_tx(transaction)

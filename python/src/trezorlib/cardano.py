@@ -16,11 +16,13 @@
 
 from ipaddress import ip_address
 from itertools import chain
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from . import exceptions, messages, tools
-from .client import TrezorClient
 from .tools import expect
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
 
 SIGNING_MODE_IDS = {
     "ORDINARY_TRANSACTION": messages.CardanoTxSigningMode.ORDINARY_TRANSACTION,
@@ -613,7 +615,7 @@ def _get_mint_items(mint: List[AssetGroupWithTokens]) -> Iterator[MintItem]:
 
 @expect(messages.CardanoAddress, field="address")
 def get_address(
-    client: TrezorClient,
+    client: "TrezorClient",
     address_parameters: messages.CardanoAddressParametersType,
     protocol_magic: int = PROTOCOL_MAGICS["mainnet"],
     network_id: int = NETWORK_IDS["mainnet"],
@@ -633,7 +635,7 @@ def get_address(
 
 @expect(messages.CardanoPublicKey)
 def get_public_key(
-    client: TrezorClient,
+    client: "TrezorClient",
     address_n: List[int],
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
 ) -> messages.CardanoPublicKey:
@@ -646,7 +648,7 @@ def get_public_key(
 
 @expect(messages.CardanoNativeScriptHash)
 def get_native_script_hash(
-    client: TrezorClient,
+    client: "TrezorClient",
     native_script: messages.CardanoNativeScript,
     display_format: messages.CardanoNativeScriptHashDisplayFormat = messages.CardanoNativeScriptHashDisplayFormat.HIDE,
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
@@ -661,7 +663,7 @@ def get_native_script_hash(
 
 
 def sign_tx(
-    client: TrezorClient,
+    client: "TrezorClient",
     signing_mode: messages.CardanoTxSigningMode,
     inputs: List[InputWithPath],
     outputs: List[OutputWithAssetGroups],

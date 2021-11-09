@@ -14,9 +14,15 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
+from typing import TYPE_CHECKING
+
 from . import messages as proto
-from .client import TrezorClient
-from .tools import Address, expect
+from .tools import expect
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
+    from .tools import Address
+
 
 # MAINNET = 0
 # TESTNET = 1
@@ -26,7 +32,7 @@ from .tools import Address, expect
 
 @expect(proto.MoneroAddress, field="address")
 def get_address(
-    client: TrezorClient, n: Address, show_display: bool = False, network_type: int = 0
+    client: "TrezorClient", n: "Address", show_display: bool = False, network_type: int = 0
 ) -> bytes:
     return client.call(
         proto.MoneroGetAddress(
@@ -37,6 +43,6 @@ def get_address(
 
 @expect(proto.MoneroWatchKey)
 def get_watch_key(
-    client: TrezorClient, n: Address, network_type: int = 0
+    client: "TrezorClient", n: "Address", network_type: int = 0
 ) -> proto.MoneroWatchKey:
     return client.call(proto.MoneroGetWatchKey(address_n=n, network_type=network_type))

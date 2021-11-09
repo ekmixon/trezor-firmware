@@ -14,14 +14,19 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
+from typing import TYPE_CHECKING
+
 from . import messages
-from .client import TrezorClient
-from .tools import Address, expect
+from .tools import expect
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
+    from .tools import Address
 
 
 @expect(messages.TezosAddress, field="address")
 def get_address(
-    client: TrezorClient, address_n: Address, show_display: bool = False
+    client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> str:
     return client.call(
         messages.TezosGetAddress(address_n=address_n, show_display=show_display)
@@ -30,7 +35,7 @@ def get_address(
 
 @expect(messages.TezosPublicKey, field="public_key")
 def get_public_key(
-    client: TrezorClient, address_n: Address, show_display: bool = False
+    client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> str:
     return client.call(
         messages.TezosGetPublicKey(address_n=address_n, show_display=show_display)
@@ -39,7 +44,7 @@ def get_public_key(
 
 @expect(messages.TezosSignedTx)
 def sign_tx(
-    client: TrezorClient, address_n: Address, sign_tx_msg: messages.TezosSignTx
+    client: "TrezorClient", address_n: "Address", sign_tx_msg: messages.TezosSignTx
 ) -> messages.TezosSignedTx:
     sign_tx_msg.address_n = address_n
     return client.call(sign_tx_msg)

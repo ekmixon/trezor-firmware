@@ -14,11 +14,14 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
+from typing import TYPE_CHECKING
 import click
 
 from .. import monero, tools
-from ..client import TrezorClient
 from . import with_client
+
+if TYPE_CHECKING:
+    from ..client import TrezorClient
 
 PATH_HELP = "BIP-32 path, e.g. m/44'/128'/0'"
 
@@ -36,7 +39,7 @@ def cli() -> None:
 )
 @with_client
 def get_address(
-    client: TrezorClient, address: str, show_display: bool, network_type: str
+    client: "TrezorClient", address: str, show_display: bool, network_type: str
 ) -> bytes:
     """Get Monero address for specified path."""
     address_n = tools.parse_path(address)
@@ -49,7 +52,7 @@ def get_address(
     "-t", "--network-type", type=click.Choice(["0", "1", "2", "3"]), default="0"
 )
 @with_client
-def get_watch_key(client: TrezorClient, address: str, network_type: str) -> dict:
+def get_watch_key(client: "TrezorClient", address: str, network_type: str) -> dict:
     """Get Monero watch key for specified path."""
     address_n = tools.parse_path(address)
     res = monero.get_watch_key(client, address_n, int(network_type))

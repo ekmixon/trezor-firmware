@@ -16,13 +16,16 @@
 
 import os
 import time
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 from . import messages
-from .client import TrezorClient
 from .exceptions import Cancelled
-from .protobuf import MessageType
 from .tools import expect, session
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
+    from .protobuf import MessageType
+
 
 RECOVERY_BACK = "\x08"  # backspace character, sent literally
 
@@ -30,7 +33,7 @@ RECOVERY_BACK = "\x08"  # backspace character, sent literally
 @expect(messages.Success, field="message")
 @session
 def apply_settings(
-    client: TrezorClient,
+    client: "TrezorClient",
     label: Optional[str] = None,
     language: Optional[str] = None,
     use_passphrase: Optional[bool] = None,
@@ -60,7 +63,7 @@ def apply_settings(
 
 @expect(messages.Success, field="message")
 @session
-def apply_flags(client: TrezorClient, flags: int) -> str:
+def apply_flags(client: "TrezorClient", flags: int) -> str:
     out = client.call(messages.ApplyFlags(flags=flags))
     client.refresh_features()
     return out
@@ -68,7 +71,7 @@ def apply_flags(client: TrezorClient, flags: int) -> str:
 
 @expect(messages.Success, field="message")
 @session
-def change_pin(client: TrezorClient, remove: bool = False) -> str:
+def change_pin(client: "TrezorClient", remove: bool = False) -> str:
     ret = client.call(messages.ChangePin(remove=remove))
     client.refresh_features()
     return ret
@@ -76,7 +79,7 @@ def change_pin(client: TrezorClient, remove: bool = False) -> str:
 
 @expect(messages.Success, field="message")
 @session
-def change_wipe_code(client: TrezorClient, remove: bool = False) -> str:
+def change_wipe_code(client: "TrezorClient", remove: bool = False) -> str:
     ret = client.call(messages.ChangeWipeCode(remove=remove))
     client.refresh_features()
     return ret
@@ -84,7 +87,7 @@ def change_wipe_code(client: TrezorClient, remove: bool = False) -> str:
 
 @expect(messages.Success, field="message")
 @session
-def sd_protect(client: TrezorClient, operation: messages.SdProtectOperationType) -> str:
+def sd_protect(client: "TrezorClient", operation: messages.SdProtectOperationType) -> str:
     ret = client.call(messages.SdProtect(operation=operation))
     client.refresh_features()
     return ret
@@ -92,7 +95,7 @@ def sd_protect(client: TrezorClient, operation: messages.SdProtectOperationType)
 
 @expect(messages.Success, field="message")
 @session
-def wipe(client: TrezorClient) -> str:
+def wipe(client: "TrezorClient") -> str:
     ret = client.call(messages.WipeDevice())
     client.init_device()
     return ret
@@ -100,7 +103,7 @@ def wipe(client: TrezorClient) -> str:
 
 @session
 def recover(
-    client: TrezorClient,
+    client: "TrezorClient",
     word_count: int = 24,
     passphrase_protection: bool = False,
     pin_protection: bool = True,
@@ -110,7 +113,7 @@ def recover(
     type: messages.RecoveryDeviceType = messages.RecoveryDeviceType.ScrambledWords,
     dry_run: bool = False,
     u2f_counter: Optional[int] = None,
-) -> MessageType:
+) -> "MessageType":
     if client.features.model == "1" and input_callback is None:
         raise RuntimeError("Input callback required for Trezor One")
 
@@ -154,7 +157,7 @@ def recover(
 @expect(messages.Success, field="message")
 @session
 def reset(
-    client: TrezorClient,
+    client: "TrezorClient",
     display_random: bool = False,
     strength: Optional[int] = None,
     passphrase_protection: bool = False,
@@ -204,18 +207,18 @@ def reset(
 
 @expect(messages.Success, field="message")
 @session
-def backup(client: TrezorClient) -> str:
+def backup(client: "TrezorClient") -> str:
     ret = client.call(messages.BackupDevice())
     client.refresh_features()
     return ret
 
 
 @expect(messages.Success, field="message")
-def cancel_authorization(client: TrezorClient) -> str:
+def cancel_authorization(client: "TrezorClient") -> str:
     return client.call(messages.CancelAuthorization())
 
 
 @session
 @expect(messages.Success, field="message")
-def reboot_to_bootloader(client: TrezorClient) -> str:
+def reboot_to_bootloader(client: "TrezorClient") -> str:
     return client.call(messages.RebootToBootloader())

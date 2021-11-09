@@ -413,7 +413,7 @@ def load_message(reader: Reader, msg_type: Type[MT]) -> MT:
     return msg_type(**msg_dict)
 
 
-def dump_message(writer: Writer, msg: MessageType) -> None:
+def dump_message(writer: Writer, msg: "MessageType") -> None:
     repvalue = [0]
     mtype = msg.__class__
 
@@ -481,7 +481,7 @@ def dump_message(writer: Writer, msg: MessageType) -> None:
 
 
 def format_message(
-    pb: MessageType,
+    pb: "MessageType",
     indent: int = 0,
     sep: str = " " * 4,
     truncate_after: Optional[int] = 256,
@@ -607,7 +607,7 @@ def dict_to_proto(message_type: Type[MT], d: Dict[str, Any]) -> MT:
     return message_type(**params)
 
 
-def to_dict(msg: MessageType, hexlify_bytes: bool = True) -> Dict[str, Any]:
+def to_dict(msg: "MessageType", hexlify_bytes: bool = True) -> Dict[str, Any]:
     def convert_value(value: Any) -> Any:
         if hexlify_bytes and isinstance(value, bytes):
             return value.hex()

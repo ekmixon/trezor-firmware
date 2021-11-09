@@ -15,11 +15,14 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 from datetime import datetime
-from typing import List, Tuple
+from typing import TYPE_CHECKING, List, Tuple
 
 from . import exceptions, messages
-from .client import TrezorClient
-from .tools import Address, b58decode, expect, session
+from .tools import b58decode, expect, session
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
+    from .tools import Address
 
 
 def name_to_number(name: str) -> int:
@@ -319,7 +322,7 @@ def parse_transaction_json(
 
 @expect(messages.EosPublicKey)
 def get_public_key(
-    client: TrezorClient, n: Address, show_display: bool = False
+    client: "TrezorClient", n: "Address", show_display: bool = False
 ) -> messages.EosPublicKey:
     response = client.call(
         messages.EosGetPublicKey(address_n=n, show_display=show_display)
@@ -329,7 +332,7 @@ def get_public_key(
 
 @session
 def sign_tx(
-    client: TrezorClient, address: Address, transaction: dict, chain_id: str
+    client: "TrezorClient", address: "Address", transaction: dict, chain_id: str
 ) -> messages.EosSignedTx:
     header, actions = parse_transaction_json(transaction)
 

@@ -16,14 +16,16 @@
 
 import base64
 import json
-from typing import List, Optional, TextIO, Tuple
+from typing import TYPE_CHECKING, List, Optional, TextIO, Tuple
 
 import click
 import construct as c
 
 from .. import btc, messages, protobuf, tools
-from ..client import TrezorClient
 from . import ChoiceType, with_client
+
+if TYPE_CHECKING:
+    from ..client import TrezorClient
 
 INPUT_SCRIPTS = {
     "address": messages.InputScriptType.SPENDADDRESS,
@@ -107,7 +109,7 @@ def cli() -> None:
 )
 @with_client
 def get_address(
-    client: TrezorClient,
+    client: "TrezorClient",
     coin: str,
     address: str,
     script_type: messages.InputScriptType,
@@ -172,7 +174,7 @@ def get_address(
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
 def get_public_node(
-    client: TrezorClient,
+    client: "TrezorClient",
     coin: str,
     address: str,
     curve: str,
@@ -208,7 +210,7 @@ def _append_descriptor_checksum(desc: str) -> str:
 
 
 def _get_descriptor(
-    client: TrezorClient,
+    client: "TrezorClient",
     coin: str,
     account: str,
     script_type: messages.InputScriptType,
@@ -262,7 +264,7 @@ def _get_descriptor(
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
 def get_descriptor(
-    client: TrezorClient,
+    client: "TrezorClient",
     coin: str,
     account: str,
     script_type: messages.InputScriptType,
@@ -284,7 +286,7 @@ def get_descriptor(
 @click.option("-c", "--coin", is_flag=True, hidden=True, expose_value=False)
 @click.argument("json_file", type=click.File())
 @with_client
-def sign_tx(client: TrezorClient, json_file: TextIO) -> None:
+def sign_tx(client: "TrezorClient", json_file: TextIO) -> None:
     """Sign transaction.
 
     Transaction data must be provided in a JSON file. See `transaction-format.md` for
@@ -334,7 +336,7 @@ def sign_tx(client: TrezorClient, json_file: TextIO) -> None:
 @click.argument("message")
 @with_client
 def sign_message(
-    client: TrezorClient,
+    client: "TrezorClient",
     coin: str,
     address: str,
     message: str,
@@ -358,7 +360,7 @@ def sign_message(
 @click.argument("message")
 @with_client
 def verify_message(
-    client: TrezorClient, coin: str, address: str, signature: str, message: str
+    client: "TrezorClient", coin: str, address: str, signature: str, message: str
 ) -> bool:
     """Verify message."""
     signature_bytes = base64.b64decode(signature)

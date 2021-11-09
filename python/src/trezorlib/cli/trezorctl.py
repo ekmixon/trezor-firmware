@@ -26,7 +26,7 @@ import click
 
 from .. import log, messages, protobuf, ui
 from ..client import TrezorClient
-from ..transport import Transport, enumerate_devices
+from ..transport import enumerate_devices
 from ..transport.udp import UdpTransport
 from . import (
     TrezorConnection,
@@ -49,6 +49,9 @@ from . import (
     tezos,
     with_client,
 )
+
+if TYPE_CHECKING:
+    from ..transport import Transport
 
 LOG = logging.getLogger(__name__)
 
@@ -224,7 +227,7 @@ def format_device_name(features: messages.Features) -> str:
 
 @cli.command(name="list")
 @click.option("-n", "no_resolve", is_flag=True, help="Do not resolve Trezor names")
-def list_devices(no_resolve: bool) -> Optional[Iterable[Transport]]:
+def list_devices(no_resolve: bool) -> Optional[Iterable["Transport"]]:
     """List connected Trezor devices."""
     if no_resolve:
         return enumerate_devices()
@@ -253,7 +256,7 @@ def version() -> str:
 @click.argument("message")
 @click.option("-b", "--button-protection", is_flag=True)
 @with_client
-def ping(client: TrezorClient, message: str, button_protection: bool) -> str:
+def ping(client: "TrezorClient", message: str, button_protection: bool) -> str:
     """Send ping message."""
     return client.ping(message, button_protection=button_protection)
 
@@ -288,14 +291,14 @@ def get_session(obj: TrezorConnection) -> str:
 
 @cli.command()
 @with_client
-def clear_session(client: TrezorClient) -> None:
+def clear_session(client: "TrezorClient") -> None:
     """Clear session (remove cached PIN, passphrase, etc.)."""
     return client.clear_session()
 
 
 @cli.command()
 @with_client
-def get_features(client: TrezorClient) -> messages.Features:
+def get_features(client: "TrezorClient") -> messages.Features:
     """Retrieve device features and settings."""
     return client.features
 

@@ -15,11 +15,14 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 from functools import reduce
-from typing import Iterable, List, Tuple
+from typing import TYPE_CHECKING, Iterable, List, Tuple
 
 from . import _ed25519, messages
-from .client import TrezorClient
-from .tools import Address, expect
+from .tools import expect
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
+    from .tools import Address
 
 # XXX, these could be NewType's, but that would infect users of the cosi module with these types as well.
 # Unsure if we want that.
@@ -137,14 +140,14 @@ def sign_with_privkey(
 
 
 @expect(messages.CosiCommitment)
-def commit(client: TrezorClient, n: Address, data: bytes) -> messages.CosiCommitment:
+def commit(client: "TrezorClient", n: "Address", data: bytes) -> messages.CosiCommitment:
     return client.call(messages.CosiCommit(address_n=n, data=data))
 
 
 @expect(messages.CosiSignature)
 def sign(
-    client: TrezorClient,
-    n: Address,
+    client: "TrezorClient",
+    n: "Address",
     data: bytes,
     global_commitment: bytes,
     global_pubkey: bytes,

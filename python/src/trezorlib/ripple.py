@@ -14,10 +14,15 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
+from typing import TYPE_CHECKING
+
 from . import messages
-from .client import TrezorClient
 from .protobuf import dict_to_proto
-from .tools import Address, dict_from_camelcase, expect
+from .tools import dict_from_camelcase, expect
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
+    from .tools import Address
 
 REQUIRED_FIELDS = ("Fee", "Sequence", "TransactionType", "Payment")
 REQUIRED_PAYMENT_FIELDS = ("Amount", "Destination")
@@ -25,7 +30,7 @@ REQUIRED_PAYMENT_FIELDS = ("Amount", "Destination")
 
 @expect(messages.RippleAddress, field="address")
 def get_address(
-    client: TrezorClient, address_n: Address, show_display: bool = False
+    client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> str:
     return client.call(
         messages.RippleGetAddress(address_n=address_n, show_display=show_display)
@@ -34,7 +39,7 @@ def get_address(
 
 @expect(messages.RippleSignedTx)
 def sign_tx(
-    client: TrezorClient, address_n: Address, msg: messages.RippleSignTx
+    client: "TrezorClient", address_n: "Address", msg: messages.RippleSignTx
 ) -> messages.RippleSignedTx:
     msg.address_n = address_n
     return client.call(msg)

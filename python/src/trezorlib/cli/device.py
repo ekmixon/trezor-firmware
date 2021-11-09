@@ -14,13 +14,17 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
+from typing import TYPE_CHECKING
 import sys
 
 import click
 
 from .. import debuglink, device, exceptions, messages, ui
-from ..client import TrezorClient
-from . import ChoiceType, TrezorConnection, with_client
+from . import ChoiceType, with_client
+
+if TYPE_CHECKING:
+    from ..client import TrezorClient
+    from . import TrezorConnection
 
 RECOVERY_TYPE = {
     "scrambled": messages.RecoveryDeviceType.ScrambledWords,
@@ -47,7 +51,7 @@ def cli() -> None:
 
 @cli.command()
 @with_client
-def self_test(client: TrezorClient) -> str:
+def self_test(client: "TrezorClient") -> str:
     """Perform a self-test."""
     return debuglink.self_test(client)
 
@@ -60,7 +64,7 @@ def self_test(client: TrezorClient) -> str:
     is_flag=True,
 )
 @with_client
-def wipe(client: TrezorClient, bootloader: bool) -> str:
+def wipe(client: "TrezorClient", bootloader: bool) -> str:
     """Reset device to factory defaults and remove all private data."""
     if bootloader:
         if not client.features.bootloader_mode:
@@ -99,7 +103,7 @@ def wipe(client: TrezorClient, bootloader: bool) -> str:
 @click.option("-n", "--no-backup", is_flag=True)
 @with_client
 def load(
-    client: TrezorClient,
+    client: "TrezorClient",
     mnemonic: list,
     pin: str,
     passphrase_protection: bool,
@@ -147,7 +151,7 @@ def load(
 @click.option("-d", "--dry-run", is_flag=True)
 @with_client
 def recover(
-    client: TrezorClient,
+    client: "TrezorClient",
     words: str,
     expand: bool,
     pin_protection: bool,
@@ -190,7 +194,7 @@ def recover(
 @click.option("-b", "--backup-type", type=ChoiceType(BACKUP_TYPE), default="single")
 @with_client
 def setup(
-    client: TrezorClient,
+    client: "TrezorClient",
     show_entropy: bool,
     strength: int,
     passphrase_protection: bool,
@@ -234,7 +238,7 @@ def setup(
 
 @cli.command()
 @with_client
-def backup(client: TrezorClient) -> str:
+def backup(client: "TrezorClient") -> str:
     """Perform device seed backup."""
     return device.backup(client)
 
@@ -242,7 +246,7 @@ def backup(client: TrezorClient) -> str:
 @cli.command()
 @click.argument("operation", type=ChoiceType(SD_PROTECT_OPERATIONS))
 @with_client
-def sd_protect(client: TrezorClient, operation: messages.SdProtectOperationType) -> str:
+def sd_protect(client: "TrezorClient", operation: messages.SdProtectOperationType) -> str:
     """Secure the device with SD card protection.
 
     When SD card protection is enabled, a randomly generated secret is stored
@@ -263,7 +267,7 @@ def sd_protect(client: TrezorClient, operation: messages.SdProtectOperationType)
 
 @cli.command()
 @click.pass_obj
-def reboot_to_bootloader(obj: TrezorConnection) -> str:
+def reboot_to_bootloader(obj: "TrezorConnection") -> str:
     """Reboot device into bootloader mode.
 
     Currently only supported on Trezor Model One.

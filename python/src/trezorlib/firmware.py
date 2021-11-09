@@ -16,18 +16,20 @@
 
 import hashlib
 from enum import Enum
-from typing import Callable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 
 import construct as c
 import ecdsa
 
 from . import cosi, messages, tools
-from .client import TrezorClient
 
 try:
     from hashlib import blake2s
 except ImportError:
     from pyblake2 import blake2s
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
 
 
 V1_SIGNATURE_SLOTS = 3
@@ -487,7 +489,7 @@ def validate(
 
 
 @tools.session
-def update(client: TrezorClient, data: bytes) -> None:
+def update(client: "TrezorClient", data: bytes) -> None:
     if client.features.bootloader_mode is False:
         raise RuntimeError("Device must be in bootloader mode")
 

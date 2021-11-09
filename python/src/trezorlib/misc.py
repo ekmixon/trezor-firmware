@@ -14,10 +14,13 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
-from . import messages
-from .tools import Address, expect
+from typing import TYPE_CHECKING
 
-if False:
+from . import messages
+from .tools import expect
+
+if TYPE_CHECKING:
+    from .tools import Address
     from .client import TrezorClient
 
 
@@ -63,7 +66,7 @@ def get_ecdh_session_key(
 @expect(messages.CipheredKeyValue, field="value")
 def encrypt_keyvalue(
     client: "TrezorClient",
-    n: Address,
+    n: "Address",
     key: str,
     value: bytes,
     ask_on_encrypt: bool = True,
@@ -86,7 +89,7 @@ def encrypt_keyvalue(
 @expect(messages.CipheredKeyValue, field="value")
 def decrypt_keyvalue(
     client: "TrezorClient",
-    n: Address,
+    n: "Address",
     key: str,
     value: bytes,
     ask_on_encrypt: bool = True,

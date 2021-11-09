@@ -14,15 +14,20 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
+from typing import TYPE_CHECKING
+
 from . import messages
-from .client import TrezorClient
 from .protobuf import dict_to_proto
-from .tools import Address, expect, session
+from .tools import expect, session
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
+    from .tools import Address
 
 
 @expect(messages.BinanceAddress, field="address")
 def get_address(
-    client: TrezorClient, address_n: Address, show_display: bool = False
+    client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> str:
     return client.call(
         messages.BinanceGetAddress(address_n=address_n, show_display=show_display)
@@ -31,7 +36,7 @@ def get_address(
 
 @expect(messages.BinancePublicKey, field="public_key")
 def get_public_key(
-    client: TrezorClient, address_n: Address, show_display: bool = False
+    client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> bytes:
     return client.call(
         messages.BinanceGetPublicKey(address_n=address_n, show_display=show_display)
@@ -40,7 +45,7 @@ def get_public_key(
 
 @session
 def sign_tx(
-    client: TrezorClient, address_n: Address, tx_json: dict
+    client: "TrezorClient", address_n: "Address", tx_json: dict
 ) -> messages.BinanceSignedTx:
     msg = tx_json["msgs"][0]
     envelope = dict_to_proto(messages.BinanceSignTx, tx_json)

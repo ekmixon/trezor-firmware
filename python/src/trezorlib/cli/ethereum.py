@@ -18,13 +18,15 @@ import json
 import re
 import sys
 from decimal import Decimal
-from typing import List, Optional, TextIO, Union
+from typing import TYPE_CHECKING, List, Optional, TextIO, Union
 
 import click
 
 from .. import ethereum, tools
-from ..client import TrezorClient
 from . import with_client
+
+if TYPE_CHECKING:
+    from ..client import TrezorClient
 
 try:
     import rlp
@@ -150,7 +152,7 @@ def cli() -> None:
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_address(client: TrezorClient, address: str, show_display: bool) -> str:
+def get_address(client: "TrezorClient", address: str, show_display: bool) -> str:
     """Get Ethereum address in hex encoding."""
     address_n = tools.parse_path(address)
     return ethereum.get_address(client, address_n, show_display)
@@ -160,7 +162,7 @@ def get_address(client: TrezorClient, address: str, show_display: bool) -> str:
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_public_node(client: TrezorClient, address: str, show_display: bool) -> dict:
+def get_public_node(client: "TrezorClient", address: str, show_display: bool) -> dict:
     """Get Ethereum public node of given path."""
     address_n = tools.parse_path(address)
     result = ethereum.get_public_node(client, address_n, show_display=show_display)
@@ -223,7 +225,7 @@ def get_public_node(client: TrezorClient, address: str, show_display: bool) -> d
 @click.argument("amount", callback=_amount_to_int)
 @with_client
 def sign_tx(
-    client: TrezorClient,
+    client: "TrezorClient",
     chain_id: int,
     address: str,
     amount: int,
@@ -378,7 +380,7 @@ def sign_tx(
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.argument("message")
 @with_client
-def sign_message(client: TrezorClient, address: str, message: str) -> dict:
+def sign_message(client: "TrezorClient", address: str, message: str) -> dict:
     """Sign message with Ethereum address."""
     address_n = tools.parse_path(address)
     ret = ethereum.sign_message(client, address_n, message)
@@ -400,7 +402,7 @@ def sign_message(client: TrezorClient, address: str, message: str) -> dict:
 @click.argument("file", type=click.File("r"))
 @with_client
 def sign_typed_data(
-    client: TrezorClient, address: str, metamask_v4_compat: bool, file: TextIO
+    client: "TrezorClient", address: str, metamask_v4_compat: bool, file: TextIO
 ) -> dict:
     """Sign typed data (EIP-712) with Ethereum address.
 
@@ -426,7 +428,7 @@ def sign_typed_data(
 @click.argument("message")
 @with_client
 def verify_message(
-    client: TrezorClient, address: str, signature: str, message: str
+    client: "TrezorClient", address: str, signature: str, message: str
 ) -> bool:
     """Verify message signed with Ethereum address."""
     signature_bytes = ethereum.decode_hex(signature)
