@@ -86,7 +86,7 @@ def image_to_tt(filename: str) -> bytes:
 
 
 @click.group(name="set")
-def cli():
+def cli() -> None:
     """Device settings."""
 
 
@@ -230,7 +230,7 @@ def experimental_features(client: TrezorClient, enable: bool) -> str:
 
 
 @cli.group()
-def passphrase():
+def passphrase() -> None:
     """Enable, disable or configure passphrase protection."""
     # this exists in order to support command aliases for "enable-passphrase"
     # and "disable-passphrase". Otherwise `passphrase` would just take an argument.

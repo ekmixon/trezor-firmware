@@ -27,7 +27,7 @@ PATH_HELP = "BIP-32 path, e.g. m/44'/1729'/0'"
 
 
 @click.group(name="tezos")
-def cli():
+def cli() -> None:
     """Tezos commands."""
 
 

@@ -74,7 +74,7 @@ def xpub_deserialize(xpubstr: str) -> Tuple[str, messages.HDNodeType]:
         fingerprint=data.fingerprint,
         child_num=data.child_num,
         chain_code=data.chain_code,
-        public_key=public_key,
+        public_key=public_key,  # type: ignore
         private_key=private_key,
     )
 
@@ -82,7 +82,7 @@ def xpub_deserialize(xpubstr: str) -> Tuple[str, messages.HDNodeType]:
 
 
 @click.group(name="btc")
-def cli():
+def cli() -> None:
     """Bitcoin and Bitcoin-like coins commands."""
 
 

@@ -21,8 +21,8 @@ from typing import Callable, Optional
 from . import messages
 from .client import TrezorClient
 from .exceptions import Cancelled
-from .tools import expect, session
 from .protobuf import MessageType
+from .tools import expect, session
 
 RECOVERY_BACK = "\x08"  # backspace character, sent literally
 

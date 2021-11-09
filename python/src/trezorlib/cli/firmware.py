@@ -16,7 +16,7 @@
 
 import os
 import sys
-from typing import BinaryIO, Optional
+from typing import BinaryIO, Iterable, Optional
 from urllib.parse import urlparse
 
 import click
@@ -241,7 +241,7 @@ def find_best_firmware_version(
     (higher than the specified one, if existing).
     """
 
-    def version_str(version):
+    def version_str(version: Iterable[int]) -> str:
         return ".".join(map(str, version))
 
     f = client.features
@@ -400,7 +400,7 @@ def upload_firmware_into_device(
 
 
 @click.group(name="firmware")
-def cli():
+def cli() -> None:
     """Firmware commands."""
 
 

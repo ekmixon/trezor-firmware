@@ -23,7 +23,7 @@ class Status(Enum):
     MISSING = click.style("MISSING", fg="blue", bold=True)
     DEVEL = click.style("DEVEL", fg="red", bold=True)
 
-    def is_ok(self):
+    def is_ok(self) -> bool:
         return self is Status.VALID or self is Status.DEVEL
 
 
@@ -48,7 +48,7 @@ def _make_dev_keys(*key_bytes: bytes) -> List[bytes]:
     return [k * 32 for k in key_bytes]
 
 
-def compute_vhash(vendor_header):
+def compute_vhash(vendor_header: c.Container) -> bytes:
     m = vendor_header.sig_m
     n = vendor_header.sig_n
     pubkeys = vendor_header.pubkeys
@@ -256,7 +256,7 @@ class BinImage(SignableImage):
     def digest(self) -> bytes:
         return firmware.header_digest(self.digest_header)
 
-    def rehash(self):
+    def rehash(self) -> None:
         self.header.hashes = self.code_hashes
 
     def format(self, verbose: bool = False) -> str:

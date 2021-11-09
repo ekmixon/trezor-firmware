@@ -169,6 +169,9 @@ def sign_tx(
     chain_id: Optional[int] = None,
     tx_type: Optional[int] = None,
 ) -> Tuple[int, bytes, bytes]:
+    if chain_id is None:
+        raise exceptions.TrezorException("Chain ID cannot be undefined")
+
     msg = messages.EthereumSignTx(
         address_n=n,
         nonce=int_to_big_endian(nonce),

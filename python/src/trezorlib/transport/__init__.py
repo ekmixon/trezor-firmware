@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import logging
-from typing import Iterable, List, Optional, Tuple, Type
+from typing import Iterable, List, Tuple, Type
 
 from ..exceptions import TrezorException
 

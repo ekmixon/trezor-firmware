@@ -26,12 +26,12 @@ CURVE_NAME = {1: "P-256 (secp256r1)", 6: "Ed25519"}
 
 
 @click.group(name="fido")
-def cli():
+def cli() -> None:
     """FIDO2, U2F and WebAuthN management commands."""
 
 
 @cli.group()
-def credentials():
+def credentials() -> None:
     """Manage FIDO2 resident credentials."""
 
 
@@ -98,14 +98,14 @@ def credentials_remove(client: TrezorClient, index: int) -> str:
 
 
 @cli.group()
-def counter():
+def counter() -> None:
     """Get or set the FIDO/U2F counter value."""
 
 
 @counter.command(name="set")
 @click.argument("counter", type=int)
 @with_client
-def counter_set(client: TrezorClient, counter) -> str:
+def counter_set(client: TrezorClient, counter: int) -> str:
     """Set FIDO/U2F counter value."""
     return fido.set_counter(client, counter)
 

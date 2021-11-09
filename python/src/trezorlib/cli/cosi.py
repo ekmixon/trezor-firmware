@@ -24,7 +24,7 @@ PATH_HELP = "BIP-32 path, e.g. m/44'/0'/0'/0/0"
 
 
 @click.group(name="cosi")
-def cli():
+def cli() -> None:
     """CoSi (Cothority / collective signing) commands."""
 
 

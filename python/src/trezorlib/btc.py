@@ -290,6 +290,12 @@ def sign_tx(
         if res.request_type == R.TXFINISHED:
             break
 
+        # Preparing for the if/elifs below
+        assert res.details is not None
+        assert res.details.request_index is not None
+        request_index = res.details.request_index
+        msg = messages.TransactionType()
+
         # Device asked for one more information, let's process it.
         if res.details.tx_hash is not None:
             current_tx = prev_txes[res.details.tx_hash]
@@ -298,32 +304,27 @@ def sign_tx(
 
         if res.request_type == R.TXMETA:
             msg = copy_tx_meta(current_tx)
-            res = client.call(messages.TxAck(tx=msg))
-
         elif res.request_type in (R.TXINPUT, R.TXORIGINPUT):
-            msg = messages.TransactionType()
-            msg.inputs = [current_tx.inputs[res.details.request_index]]
-            res = client.call(messages.TxAck(tx=msg))
-
+            msg.inputs = [current_tx.inputs[request_index]]
         elif res.request_type == R.TXOUTPUT:
-            msg = messages.TransactionType()
             if res.details.tx_hash:
-                msg.bin_outputs = [current_tx.bin_outputs[res.details.request_index]]
+                msg.bin_outputs = [current_tx.bin_outputs[request_index]]
             else:
-                msg.outputs = [current_tx.outputs[res.details.request_index]]
-
-            res = client.call(messages.TxAck(tx=msg))
-
+                msg.outputs = [current_tx.outputs[request_index]]
         elif res.request_type == R.TXORIGOUTPUT:
-            msg = messages.TransactionType()
-            msg.outputs = [current_tx.outputs[res.details.request_index]]
-            res = client.call(messages.TxAck(tx=msg))
-
+            msg.outputs = [current_tx.outputs[request_index]]
         elif res.request_type == R.TXEXTRADATA:
+            assert res.details.extra_data_offset is not None
+            assert res.details.extra_data_len is not None
+            assert current_tx.extra_data is not None
             o, l = res.details.extra_data_offset, res.details.extra_data_len
-            msg = messages.TransactionType()
             msg.extra_data = current_tx.extra_data[o : o + l]
-            res = client.call(messages.TxAck(tx=msg))
+        else:
+            raise exceptions.TrezorException(
+                f"Unknown request type - {res.request_type}."
+            )
+
+        res = client.call(messages.TxAck(tx=msg))
 
     if not isinstance(res, messages.TxRequest):
         raise exceptions.TrezorException("Unexpected message")

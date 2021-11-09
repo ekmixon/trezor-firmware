@@ -54,7 +54,7 @@ def layout_lines(lines: List[str]) -> LayoutLines:
 
 
 class DebugLink:
-    def __init__(self, transport, auto_interact: bool = True) -> None:
+    def __init__(self, transport: Transport, auto_interact: bool = True) -> None:
         self.transport = transport
         self.allow_interactions = auto_interact
 

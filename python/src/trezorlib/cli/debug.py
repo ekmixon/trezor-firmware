@@ -20,7 +20,7 @@ from .. import mapping, messages, protobuf
 
 
 @click.group(name="debug")
-def cli():
+def cli() -> None:
     """Miscellaneous debug features."""
 
 

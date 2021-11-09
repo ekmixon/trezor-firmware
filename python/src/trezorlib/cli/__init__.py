@@ -96,7 +96,7 @@ class TrezorConnection:
             # other exceptions may cause a traceback
 
 
-def with_client(func: Callable):
+def with_client(func: Callable) -> Callable:
     """Wrap a Click command in `with obj.client_context() as client`.
 
     Sessions are handled transparently. The user is warned when session did not resume

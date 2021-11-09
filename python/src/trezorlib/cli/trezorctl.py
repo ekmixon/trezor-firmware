@@ -20,13 +20,13 @@ import json
 import logging
 import os
 import time
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Iterable, Optional, cast
 
 import click
 
 from .. import log, messages, protobuf, ui
 from ..client import TrezorClient
-from ..transport import enumerate_devices
+from ..transport import Transport, enumerate_devices
 from ..transport.udp import UdpTransport
 from . import (
     TrezorConnection,
@@ -120,7 +120,8 @@ class TrezorctlGroup(click.Group):
         # We are moving to 'binance' command with 'sign-tx' subcommand.
         try:
             command, subcommand = cmd_name.split("-", maxsplit=1)
-            return super().get_command(ctx, command).get_command(ctx, subcommand)
+            # When belowmentioned fails, we ignore the Exception (even in bad-type-case, which is ignored)
+            return super().get_command(ctx, command).get_command(ctx, subcommand)  # type: ignore
         except Exception:
             pass
 
@@ -179,8 +180,12 @@ def cli(
     ctx.obj = TrezorConnection(path, bytes_session_id, passphrase_on_host)
 
 
+if TYPE_CHECKING:
+    cli = cast(TrezorctlGroup, cli)
+
+
 @cli.resultcallback()
-def print_result(res, is_json: bool, **kwargs) -> None:
+def print_result(res: Any, is_json: bool, **kwargs: Any) -> None:
     if is_json:
         if isinstance(res, protobuf.MessageType):
             click.echo(json.dumps({res.__class__.__name__: res.__dict__}))
@@ -219,7 +224,7 @@ def format_device_name(features: messages.Features) -> str:
 
 @cli.command(name="list")
 @click.option("-n", "no_resolve", is_flag=True, help="Do not resolve Trezor names")
-def list_devices(no_resolve: bool):
+def list_devices(no_resolve: bool) -> Optional[Iterable[Transport]]:
     """List connected Trezor devices."""
     if no_resolve:
         return enumerate_devices()
@@ -228,6 +233,7 @@ def list_devices(no_resolve: bool):
         client = TrezorClient(transport, ui=ui.ClickUI())
         click.echo(f"{transport} - {format_device_name(client.features)}")
         client.end_session()
+    return None
 
 
 @cli.command()

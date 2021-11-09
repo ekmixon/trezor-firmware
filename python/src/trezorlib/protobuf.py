@@ -27,7 +27,7 @@ import warnings
 from enum import IntEnum
 from io import BytesIO
 from itertools import zip_longest
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import attr
 from typing_extensions import Protocol

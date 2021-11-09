@@ -19,10 +19,22 @@ import hashlib
 import re
 import struct
 import unicodedata
-from typing import Any, Callable, Dict, List, NewType, Optional, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    NewType,
+    Optional,
+    Type,
+    Union,
+)
 
 from .protobuf import MessageType
-from .client import TrezorClient
+
+if TYPE_CHECKING:
+    from .client import TrezorClient
 
 HARDENED_FLAG = 1 << 31
 
@@ -168,7 +180,7 @@ def parse_path(nstr: Optional[str]) -> Address:
     :return: list of integers
     """
     if not nstr:
-        return []
+        return Address([])
 
     n = nstr.split("/")
 
@@ -185,7 +197,7 @@ def parse_path(nstr: Optional[str]) -> Address:
             return int(x)
 
     try:
-        return [str_to_harden(x) for x in n]
+        return Address([str_to_harden(x) for x in n])
     except Exception as e:
         raise ValueError("Invalid BIP32 path", nstr) from e
 
@@ -229,7 +241,7 @@ def session(f: Callable) -> Callable:
     # Decorator wraps a BaseClient method
     # with session activation / deactivation
     @functools.wraps(f)
-    def wrapped_f(client: TrezorClient, *args: Any, **kwargs: Any) -> Any:
+    def wrapped_f(client: "TrezorClient", *args: Any, **kwargs: Any) -> Any:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
         client.open()
         try:

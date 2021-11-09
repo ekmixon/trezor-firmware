@@ -35,7 +35,7 @@ PATH_HELP = "BIP32 path. Always use hardened paths and the m/44'/148'/ prefix"
 
 
 @click.group(name="stellar")
-def cli():
+def cli() -> None:
     """Stellar commands."""
 
 

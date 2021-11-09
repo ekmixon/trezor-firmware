@@ -19,7 +19,7 @@ import os
 import subprocess
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, TextIO, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, TextIO, Union
 
 from ..debuglink import TrezorClientDebugLink
 from ..transport.udp import UdpTransport
@@ -44,11 +44,11 @@ class Emulator:
         executable: Path,
         profile_dir: str,
         *,
-        logfile: Optional[Path] = None,
+        logfile: Union[TextIO, str, Path, None] = None,
         storage: Optional[bytes] = None,
         headless: bool = False,
         debug: bool = True,
-        extra_args=(),
+        extra_args: Iterable[str] = (),
     ) -> None:
         self.executable = Path(executable).resolve()
         if not executable.exists():
@@ -123,14 +123,16 @@ class Emulator:
         args = self.make_args()
         env = self.make_env()
 
-        output: Union[Path, TextIO]
+        # Opening the file if it is not already opened
         if hasattr(self.logfile, "write"):
+            assert isinstance(self.logfile, TextIO)
             output = self.logfile
         else:
+            assert isinstance(self.logfile, (str, Path))
             output = open(self.logfile, "w")
 
         return subprocess.Popen(
-            [self.executable] + args + self.extra_args,
+            [str(self.executable)] + args + self.extra_args,
             cwd=self.workdir,
             stdout=output,
             stderr=subprocess.STDOUT,
@@ -189,7 +191,7 @@ class Emulator:
         self.stop()
         self.start()
 
-    def __enter__(self):
+    def __enter__(self) -> "Emulator":
         return self
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
@@ -204,14 +206,14 @@ class CoreEmulator(Emulator):
 
     def __init__(
         self,
-        *args,
+        *args: Any,
         port: Optional[int] = None,
         main_args: Sequence[str] = ("-m", "main"),
         workdir: Optional[Path] = None,
         sdcard: Optional[bytes] = None,
         disable_animation: bool = True,
         heap_size: str = "20M",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
         if workdir is not None:

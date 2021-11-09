@@ -27,7 +27,7 @@ PATH_HELP = "BIP-32 path, e.g. m/44'/194'/0'/0/0"
 
 
 @click.group(name="eos")
-def cli():
+def cli() -> None:
     """EOS commands."""
 
 

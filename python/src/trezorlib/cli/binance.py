@@ -19,7 +19,7 @@ from typing import TextIO
 
 import click
 
-from .. import binance, tools
+from .. import binance, messages, tools
 from ..client import TrezorClient
 from . import with_client
 
@@ -27,7 +27,7 @@ PATH_HELP = "BIP-32 path to key, e.g. m/44'/714'/0'/0/0"
 
 
 @click.group(name="binance")
-def cli():
+def cli() -> None:
     """Binance Chain commands."""
 
 
@@ -56,7 +56,9 @@ def get_public_key(client: TrezorClient, address: str, show_display: bool) -> by
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-f", "--file", "_ignore", is_flag=True, hidden=True, expose_value=False)
 @with_client
-def sign_tx(client: TrezorClient, address: str, file: TextIO):
+def sign_tx(
+    client: TrezorClient, address: str, file: TextIO
+) -> messages.BinanceSignedTx:
     """Sign Binance transaction.
 
     Transaction must be provided as a JSON file.

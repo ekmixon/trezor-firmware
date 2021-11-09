@@ -41,7 +41,7 @@ SD_PROTECT_OPERATIONS = {
 
 
 @click.group(name="device")
-def cli():
+def cli() -> None:
     """Device management commands - setup, recover seed, wipe, etc."""
 
 
@@ -108,7 +108,7 @@ def load(
     slip0014: bool,
     needs_backup: bool,
     no_backup: bool,
-):
+) -> str:
     """Upload seed and custom configuration to the device.
 
     This functionality is only available in debug mode.
@@ -156,7 +156,7 @@ def recover(
     u2f_counter: int,
     rec_type: messages.RecoveryDeviceType,
     dry_run: bool,
-):
+) -> messages.MessageType:
     """Start safe recovery workflow."""
     if rec_type == messages.RecoveryDeviceType.ScrambledWords:
         input_callback = ui.mnemonic_words(expand)
@@ -200,7 +200,7 @@ def setup(
     skip_backup: bool,
     no_backup: bool,
     backup_type: messages.BackupType,
-):
+) -> str:
     """Perform device setup and generate new seed."""
     if strength:
         strength = int(strength)

@@ -27,7 +27,7 @@ PATH_HELP = "BIP-32 path to key, e.g. m/44'/1815'/0'/0/0"
 
 
 @click.group(name="cardano")
-def cli():
+def cli() -> None:
     """Cardano commands."""
 
 

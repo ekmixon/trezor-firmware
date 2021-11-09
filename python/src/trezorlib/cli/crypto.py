@@ -22,7 +22,7 @@ from . import with_client
 
 
 @click.group(name="crypto")
-def cli():
+def cli() -> None:
     """Miscellaneous cryptography features."""
 
 

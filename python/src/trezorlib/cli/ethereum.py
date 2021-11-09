@@ -142,7 +142,7 @@ def _format_access_list(
 
 
 @click.group(name="ethereum")
-def cli():
+def cli() -> None:
     """Ethereum commands."""
 
 
@@ -150,7 +150,7 @@ def cli():
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_address(client: TrezorClient, address, show_display) -> str:
+def get_address(client: TrezorClient, address: str, show_display: bool) -> str:
     """Get Ethereum address in hex encoding."""
     address_n = tools.parse_path(address)
     return ethereum.get_address(client, address_n, show_display)
@@ -160,7 +160,7 @@ def get_address(client: TrezorClient, address, show_display) -> str:
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_public_node(client: TrezorClient, address, show_display):
+def get_public_node(client: TrezorClient, address: str, show_display: bool) -> dict:
     """Get Ethereum public node of given path."""
     address_n = tools.parse_path(address)
     result = ethereum.get_public_node(client, address_n, show_display=show_display)
@@ -401,7 +401,7 @@ def sign_message(client: TrezorClient, address: str, message: str) -> dict:
 @with_client
 def sign_typed_data(
     client: TrezorClient, address: str, metamask_v4_compat: bool, file: TextIO
-):
+) -> dict:
     """Sign typed data (EIP-712) with Ethereum address.
 
     Currently NOT supported:

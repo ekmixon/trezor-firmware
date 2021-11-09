@@ -28,7 +28,7 @@ PATH_HELP = "BIP-32 path, e.g. m/44'/134'/0'/0'"
 
 
 @click.group(name="nem")
-def cli():
+def cli() -> None:
     """NEM commands."""
 
 

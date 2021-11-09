@@ -24,7 +24,7 @@ PATH_HELP = "BIP-32 path, e.g. m/44'/128'/0'"
 
 
 @click.group(name="monero")
-def cli():
+def cli() -> None:
     """Monero commands."""
 
 
