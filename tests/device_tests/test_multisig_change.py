@@ -40,8 +40,10 @@ TXHASH_b0946d = bytes.fromhex(
     "b0946dc27ba308a749b11afecc2018980af18f79e89ad6b080b58220d856f739"
 )
 
+pytestmark = [pytest.mark.multisig, pytest.mark.setup_client(mnemonic=MNEMONIC12)]
 
-class TestMultisigChange:
+
+class Helpers:
     node_ext1 = bip32.deserialize(
         "xpub69qexv5TppjJQtXwSGeGXNtgGWyUzvsHACMt4Rr61Be4CmCf55eFcuXX828aySNuNR7hQYUCvUgZpioNxfs2HTAZWUUSFywhErg7JfTPv3Y"
     )
@@ -135,7 +137,7 @@ class TestMultisigChange:
         multisig=multisig_in3,
     )
 
-    def _responses(self, inp1, inp2, change=0):
+    def _responses(inp1, inp2, change=0):
         resp = [
             request_input(0),
             request_input(1),
@@ -172,290 +174,282 @@ class TestMultisigChange:
         ]
         return resp
 
-    # both outputs are external
-    @pytest.mark.multisig
-    @pytest.mark.setup_client(mnemonic=MNEMONIC12)
-    def test_external_external(self, client):
-        out1 = proto.TxOutputType(
-            address="1F8yBZB2NZhPZvJekhjTwjhQRRvQeTjjXr",
-            amount=40000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
+
+# both outputs are external
+def test_external_external(client):
+    out1 = proto.TxOutputType(
+        address="1F8yBZB2NZhPZvJekhjTwjhQRRvQeTjjXr",
+        amount=40000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    out2 = proto.TxOutputType(
+        address="1H7uXJQTVwXca2BXF2opTrvuZapk8Cm8zY",
+        amount=44000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    with client:
+        client.set_expected_responses(Helpers._responses(Helpers.inp1, Helpers.inp2))
+        _, serialized_tx = btc.sign_tx(
+            client,
+            "Bitcoin",
+            [Helpers.inp1, Helpers.inp2],
+            [out1, out2],
+            prev_txes=TX_API,
         )
 
-        out2 = proto.TxOutputType(
-            address="1H7uXJQTVwXca2BXF2opTrvuZapk8Cm8zY",
-            amount=44000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
+    assert (
+        serialized_tx.hex()
+        == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022064f13801744a6c21b694f62cdb5d834e852f13ecf85ed4d0a56ba279571c24e3022010fab4cb05bdd7b24c8376dda4f62a418548eea6eb483e58675fa06e0d5c642c014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b4004730440220727b2522268f913acd213c507d7801b146e5b6cef666ad44b769c26d6c762e4d022021c0c2e9e8298dee2a490d956f7ab1b2d3160c1e37a50cc6d19a5e62eb484fc9014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a6202000000001976a9149b139230e4fe91c05a37ec334dc8378f3dbe377088ac00639f02000000001976a914b0d05a10926a7925508febdbab9a5bd4cda8c8f688ac00000000"
+    )
+
+
+# first external, second internal
+def test_external_internal(client):
+    out1 = proto.TxOutputType(
+        address="1F8yBZB2NZhPZvJekhjTwjhQRRvQeTjjXr",
+        amount=40000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    out2 = proto.TxOutputType(
+        address_n=parse_path("45'/0/1/1"),
+        amount=44000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    with client:
+        client.set_expected_responses(
+            Helpers._responses(Helpers.inp1, Helpers.inp2, change=2)
+        )
+        _, serialized_tx = btc.sign_tx(
+            client,
+            "Bitcoin",
+            [Helpers.inp1, Helpers.inp2],
+            [out1, out2],
+            prev_txes=TX_API,
         )
 
-        with client:
-            client.set_expected_responses(self._responses(self.inp1, self.inp2))
-            _, serialized_tx = btc.sign_tx(
-                client,
-                "Bitcoin",
-                [self.inp1, self.inp2],
-                [out1, out2],
-                prev_txes=TX_API,
-            )
+    assert (
+        serialized_tx.hex()
+        == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022064f13801744a6c21b694f62cdb5d834e852f13ecf85ed4d0a56ba279571c24e3022010fab4cb05bdd7b24c8376dda4f62a418548eea6eb483e58675fa06e0d5c642c014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b4004730440220727b2522268f913acd213c507d7801b146e5b6cef666ad44b769c26d6c762e4d022021c0c2e9e8298dee2a490d956f7ab1b2d3160c1e37a50cc6d19a5e62eb484fc9014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a6202000000001976a9149b139230e4fe91c05a37ec334dc8378f3dbe377088ac00639f02000000001976a914b0d05a10926a7925508febdbab9a5bd4cda8c8f688ac00000000"
+    )
 
-        assert (
-            serialized_tx.hex()
-            == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022064f13801744a6c21b694f62cdb5d834e852f13ecf85ed4d0a56ba279571c24e3022010fab4cb05bdd7b24c8376dda4f62a418548eea6eb483e58675fa06e0d5c642c014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b4004730440220727b2522268f913acd213c507d7801b146e5b6cef666ad44b769c26d6c762e4d022021c0c2e9e8298dee2a490d956f7ab1b2d3160c1e37a50cc6d19a5e62eb484fc9014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a6202000000001976a9149b139230e4fe91c05a37ec334dc8378f3dbe377088ac00639f02000000001976a914b0d05a10926a7925508febdbab9a5bd4cda8c8f688ac00000000"
+
+# first internal, second external
+def test_internal_external(client):
+    out1 = proto.TxOutputType(
+        address_n=parse_path("45'/0/1/0"),
+        amount=40000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    out2 = proto.TxOutputType(
+        address="1H7uXJQTVwXca2BXF2opTrvuZapk8Cm8zY",
+        amount=44000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    with client:
+        client.set_expected_responses(
+            Helpers._responses(Helpers.inp1, Helpers.inp2, change=1)
+        )
+        _, serialized_tx = btc.sign_tx(
+            client,
+            "Bitcoin",
+            [Helpers.inp1, Helpers.inp2],
+            [out1, out2],
+            prev_txes=TX_API,
         )
 
-    # first external, second internal
-    @pytest.mark.multisig
-    @pytest.mark.setup_client(mnemonic=MNEMONIC12)
-    def test_external_internal(self, client):
-        out1 = proto.TxOutputType(
-            address="1F8yBZB2NZhPZvJekhjTwjhQRRvQeTjjXr",
-            amount=40000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
+    assert (
+        serialized_tx.hex()
+        == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022064f13801744a6c21b694f62cdb5d834e852f13ecf85ed4d0a56ba279571c24e3022010fab4cb05bdd7b24c8376dda4f62a418548eea6eb483e58675fa06e0d5c642c014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b4004730440220727b2522268f913acd213c507d7801b146e5b6cef666ad44b769c26d6c762e4d022021c0c2e9e8298dee2a490d956f7ab1b2d3160c1e37a50cc6d19a5e62eb484fc9014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a6202000000001976a9149b139230e4fe91c05a37ec334dc8378f3dbe377088ac00639f02000000001976a914b0d05a10926a7925508febdbab9a5bd4cda8c8f688ac00000000"
+    )
+
+
+# both outputs are external
+def test_multisig_external_external(client):
+    out1 = proto.TxOutputType(
+        address="3B23k4kFBRtu49zvpG3Z9xuFzfpHvxBcwt",
+        amount=40000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    out2 = proto.TxOutputType(
+        address="3PkXLsY7AUZCrCKGvX8FfP2EawowUBMbcg",
+        amount=44000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    with client:
+        client.set_expected_responses(Helpers._responses(Helpers.inp1, Helpers.inp2))
+        _, serialized_tx = btc.sign_tx(
+            client,
+            "Bitcoin",
+            [Helpers.inp1, Helpers.inp2],
+            [out1, out2],
+            prev_txes=TX_API,
         )
 
-        out2 = proto.TxOutputType(
-            address_n=parse_path("45'/0/1/1"),
-            amount=44000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
+    assert (
+        serialized_tx.hex()
+        == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022059394e0dfcb2d2f4a6108703f801545ca5a820c0ac6a1859d0a3854813de55fa02207b6a57d70b82932ff58163336c461653a2dc82c78ed8157159e5178ac7325390014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b40047304402205a911685f5b974b2fc4a19d5ce056218773a4d20b5eaae2c2f9594929308182002201e03449f5a8813ec19f408bf1b6f4f334886d6fcf9920e300fd7678ef0724f81014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948700639f020000000017a914f1fc92c0aed1712911c70a2e09ac15ff0922652f8700000000"
+    )
+
+
+# inputs match, change matches (first is change)
+def test_multisig_change_match_first(client):
+    multisig_out1 = proto.MultisigRedeemScriptType(
+        nodes=[Helpers.node_ext2, Helpers.node_ext1, Helpers.node_int],
+        address_n=[1, 0],
+        signatures=[b"", b"", b""],
+        m=2,
+    )
+
+    out1 = proto.TxOutputType(
+        address_n=[H_(45), 0, 1, 0],
+        multisig=multisig_out1,
+        amount=40000000,
+        script_type=proto.OutputScriptType.PAYTOMULTISIG,
+    )
+
+    out2 = proto.TxOutputType(
+        address="3PkXLsY7AUZCrCKGvX8FfP2EawowUBMbcg",
+        amount=44000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    with client:
+        client.set_expected_responses(
+            Helpers._responses(Helpers.inp1, Helpers.inp2, change=1)
+        )
+        _, serialized_tx = btc.sign_tx(
+            client,
+            "Bitcoin",
+            [Helpers.inp1, Helpers.inp2],
+            [out1, out2],
+            prev_txes=TX_API,
         )
 
-        with client:
-            client.set_expected_responses(
-                self._responses(self.inp1, self.inp2, change=2)
-            )
-            _, serialized_tx = btc.sign_tx(
-                client,
-                "Bitcoin",
-                [self.inp1, self.inp2],
-                [out1, out2],
-                prev_txes=TX_API,
-            )
+    assert (
+        serialized_tx.hex()
+        == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022059394e0dfcb2d2f4a6108703f801545ca5a820c0ac6a1859d0a3854813de55fa02207b6a57d70b82932ff58163336c461653a2dc82c78ed8157159e5178ac7325390014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b40047304402205a911685f5b974b2fc4a19d5ce056218773a4d20b5eaae2c2f9594929308182002201e03449f5a8813ec19f408bf1b6f4f334886d6fcf9920e300fd7678ef0724f81014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948700639f020000000017a914f1fc92c0aed1712911c70a2e09ac15ff0922652f8700000000"
+    )
 
-        assert (
-            serialized_tx.hex()
-            == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022064f13801744a6c21b694f62cdb5d834e852f13ecf85ed4d0a56ba279571c24e3022010fab4cb05bdd7b24c8376dda4f62a418548eea6eb483e58675fa06e0d5c642c014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b4004730440220727b2522268f913acd213c507d7801b146e5b6cef666ad44b769c26d6c762e4d022021c0c2e9e8298dee2a490d956f7ab1b2d3160c1e37a50cc6d19a5e62eb484fc9014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a6202000000001976a9149b139230e4fe91c05a37ec334dc8378f3dbe377088ac00639f02000000001976a914b0d05a10926a7925508febdbab9a5bd4cda8c8f688ac00000000"
+
+# inputs match, change matches (second is change)
+def test_multisig_change_match_second(client):
+    multisig_out2 = proto.MultisigRedeemScriptType(
+        nodes=[Helpers.node_ext1, Helpers.node_ext2, Helpers.node_int],
+        address_n=[1, 1],
+        signatures=[b"", b"", b""],
+        m=2,
+    )
+
+    out1 = proto.TxOutputType(
+        address="3B23k4kFBRtu49zvpG3Z9xuFzfpHvxBcwt",
+        amount=40000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    out2 = proto.TxOutputType(
+        address_n=[H_(45), 0, 1, 1],
+        multisig=multisig_out2,
+        amount=44000000,
+        script_type=proto.OutputScriptType.PAYTOMULTISIG,
+    )
+
+    with client:
+        client.set_expected_responses(
+            Helpers._responses(Helpers.inp1, Helpers.inp2, change=2)
+        )
+        _, serialized_tx = btc.sign_tx(
+            client,
+            "Bitcoin",
+            [Helpers.inp1, Helpers.inp2],
+            [out1, out2],
+            prev_txes=TX_API,
         )
 
-    # first internal, second external
-    @pytest.mark.multisig
-    @pytest.mark.setup_client(mnemonic=MNEMONIC12)
-    def test_internal_external(self, client):
-        out1 = proto.TxOutputType(
-            address_n=parse_path("45'/0/1/0"),
-            amount=40000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
+    assert (
+        serialized_tx.hex()
+        == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022059394e0dfcb2d2f4a6108703f801545ca5a820c0ac6a1859d0a3854813de55fa02207b6a57d70b82932ff58163336c461653a2dc82c78ed8157159e5178ac7325390014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b40047304402205a911685f5b974b2fc4a19d5ce056218773a4d20b5eaae2c2f9594929308182002201e03449f5a8813ec19f408bf1b6f4f334886d6fcf9920e300fd7678ef0724f81014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948700639f020000000017a914f1fc92c0aed1712911c70a2e09ac15ff0922652f8700000000"
+    )
+
+
+# inputs match, change mismatches (second tries to be change but isn't)
+def test_multisig_mismatch_change(client):
+    multisig_out2 = proto.MultisigRedeemScriptType(
+        nodes=[Helpers.node_ext1, Helpers.node_int, Helpers.node_ext3],
+        address_n=[1, 0],
+        signatures=[b"", b"", b""],
+        m=2,
+    )
+
+    out1 = proto.TxOutputType(
+        address="3B23k4kFBRtu49zvpG3Z9xuFzfpHvxBcwt",
+        amount=40000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    out2 = proto.TxOutputType(
+        address_n=[H_(45), 0, 1, 0],
+        multisig=multisig_out2,
+        amount=44000000,
+        script_type=proto.OutputScriptType.PAYTOMULTISIG,
+    )
+
+    with client:
+        client.set_expected_responses(Helpers._responses(Helpers.inp1, Helpers.inp2))
+        _, serialized_tx = btc.sign_tx(
+            client,
+            "Bitcoin",
+            [Helpers.inp1, Helpers.inp2],
+            [out1, out2],
+            prev_txes=TX_API,
         )
 
-        out2 = proto.TxOutputType(
-            address="1H7uXJQTVwXca2BXF2opTrvuZapk8Cm8zY",
-            amount=44000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
+    assert (
+        serialized_tx.hex()
+        == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b40047304402207f9992cc0230527faf54ec6bd233307db82bc8fac039dcee418bc6feb4e96a3a02206bb4cb157ad27c123277328a877572563a45d70b844d9ab07cc42238112f8c2a014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b400473044022078a41bfa87d72d6ba810d84bf568b5a29acf8b851ba6c3a8dbff079b34a7feb0022037b770c776db0b6c883c38a684a121b90a59ed1958774cbf64de70e53e29639f014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948700639f020000000017a914e6a3e2fbadb7f559f8d20c46aceae78c96fcf1d18700000000"
+    )
+
+
+# inputs mismatch, change matches with first input
+def test_multisig_mismatch_inputs(client):
+    multisig_out1 = proto.MultisigRedeemScriptType(
+        nodes=[Helpers.node_ext2, Helpers.node_ext1, Helpers.node_int],
+        address_n=[1, 0],
+        signatures=[b"", b"", b""],
+        m=2,
+    )
+
+    out1 = proto.TxOutputType(
+        address_n=[H_(45), 0, 1, 0],
+        multisig=multisig_out1,
+        amount=40000000,
+        script_type=proto.OutputScriptType.PAYTOMULTISIG,
+    )
+
+    out2 = proto.TxOutputType(
+        address="3PkXLsY7AUZCrCKGvX8FfP2EawowUBMbcg",
+        amount=65000000,
+        script_type=proto.OutputScriptType.PAYTOADDRESS,
+    )
+
+    with client:
+        client.set_expected_responses(Helpers._responses(Helpers.inp1, Helpers.inp3))
+        _, serialized_tx = btc.sign_tx(
+            client,
+            "Bitcoin",
+            [Helpers.inp1, Helpers.inp3],
+            [out1, out2],
+            prev_txes=TX_API,
         )
 
-        with client:
-            client.set_expected_responses(
-                self._responses(self.inp1, self.inp2, change=1)
-            )
-            _, serialized_tx = btc.sign_tx(
-                client,
-                "Bitcoin",
-                [self.inp1, self.inp2],
-                [out1, out2],
-                prev_txes=TX_API,
-            )
-
-        assert (
-            serialized_tx.hex()
-            == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022064f13801744a6c21b694f62cdb5d834e852f13ecf85ed4d0a56ba279571c24e3022010fab4cb05bdd7b24c8376dda4f62a418548eea6eb483e58675fa06e0d5c642c014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b4004730440220727b2522268f913acd213c507d7801b146e5b6cef666ad44b769c26d6c762e4d022021c0c2e9e8298dee2a490d956f7ab1b2d3160c1e37a50cc6d19a5e62eb484fc9014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a6202000000001976a9149b139230e4fe91c05a37ec334dc8378f3dbe377088ac00639f02000000001976a914b0d05a10926a7925508febdbab9a5bd4cda8c8f688ac00000000"
-        )
-
-    # both outputs are external
-    @pytest.mark.multisig
-    @pytest.mark.setup_client(mnemonic=MNEMONIC12)
-    def test_multisig_external_external(self, client):
-        out1 = proto.TxOutputType(
-            address="3B23k4kFBRtu49zvpG3Z9xuFzfpHvxBcwt",
-            amount=40000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
-        )
-
-        out2 = proto.TxOutputType(
-            address="3PkXLsY7AUZCrCKGvX8FfP2EawowUBMbcg",
-            amount=44000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
-        )
-
-        with client:
-            client.set_expected_responses(self._responses(self.inp1, self.inp2))
-            _, serialized_tx = btc.sign_tx(
-                client,
-                "Bitcoin",
-                [self.inp1, self.inp2],
-                [out1, out2],
-                prev_txes=TX_API,
-            )
-
-        assert (
-            serialized_tx.hex()
-            == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022059394e0dfcb2d2f4a6108703f801545ca5a820c0ac6a1859d0a3854813de55fa02207b6a57d70b82932ff58163336c461653a2dc82c78ed8157159e5178ac7325390014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b40047304402205a911685f5b974b2fc4a19d5ce056218773a4d20b5eaae2c2f9594929308182002201e03449f5a8813ec19f408bf1b6f4f334886d6fcf9920e300fd7678ef0724f81014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948700639f020000000017a914f1fc92c0aed1712911c70a2e09ac15ff0922652f8700000000"
-        )
-
-    # inputs match, change matches (first is change)
-    @pytest.mark.multisig
-    @pytest.mark.setup_client(mnemonic=MNEMONIC12)
-    def test_multisig_change_match_first(self, client):
-        multisig_out1 = proto.MultisigRedeemScriptType(
-            nodes=[self.node_ext2, self.node_ext1, self.node_int],
-            address_n=[1, 0],
-            signatures=[b"", b"", b""],
-            m=2,
-        )
-
-        out1 = proto.TxOutputType(
-            address_n=[H_(45), 0, 1, 0],
-            multisig=multisig_out1,
-            amount=40000000,
-            script_type=proto.OutputScriptType.PAYTOMULTISIG,
-        )
-
-        out2 = proto.TxOutputType(
-            address="3PkXLsY7AUZCrCKGvX8FfP2EawowUBMbcg",
-            amount=44000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
-        )
-
-        with client:
-            client.set_expected_responses(
-                self._responses(self.inp1, self.inp2, change=1)
-            )
-            _, serialized_tx = btc.sign_tx(
-                client,
-                "Bitcoin",
-                [self.inp1, self.inp2],
-                [out1, out2],
-                prev_txes=TX_API,
-            )
-
-        assert (
-            serialized_tx.hex()
-            == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022059394e0dfcb2d2f4a6108703f801545ca5a820c0ac6a1859d0a3854813de55fa02207b6a57d70b82932ff58163336c461653a2dc82c78ed8157159e5178ac7325390014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b40047304402205a911685f5b974b2fc4a19d5ce056218773a4d20b5eaae2c2f9594929308182002201e03449f5a8813ec19f408bf1b6f4f334886d6fcf9920e300fd7678ef0724f81014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948700639f020000000017a914f1fc92c0aed1712911c70a2e09ac15ff0922652f8700000000"
-        )
-
-    # inputs match, change matches (second is change)
-    @pytest.mark.multisig
-    @pytest.mark.setup_client(mnemonic=MNEMONIC12)
-    def test_multisig_change_match_second(self, client):
-        multisig_out2 = proto.MultisigRedeemScriptType(
-            nodes=[self.node_ext1, self.node_ext2, self.node_int],
-            address_n=[1, 1],
-            signatures=[b"", b"", b""],
-            m=2,
-        )
-
-        out1 = proto.TxOutputType(
-            address="3B23k4kFBRtu49zvpG3Z9xuFzfpHvxBcwt",
-            amount=40000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
-        )
-
-        out2 = proto.TxOutputType(
-            address_n=[H_(45), 0, 1, 1],
-            multisig=multisig_out2,
-            amount=44000000,
-            script_type=proto.OutputScriptType.PAYTOMULTISIG,
-        )
-
-        with client:
-            client.set_expected_responses(
-                self._responses(self.inp1, self.inp2, change=2)
-            )
-            _, serialized_tx = btc.sign_tx(
-                client,
-                "Bitcoin",
-                [self.inp1, self.inp2],
-                [out1, out2],
-                prev_txes=TX_API,
-            )
-
-        assert (
-            serialized_tx.hex()
-            == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b400473044022059394e0dfcb2d2f4a6108703f801545ca5a820c0ac6a1859d0a3854813de55fa02207b6a57d70b82932ff58163336c461653a2dc82c78ed8157159e5178ac7325390014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b40047304402205a911685f5b974b2fc4a19d5ce056218773a4d20b5eaae2c2f9594929308182002201e03449f5a8813ec19f408bf1b6f4f334886d6fcf9920e300fd7678ef0724f81014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948700639f020000000017a914f1fc92c0aed1712911c70a2e09ac15ff0922652f8700000000"
-        )
-
-    # inputs match, change mismatches (second tries to be change but isn't)
-    @pytest.mark.multisig
-    @pytest.mark.setup_client(mnemonic=MNEMONIC12)
-    def test_multisig_mismatch_change(self, client):
-        multisig_out2 = proto.MultisigRedeemScriptType(
-            nodes=[self.node_ext1, self.node_int, self.node_ext3],
-            address_n=[1, 0],
-            signatures=[b"", b"", b""],
-            m=2,
-        )
-
-        out1 = proto.TxOutputType(
-            address="3B23k4kFBRtu49zvpG3Z9xuFzfpHvxBcwt",
-            amount=40000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
-        )
-
-        out2 = proto.TxOutputType(
-            address_n=[H_(45), 0, 1, 0],
-            multisig=multisig_out2,
-            amount=44000000,
-            script_type=proto.OutputScriptType.PAYTOMULTISIG,
-        )
-
-        with client:
-            client.set_expected_responses(self._responses(self.inp1, self.inp2))
-            _, serialized_tx = btc.sign_tx(
-                client,
-                "Bitcoin",
-                [self.inp1, self.inp2],
-                [out1, out2],
-                prev_txes=TX_API,
-            )
-
-        assert (
-            serialized_tx.hex()
-            == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b40047304402207f9992cc0230527faf54ec6bd233307db82bc8fac039dcee418bc6feb4e96a3a02206bb4cb157ad27c123277328a877572563a45d70b844d9ab07cc42238112f8c2a014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff185315ae8050e18efa70d6ca96378a1194f57e2b102511f68b3a1414ee340cd800000000b400473044022078a41bfa87d72d6ba810d84bf568b5a29acf8b851ba6c3a8dbff079b34a7feb0022037b770c776db0b6c883c38a684a121b90a59ed1958774cbf64de70e53e29639f014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103ed1fd93989595d7ad4b488efd05a22c0239482c9a20923f2f214a38e54f6c41a2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948700639f020000000017a914e6a3e2fbadb7f559f8d20c46aceae78c96fcf1d18700000000"
-        )
-
-    # inputs mismatch, change matches with first input
-    @pytest.mark.multisig
-    @pytest.mark.setup_client(mnemonic=MNEMONIC12)
-    def test_multisig_mismatch_inputs(self, client):
-        multisig_out1 = proto.MultisigRedeemScriptType(
-            nodes=[self.node_ext2, self.node_ext1, self.node_int],
-            address_n=[1, 0],
-            signatures=[b"", b"", b""],
-            m=2,
-        )
-
-        out1 = proto.TxOutputType(
-            address_n=[H_(45), 0, 1, 0],
-            multisig=multisig_out1,
-            amount=40000000,
-            script_type=proto.OutputScriptType.PAYTOMULTISIG,
-        )
-
-        out2 = proto.TxOutputType(
-            address="3PkXLsY7AUZCrCKGvX8FfP2EawowUBMbcg",
-            amount=65000000,
-            script_type=proto.OutputScriptType.PAYTOADDRESS,
-        )
-
-        with client:
-            client.set_expected_responses(self._responses(self.inp1, self.inp3))
-            _, serialized_tx = btc.sign_tx(
-                client,
-                "Bitcoin",
-                [self.inp1, self.inp3],
-                [out1, out2],
-                prev_txes=TX_API,
-            )
-
-        assert (
-            serialized_tx.hex()
-            == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b500483045022100d907b9339951c96ef4515ef7aff8b3c28c4c8c5875d7421aa1de9f3a94e3508302205cdc311a6c91dfbb74f1a9a940a994a65dbfb0cf6dedcaaaeee839e0b8fd016d014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff39f756d82082b580b0d69ae8798ff10a981820ccfe1ab149a708a37bc26d94b000000000b500483045022100fdad4a47d15f47cc364fe0cbed11b1ced1f9ef210bc1bd413ec4384f630c63720220752e4f09ea4e5e6623f5ebe89b3983ec6e5702f63f9bce696f10b2d594d23532014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103b6321a1194e5cc47b6b7edc3f67a096e6f71ccb72440f84f390b6e98df0ea8ec2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948740d2df030000000017a914f1fc92c0aed1712911c70a2e09ac15ff0922652f8700000000"
-        )
+    assert (
+        serialized_tx.hex()
+        == "0100000002e53cf4e3fcd37f8c439286ce636476e1faeebf86bbb2f228a6b78d1b47c8c61601000000b500483045022100d907b9339951c96ef4515ef7aff8b3c28c4c8c5875d7421aa1de9f3a94e3508302205cdc311a6c91dfbb74f1a9a940a994a65dbfb0cf6dedcaaaeee839e0b8fd016d014c69522103dc07026aacb5918dac4e09f9da8290d0ae22161699636c22cace78082116a7792103e70db185fad69c2971f0107a42930e5d82a9ed3a11b922a96fdfc4124b63e54c2103f3fe007a1e34ac76c1a2528e9149f90f9f93739929797afab6a8e18d682fa71053aeffffffff39f756d82082b580b0d69ae8798ff10a981820ccfe1ab149a708a37bc26d94b000000000b500483045022100fdad4a47d15f47cc364fe0cbed11b1ced1f9ef210bc1bd413ec4384f630c63720220752e4f09ea4e5e6623f5ebe89b3983ec6e5702f63f9bce696f10b2d594d23532014c6952210297ad8a5df42f9e362ef37d9a4ddced89d8f7a143690649aa0d0ff049c7daca842103b6321a1194e5cc47b6b7edc3f67a096e6f71ccb72440f84f390b6e98df0ea8ec2103f91460d79e4e463d7d90cb75254bcd62b515a99a950574c721efdc5f711dff3553aeffffffff02005a62020000000017a91466528dd543f94d162c8111d2ec248d25ba9b90948740d2df030000000017a914f1fc92c0aed1712911c70a2e09ac15ff0922652f8700000000"
+    )
