@@ -70,7 +70,7 @@ def _amount_to_int(ctx, param, value: Optional[str]) -> Optional[int]:
     if value.isdigit():
         return int(value)
     try:
-        number, unit = re.match(r"^(\d+(?:.\d+)?)([a-z]+)", value).groups()  # type: ignore
+        number, unit = re.match(r"^(\d+(?:.\d+)?)([a-z]+)", value).groups()  # type: ignore [union-attr]
         scale = ETHER_UNITS[unit]
         decoded_number = Decimal(number)
         return int(decoded_number * scale)

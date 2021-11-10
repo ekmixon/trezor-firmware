@@ -124,7 +124,7 @@ class TrezorctlGroup(click.Group):
         try:
             command, subcommand = cmd_name.split("-", maxsplit=1)
             # When belowmentioned fails, we ignore the Exception (even in bad-type-case, which is ignored)
-            return super().get_command(ctx, command).get_command(ctx, subcommand)  # type: ignore
+            return super().get_command(ctx, command).get_command(ctx, subcommand)  # type: ignore [union-attr]
         except Exception:
             pass
 

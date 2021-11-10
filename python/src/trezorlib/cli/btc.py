@@ -76,7 +76,7 @@ def xpub_deserialize(xpubstr: str) -> Tuple[str, messages.HDNodeType]:
         fingerprint=data.fingerprint,
         child_num=data.child_num,
         chain_code=data.chain_code,
-        public_key=public_key,  # type: ignore
+        public_key=public_key,  # type: ignore [arg-type]
         private_key=private_key,
     )
 

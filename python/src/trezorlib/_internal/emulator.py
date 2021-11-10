@@ -125,7 +125,6 @@ class Emulator:
 
         # Opening the file if it is not already opened
         if hasattr(self.logfile, "write"):
-            assert isinstance(self.logfile, TextIO)
             output = self.logfile
         else:
             assert isinstance(self.logfile, (str, Path))
@@ -134,7 +133,7 @@ class Emulator:
         return subprocess.Popen(
             [str(self.executable)] + args + self.extra_args,
             cwd=self.workdir,
-            stdout=output,
+            stdout=output,  # type: ignore [arg-type]
             stderr=subprocess.STDOUT,
             env=env,
         )
