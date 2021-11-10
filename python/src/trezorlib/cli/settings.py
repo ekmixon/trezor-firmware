@@ -15,6 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 from typing import TYPE_CHECKING
+
 import click
 
 from .. import device, firmware, messages, toif

@@ -14,8 +14,8 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
-from typing import TYPE_CHECKING
 import sys
+from typing import TYPE_CHECKING
 
 import click
 
@@ -246,7 +246,9 @@ def backup(client: "TrezorClient") -> str:
 @cli.command()
 @click.argument("operation", type=ChoiceType(SD_PROTECT_OPERATIONS))
 @with_client
-def sd_protect(client: "TrezorClient", operation: messages.SdProtectOperationType) -> str:
+def sd_protect(
+    client: "TrezorClient", operation: messages.SdProtectOperationType
+) -> str:
     """Secure the device with SD card protection.
 
     When SD card protection is enabled, a randomly generated secret is stored

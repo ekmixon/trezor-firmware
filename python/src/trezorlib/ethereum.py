@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from .client import TrezorClient
     from .tools import Address
 
+
 def int_to_big_endian(value: int) -> bytes:
     return value.to_bytes((value.bit_length() + 7) // 8, "big")
 
@@ -143,7 +144,9 @@ def encode_data(value: Any, type_name: str) -> bytes:
 
 
 @expect(messages.EthereumAddress, field="address")
-def get_address(client: "TrezorClient", n: "Address", show_display: bool = False) -> str:
+def get_address(
+    client: "TrezorClient", n: "Address", show_display: bool = False
+) -> str:
     return client.call(
         messages.EthereumGetAddress(address_n=n, show_display=show_display)
     )

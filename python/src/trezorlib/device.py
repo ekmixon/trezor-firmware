@@ -87,7 +87,9 @@ def change_wipe_code(client: "TrezorClient", remove: bool = False) -> str:
 
 @expect(messages.Success, field="message")
 @session
-def sd_protect(client: "TrezorClient", operation: messages.SdProtectOperationType) -> str:
+def sd_protect(
+    client: "TrezorClient", operation: messages.SdProtectOperationType
+) -> str:
     ret = client.call(messages.SdProtect(operation=operation))
     client.refresh_features()
     return ret

@@ -54,7 +54,9 @@ def encrypt_keyvalue(client: "TrezorClient", address: str, key: str, value: str)
 @click.argument("key")
 @click.argument("value")
 @with_client
-def decrypt_keyvalue(client: "TrezorClient", address: str, key: str, value: str) -> bytes:
+def decrypt_keyvalue(
+    client: "TrezorClient", address: str, key: str, value: str
+) -> bytes:
     """Decrypt value by given key and path."""
     address_n = tools.parse_path(address)
     return misc.decrypt_keyvalue(client, address_n, key, bytes.fromhex(value))

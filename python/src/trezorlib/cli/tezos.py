@@ -58,7 +58,9 @@ def get_public_key(client: "TrezorClient", address: str, show_display: bool) -> 
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-f", "--file", "_ignore", is_flag=True, hidden=True, expose_value=False)
 @with_client
-def sign_tx(client: "TrezorClient", address: str, file: TextIO) -> messages.TezosSignedTx:
+def sign_tx(
+    client: "TrezorClient", address: str, file: TextIO
+) -> messages.TezosSignedTx:
     """Sign Tezos transaction."""
     address_n = tools.parse_path(address)
     msg = protobuf.dict_to_proto(messages.TezosSignTx, json.load(file))

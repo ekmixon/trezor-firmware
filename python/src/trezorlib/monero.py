@@ -32,7 +32,10 @@ if TYPE_CHECKING:
 
 @expect(proto.MoneroAddress, field="address")
 def get_address(
-    client: "TrezorClient", n: "Address", show_display: bool = False, network_type: int = 0
+    client: "TrezorClient",
+    n: "Address",
+    show_display: bool = False,
+    network_type: int = 0,
 ) -> bytes:
     return client.call(
         proto.MoneroGetAddress(

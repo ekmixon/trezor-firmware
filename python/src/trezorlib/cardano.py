@@ -16,7 +16,17 @@
 
 from ipaddress import ip_address
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from . import exceptions, messages, tools
 from .tools import expect

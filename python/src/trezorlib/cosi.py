@@ -140,7 +140,9 @@ def sign_with_privkey(
 
 
 @expect(messages.CosiCommitment)
-def commit(client: "TrezorClient", n: "Address", data: bytes) -> messages.CosiCommitment:
+def commit(
+    client: "TrezorClient", n: "Address", data: bytes
+) -> messages.CosiCommitment:
     return client.call(messages.CosiCommit(address_n=n, data=data))
 
 

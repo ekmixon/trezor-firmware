@@ -37,7 +37,9 @@ def cli() -> None:
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.argument("data")
 @with_client
-def commit(client: "TrezorClient", address: str, data: str) -> "messages.CosiCommitment":
+def commit(
+    client: "TrezorClient", address: str, data: str
+) -> "messages.CosiCommitment":
     """Ask device to commit to CoSi signing."""
     address_n = tools.parse_path(address)
     return cosi.commit(client, address_n, bytes.fromhex(data))
