@@ -303,6 +303,12 @@ def sign_tx(
 
         if res.request_type == R.TXMETA:
             msg = copy_tx_meta(current_tx)
+        elif res.request_type == R.TXEXTRADATA:
+            assert res.details.extra_data_offset is not None
+            assert res.details.extra_data_len is not None
+            assert current_tx.extra_data is not None
+            o, l = res.details.extra_data_offset, res.details.extra_data_len
+            msg = messages.TransactionType(extra_data=current_tx.extra_data[o : o + l])
         else:
             assert res.details.request_index is not None
             request_index = res.details.request_index
@@ -317,12 +323,6 @@ def sign_tx(
                     msg.outputs = [current_tx.outputs[request_index]]
             elif res.request_type == R.TXORIGOUTPUT:
                 msg.outputs = [current_tx.outputs[request_index]]
-            elif res.request_type == R.TXEXTRADATA:
-                assert res.details.extra_data_offset is not None
-                assert res.details.extra_data_len is not None
-                assert current_tx.extra_data is not None
-                o, l = res.details.extra_data_offset, res.details.extra_data_len
-                msg.extra_data = current_tx.extra_data[o : o + l]
             else:
                 raise exceptions.TrezorException(
                     f"Unknown request type - {res.request_type}."
