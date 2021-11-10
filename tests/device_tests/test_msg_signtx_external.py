@@ -16,14 +16,14 @@
 
 import pytest
 
-from trezorlib import btc, messages as proto
+from trezorlib import btc, messages
 from trezorlib.exceptions import TrezorFailure
 from trezorlib.tools import parse_path
 
 from ..tx_cache import TxCache
 from .signtx import request_finished, request_input, request_meta, request_output
 
-B = proto.ButtonRequestType
+B = messages.ButtonRequestType
 
 TX_CACHE_TESTNET = TxCache("Testnet")
 TX_CACHE_MAINNET = TxCache("Bitcoin")
@@ -56,7 +56,7 @@ TXHASH_a345b8 = bytes.fromhex(
 
 @pytest.mark.skip_t1
 def test_p2pkh_presigned(client):
-    inp1 = proto.TxInputType(
+    inp1 = messages.TxInputType(
         # mvbu1Gdy8SUjTenqerxUaZyYjmveZvt33q
         address_n=parse_path("m/44h/1h/0h/0/0"),
         prev_hash=TXHASH_e5040e,
@@ -64,19 +64,19 @@ def test_p2pkh_presigned(client):
         amount=31000000,
     )
 
-    inp1ext = proto.TxInputType(
+    inp1ext = messages.TxInputType(
         # mvbu1Gdy8SUjTenqerxUaZyYjmveZvt33q
         # address_n=parse_path("m/44h/1h/0h/0/0"),
         prev_hash=TXHASH_e5040e,
         prev_index=0,
         amount=31000000,
-        script_type=proto.InputScriptType.EXTERNAL,
+        script_type=messages.InputScriptType.EXTERNAL,
         script_sig=bytes.fromhex(
             "473044022054fa66bfe1de1c850d59840f165143a66075bae78be3a6bc2809d1ac09431d380220019ecb086e16384f18cbae09b02bd2dce18763cd06454d33d93630561250965e0121030e669acac1f280d1ddf441cd2ba5e97417bf2689e4bbec86df4f831bf9f7ffd0"
         ),
     )
 
-    inp2 = proto.TxInputType(
+    inp2 = messages.TxInputType(
         # mopZWqZZyQc3F2Sy33cvDtJchSAMsnLi7b
         address_n=parse_path("m/44h/1h/0h/0/1"),
         prev_hash=TXHASH_d830b8,
@@ -84,28 +84,28 @@ def test_p2pkh_presigned(client):
         amount=600000000,
     )
 
-    inp2ext = proto.TxInputType(
+    inp2ext = messages.TxInputType(
         # mopZWqZZyQc3F2Sy33cvDtJchSAMsnLi7b
         # address_n=parse_path("m/44h/1h/0h/0/1"),
         prev_hash=TXHASH_d830b8,
         prev_index=1,
         amount=600000000,
-        script_type=proto.InputScriptType.EXTERNAL,
+        script_type=messages.InputScriptType.EXTERNAL,
         script_sig=bytearray.fromhex(
             "463043021f3a0a7fdf27b340358ddf8b4e6e3e6cc0be728d6f1d9d3413ae59741f57599002204809d59a9432a2c7fcb10639c5efa82935d8c3cc21b185ff5e44f0e1a80e635401210294e3e5e77e22eea0e4c0d30d89beb4db7f69b4bf1ae709e411d6a06618b8f852"
         ),
     )
 
-    out1 = proto.TxOutputType(
+    out1 = messages.TxOutputType(
         address="tb1qnspxpr2xj9s2jt6qlhuvdnxw6q55jvygcf89r2",
         amount=620000000,
-        script_type=proto.OutputScriptType.PAYTOWITNESS,
+        script_type=messages.OutputScriptType.PAYTOWITNESS,
     )
 
-    out2 = proto.TxOutputType(
+    out2 = messages.TxOutputType(
         address_n=parse_path("44h/1h/0h/1/0"),
         amount=31000000 + 600000000 - 620000000 - 10000,
-        script_type=proto.OutputScriptType.PAYTOADDRESS,
+        script_type=messages.OutputScriptType.PAYTOADDRESS,
     )
 
     # Test with first input as pre-signed external.
@@ -147,39 +147,39 @@ def test_p2pkh_presigned(client):
 
 @pytest.mark.skip_t1
 def test_p2wpkh_in_p2sh_presigned(client):
-    inp1 = proto.TxInputType(
+    inp1 = messages.TxInputType(
         # 2N1LGaGg836mqSQqiuUBLfcyGBhyZbremDX
         amount=111145789,
         prev_hash=TXHASH_091446,
         prev_index=1,
-        script_type=proto.InputScriptType.EXTERNAL,
+        script_type=messages.InputScriptType.EXTERNAL,
         script_sig=bytearray.fromhex("160014d16b8c0680c61fc6ed2e407455715055e41052f5"),
         witness=bytes.fromhex(
             "02483045022100ead79ee134f25bb585b48aee6284a4bb14e07f03cc130253e83450d095515e5202201e161e9402c8b26b666f2b67e5b668a404ef7e57858ae9a6a68c3837e65fdc69012103e7bfe10708f715e8538c92d46ca50db6f657bbc455b7494e6a0303ccdb868b79"
         ),
     )
-    inp2 = proto.TxInputType(
+    inp2 = messages.TxInputType(
         address_n=parse_path("84'/1'/0'/1/0"),
         amount=7289000,
         prev_hash=TXHASH_65b811,
         prev_index=1,
-        script_type=proto.InputScriptType.SPENDWITNESS,
+        script_type=messages.InputScriptType.SPENDWITNESS,
     )
-    out1 = proto.TxOutputType(
+    out1 = messages.TxOutputType(
         address="tb1q54un3q39sf7e7tlfq99d6ezys7qgc62a6rxllc",
         amount=12300000,
-        script_type=proto.OutputScriptType.PAYTOADDRESS,
+        script_type=messages.OutputScriptType.PAYTOADDRESS,
     )
-    out2 = proto.TxOutputType(
+    out2 = messages.TxOutputType(
         # address_n=parse_path("44'/1'/0'/0/0"),
         address="2N6UeBoqYEEnybg4cReFYDammpsyDw8R2Mc",
-        script_type=proto.OutputScriptType.PAYTOADDRESS,
+        script_type=messages.OutputScriptType.PAYTOADDRESS,
         amount=45600000,
     )
-    out3 = proto.TxOutputType(
+    out3 = messages.TxOutputType(
         address="mvbu1Gdy8SUjTenqerxUaZyYjmveZvt33q",
         amount=111145789 + 7289000 - 11000 - 12300000 - 45600000,
-        script_type=proto.OutputScriptType.PAYTOADDRESS,
+        script_type=messages.OutputScriptType.PAYTOADDRESS,
     )
 
     with client:
@@ -188,12 +188,12 @@ def test_p2wpkh_in_p2sh_presigned(client):
                 request_input(0),
                 request_input(1),
                 request_output(0),
-                proto.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.ConfirmOutput),
                 request_output(1),
-                proto.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.ConfirmOutput),
                 request_output(2),
-                proto.ButtonRequest(code=B.ConfirmOutput),
-                proto.ButtonRequest(code=B.SignTx),
+                messages.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.SignTx),
                 request_input(0),
                 request_meta(TXHASH_091446),
                 request_input(0, TXHASH_091446),
@@ -235,18 +235,18 @@ def test_p2wpkh_in_p2sh_presigned(client):
                 request_input(0),
                 request_input(1),
                 request_output(0),
-                proto.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.ConfirmOutput),
                 request_output(1),
-                proto.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.ConfirmOutput),
                 request_output(2),
-                proto.ButtonRequest(code=B.ConfirmOutput),
-                proto.ButtonRequest(code=B.SignTx),
+                messages.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.SignTx),
                 request_input(0),
                 request_meta(TXHASH_091446),
                 request_input(0, TXHASH_091446),
                 request_output(0, TXHASH_091446),
                 request_output(1, TXHASH_091446),
-                proto.Failure(code=proto.FailureType.DataError),
+                messages.Failure(code=messages.FailureType.DataError),
             ]
         )
 
@@ -262,38 +262,38 @@ def test_p2wpkh_in_p2sh_presigned(client):
 
 @pytest.mark.skip_t1
 def test_p2wpkh_presigned(client):
-    inp1 = proto.TxInputType(
+    inp1 = messages.TxInputType(
         # tb1qkvwu9g3k2pdxewfqr7syz89r3gj557l3uuf9r9
         address_n=parse_path("m/84h/1h/0h/0/0"),
         prev_hash=TXHASH_70f987,
         prev_index=0,
         amount=100000,
-        script_type=proto.InputScriptType.SPENDWITNESS,
+        script_type=messages.InputScriptType.SPENDWITNESS,
     )
 
-    inp2 = proto.TxInputType(
+    inp2 = messages.TxInputType(
         # tb1qldlynaqp0hy4zc2aag3pkenzvxy65saesxw3wd
         # address_n=parse_path("m/84h/1h/0h/0/1"),
         prev_hash=TXHASH_65b768,
         prev_index=0,
         amount=10000,
-        script_type=proto.InputScriptType.EXTERNAL,
+        script_type=messages.InputScriptType.EXTERNAL,
         script_sig=bytes.fromhex(""),
         witness=bytearray.fromhex(
             "024730440220432ac60461de52713ad543cbb1484f7eca1a72c615d539b3f42f5668da4501d2022063786a6d6940a5c1ed9c2d2fd02cef90b6c01ddd84829c946561e15be6c0aae1012103dcf3bc936ecb2ec57b8f468050abce8c8756e75fd74273c9977744b1a0be7d03"
         ),
     )
 
-    out1 = proto.TxOutputType(
+    out1 = messages.TxOutputType(
         address="tb1qnspxpr2xj9s2jt6qlhuvdnxw6q55jvygcf89r2",
         amount=50000,
-        script_type=proto.OutputScriptType.PAYTOWITNESS,
+        script_type=messages.OutputScriptType.PAYTOWITNESS,
     )
 
-    out2 = proto.TxOutputType(
+    out2 = messages.TxOutputType(
         address_n=parse_path("84h/1h/0h/1/0"),
         amount=100000 + 10000 - 50000 - 1000,
-        script_type=proto.OutputScriptType.PAYTOWITNESS,
+        script_type=messages.OutputScriptType.PAYTOWITNESS,
     )
 
     # Test with second input as pre-signed external.
@@ -325,32 +325,32 @@ def test_p2wpkh_presigned(client):
 
 @pytest.mark.skip_t1
 def test_p2wsh_external_presigned(client):
-    inp1 = proto.TxInputType(
+    inp1 = messages.TxInputType(
         address_n=parse_path("84'/1'/0'/0/0"),
         amount=12300000,
         prev_hash=TXHASH_091446,
         prev_index=0,
-        script_type=proto.InputScriptType.SPENDWITNESS,
+        script_type=messages.InputScriptType.SPENDWITNESS,
     )
 
-    inp2 = proto.TxInputType(
+    inp2 = messages.TxInputType(
         # 1-of-2 multisig
         # m/84'/1'/0/0/0' for "alcohol woman abuse ..." seed.
         # m/84'/1'/0/0/0' for "all all ... all" seed.
         # tb1qpzmgzpcumztvmpu3q27wwdggqav26j9dgks92pvnne2lz9ferxgssmhzlq
         prev_hash=TXHASH_a345b8,
         prev_index=0,
-        script_type=proto.InputScriptType.EXTERNAL,
+        script_type=messages.InputScriptType.EXTERNAL,
         amount=100,
         witness=bytearray.fromhex(
             "030047304402206b570b99c22c841548a35a9b9c673fa3b87a9563ed64ad7d979aa3e01b2e303802201d0bebf58b7243e09798e734fc32892936c4d0c4984bec755dc951ef646e4a9a0147512103505f0d82bbdd251511591b34f36ad5eea37d3220c2b81a1189084431ddb3aa3d2103adc58245cf28406af0ef5cc24b8afba7f1be6c72f279b642d85c48798685f86252ae"
         ),
     )
 
-    out1 = proto.TxOutputType(
+    out1 = messages.TxOutputType(
         address="2N4Q5FhU2497BryFfUgbqkAJE87aKHUhXMp",
         amount=12300000 + 100 - 10000,
-        script_type=proto.OutputScriptType.PAYTOADDRESS,
+        script_type=messages.OutputScriptType.PAYTOADDRESS,
     )
 
     with client:
@@ -359,8 +359,8 @@ def test_p2wsh_external_presigned(client):
                 request_input(0),
                 request_input(1),
                 request_output(0),
-                proto.ButtonRequest(code=B.ConfirmOutput),
-                proto.ButtonRequest(code=B.SignTx),
+                messages.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.SignTx),
                 request_input(0),
                 request_meta(TXHASH_091446),
                 request_input(0, TXHASH_091446),
@@ -396,8 +396,8 @@ def test_p2wsh_external_presigned(client):
                 request_input(0),
                 request_input(1),
                 request_output(0),
-                proto.ButtonRequest(code=B.ConfirmOutput),
-                proto.ButtonRequest(code=B.SignTx),
+                messages.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.SignTx),
                 request_input(0),
                 request_meta(TXHASH_091446),
                 request_input(0, TXHASH_091446),
@@ -407,7 +407,7 @@ def test_p2wsh_external_presigned(client):
                 request_meta(TXHASH_a345b8),
                 request_input(0, TXHASH_a345b8),
                 request_output(0, TXHASH_a345b8),
-                proto.Failure(code=proto.FailureType.DataError),
+                messages.Failure(code=messages.FailureType.DataError),
             ]
         )
 
@@ -431,34 +431,34 @@ def test_p2wpkh_in_p2sh_with_proof(client):
 
 @pytest.mark.skip_t1
 def test_p2wpkh_with_proof(client):
-    inp1 = proto.TxInputType(
+    inp1 = messages.TxInputType(
         # seed "alcohol woman abuse must during monitor noble actual mixed trade anger aisle"
         # 84'/1'/0'/0/0
         # tb1qnspxpr2xj9s2jt6qlhuvdnxw6q55jvygcf89r2
         amount=100000,
         prev_hash=TXHASH_e5b7e2,
         prev_index=0,
-        script_type=proto.InputScriptType.EXTERNAL,
+        script_type=messages.InputScriptType.EXTERNAL,
         ownership_proof=bytearray.fromhex(
             "534c001900016b2055d8190244b2ed2d46513c40658a574d3bc2deb6969c0535bb818b44d2c40002483045022100d4ad0374c922848c71d913fba59c81b9075e0d33e884d953f0c4b4806b8ffd0c022024740e6717a2b6a5aa03148c3a28b02c713b4e30fc8aeae67fa69eb20e8ddcd9012103505f0d82bbdd251511591b34f36ad5eea37d3220c2b81a1189084431ddb3aa3d"
         ),
     )
-    inp2 = proto.TxInputType(
+    inp2 = messages.TxInputType(
         address_n=parse_path("84'/1'/0'/1/0"),
         amount=7289000,
         prev_hash=TXHASH_65b811,
         prev_index=1,
-        script_type=proto.InputScriptType.SPENDWITNESS,
+        script_type=messages.InputScriptType.SPENDWITNESS,
     )
-    out1 = proto.TxOutputType(
+    out1 = messages.TxOutputType(
         address="tb1q54un3q39sf7e7tlfq99d6ezys7qgc62a6rxllc",
         amount=1230000,
-        script_type=proto.OutputScriptType.PAYTOADDRESS,
+        script_type=messages.OutputScriptType.PAYTOADDRESS,
     )
-    out2 = proto.TxOutputType(
+    out2 = messages.TxOutputType(
         address="mvbu1Gdy8SUjTenqerxUaZyYjmveZvt33q",
         amount=100000 + 7289000 - 11000 - 1230000,
-        script_type=proto.OutputScriptType.PAYTOADDRESS,
+        script_type=messages.OutputScriptType.PAYTOADDRESS,
     )
 
     with client:
@@ -467,10 +467,10 @@ def test_p2wpkh_with_proof(client):
                 request_input(0),
                 request_input(1),
                 request_output(0),
-                proto.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.ConfirmOutput),
                 request_output(1),
-                proto.ButtonRequest(code=B.ConfirmOutput),
-                proto.ButtonRequest(code=B.SignTx),
+                messages.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.SignTx),
                 request_input(0),
                 request_meta(TXHASH_e5b7e2),
                 request_input(0, TXHASH_e5b7e2),
@@ -516,31 +516,31 @@ def test_p2wpkh_with_proof(client):
 
 @pytest.mark.skip_t1
 def test_p2wpkh_with_false_proof(client):
-    inp1 = proto.TxInputType(
+    inp1 = messages.TxInputType(
         # tb1qkvwu9g3k2pdxewfqr7syz89r3gj557l3uuf9r9
         address_n=parse_path("m/84h/1h/0h/0/0"),
         prev_hash=TXHASH_70f987,
         prev_index=0,
         amount=100000,
-        script_type=proto.InputScriptType.SPENDWITNESS,
+        script_type=messages.InputScriptType.SPENDWITNESS,
     )
 
-    inp2 = proto.TxInputType(
+    inp2 = messages.TxInputType(
         # tb1qldlynaqp0hy4zc2aag3pkenzvxy65saesxw3wd
         # address_n=parse_path("m/84h/1h/0h/0/1"),
         prev_hash=TXHASH_65b768,
         prev_index=0,
         amount=10000,
-        script_type=proto.InputScriptType.EXTERNAL,
+        script_type=messages.InputScriptType.EXTERNAL,
         ownership_proof=bytes.fromhex(
             "534c00190001b0b66657a824e41c063299fb4435dc70a6fd2e9db4c87e3c26a7ab7c0283547b0002473044022060bf60380142ed54fa907c82cb5ab438bfec22ebf8b5a92971fe104b7e3dd41002206f3fc4ac2f9c1a4a12255b5f678b6e57a088816051faea5a65a66951b394c150012103dcf3bc936ecb2ec57b8f468050abce8c8756e75fd74273c9977744b1a0be7d03"
         ),
     )
 
-    out1 = proto.TxOutputType(
+    out1 = messages.TxOutputType(
         address="tb1qnspxpr2xj9s2jt6qlhuvdnxw6q55jvygcf89r2",
         amount=50000,
-        script_type=proto.OutputScriptType.PAYTOWITNESS,
+        script_type=messages.OutputScriptType.PAYTOWITNESS,
     )
 
     with client:
@@ -549,8 +549,8 @@ def test_p2wpkh_with_false_proof(client):
                 request_input(0),
                 request_input(1),
                 request_output(0),
-                proto.ButtonRequest(code=B.ConfirmOutput),
-                proto.ButtonRequest(code=B.SignTx),
+                messages.ButtonRequest(code=B.ConfirmOutput),
+                messages.ButtonRequest(code=B.SignTx),
                 request_input(0),
                 request_meta(TXHASH_70f987),
                 request_input(0, TXHASH_70f987),
@@ -561,7 +561,7 @@ def test_p2wpkh_with_false_proof(client):
                 request_input(0, TXHASH_65b768),
                 request_output(0, TXHASH_65b768),
                 request_output(1, TXHASH_65b768),
-                proto.Failure(code=proto.FailureType.DataError),
+                messages.Failure(code=messages.FailureType.DataError),
             ]
         )
 
