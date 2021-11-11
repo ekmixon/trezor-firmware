@@ -39,7 +39,7 @@ extern "C" fn ui_layout_new_example(param: Obj) -> Obj {
         let layout = LayoutObj::new(Child::new(Dialog::new(
             display::screen(),
             |area| {
-                Text::new(area, param)
+                Text::new::<theme::TTDefaultText>(area, param)
                     .with(b"some", "a few")
                     .with(b"param", "xx")
             },

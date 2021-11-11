@@ -13,5 +13,4 @@ pub use empty::Empty;
 pub use label::{Label, LabelStyle};
 pub use swipe::{Swipe, SwipeDirection};
 
-use super::event;
-use super::theme;
+use super::{event, theme};
