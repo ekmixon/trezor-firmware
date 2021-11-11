@@ -47,7 +47,7 @@ Or visit https://suite.trezor.io/
 
 
 def get_default_client(
-    path: Optional[str] = None, ui: Optional["ClickUI"] = None, **kwargs: Any
+    path: Optional[str] = None, ui: Optional["TrezorClientUI"] = None, **kwargs: Any
 ) -> "TrezorClient":
     """Get a client for a connected Trezor device.
 
@@ -152,6 +152,7 @@ class TrezorClient:
 
     def _callback_pin(self, msg: messages.PinMatrixRequest) -> "MessageType":
         try:
+            assert msg.type is not None
             pin = self.ui.get_pin(msg.type)
         except exceptions.Cancelled:
             self.call_raw(messages.Cancel())

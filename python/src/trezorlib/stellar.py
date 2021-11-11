@@ -252,7 +252,7 @@ def _read_operation(op: "Operation") -> "MessageType":
         )
     if isinstance(op, PathPaymentStrictSend):
         _raise_if_account_muxed_id_exists(op.destination)
-        operation = messages.StellarPathPaymentStrictSendOp(
+        return messages.StellarPathPaymentStrictSendOp(
             source_account=source_account,
             send_asset=_read_asset(op.send_asset),
             send_amount=_read_amount(op.send_amount),
@@ -261,7 +261,6 @@ def _read_operation(op: "Operation") -> "MessageType":
             destination_min=_read_amount(op.dest_min),
             paths=[_read_asset(asset) for asset in op.path],
         )
-        return operation
     raise ValueError(f"Unknown operation type: {op.__class__.__name__}")
 
 

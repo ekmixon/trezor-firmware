@@ -215,7 +215,7 @@ def _get_descriptor(
     account: str,
     script_type: messages.InputScriptType,
     show_display: bool,
-) -> Tuple[str, str]:
+) -> str:
     coin = coin or DEFAULT_COIN
     if script_type == messages.InputScriptType.SPENDADDRESS:
         acc_type = 44
@@ -269,7 +269,7 @@ def get_descriptor(
     account: str,
     script_type: messages.InputScriptType,
     show_display: bool,
-) -> None:
+) -> str:
     """Get descriptor of given account."""
     try:
         return _get_descriptor(client, coin, account, script_type, show_display)
