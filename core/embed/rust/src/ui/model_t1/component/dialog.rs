@@ -35,9 +35,9 @@ impl<T: Component, U: AsRef<[u8]>> Dialog<T, U> {
         let right_btn = right.map(|f| Child::new(f(button_area, ButtonPos::Right)));
         Self {
             header: header.zip(header_area),
-            content: content,
-            left_btn: left_btn,
-            right_btn: right_btn,
+            content,
+            left_btn,
+            right_btn,
         }
     }
 
@@ -55,6 +55,7 @@ impl<T: Component, U: AsRef<[u8]>> Dialog<T, U> {
     }
 
     fn areas(area: Rect, header: &Option<U>) -> (Option<Rect>, Rect, Rect) {
+        const HEADER_SPACE: i32 = 4;
         let button_height = theme::FONT_BOLD.line_height() + 2;
         let header_height = theme::FONT_BOLD.line_height();
 
@@ -63,7 +64,7 @@ impl<T: Component, U: AsRef<[u8]>> Dialog<T, U> {
             (None, content_area, button_area)
         } else {
             let (header_area, content_area) = content_area.hsplit(header_height);
-            let (_space, content_area) = content_area.hsplit(4);
+            let (_space, content_area) = content_area.hsplit(HEADER_SPACE);
             (Some(header_area), content_area, button_area)
         }
     }

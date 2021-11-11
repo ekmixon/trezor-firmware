@@ -1,13 +1,13 @@
 use crate::ui::{
-    component::{
-        model::{HidEvent, T1Button},
-        Component, Event, EventCtx,
-    },
+    component::{Component, Event, EventCtx},
     display::{self, Color, Font},
     geometry::{Offset, Point, Rect},
 };
 
-use super::theme;
+use super::{
+    event::{ButtonEvent, T1Button},
+    theme,
+};
 
 pub enum ButtonMsg {
     Clicked,
@@ -51,7 +51,7 @@ impl<T: AsRef<[u8]>> Button<T> {
             baseline,
             content,
             styles,
-            state: State::Initial,
+            state: State::Released,
         }
     }
 
@@ -68,34 +68,14 @@ impl<T: AsRef<[u8]>> Button<T> {
         Self::new(area, pos, ButtonContent::Icon(image), styles)
     }
 
-    pub fn enable(&mut self, ctx: &mut EventCtx) {
-        self.set(ctx, State::Initial)
-    }
-
-    pub fn disable(&mut self, ctx: &mut EventCtx) {
-        self.set(ctx, State::Disabled)
-    }
-
-    pub fn is_enabled(&self) -> bool {
-        matches!(
-            self.state,
-            State::Initial | State::Pressed | State::Released
-        )
-    }
-
-    pub fn is_disabled(&self) -> bool {
-        matches!(self.state, State::Disabled)
-    }
-
     pub fn content(&self) -> &ButtonContent<T> {
         &self.content
     }
 
     fn style(&self) -> &ButtonStyle {
         match self.state {
-            State::Initial | State::Released => self.styles.normal,
+            State::Released => self.styles.normal,
             State::Pressed => self.styles.active,
-            State::Disabled => self.styles.disabled,
         }
     }
 
@@ -134,30 +114,13 @@ impl<T: AsRef<[u8]>> Component for Button<T> {
 
     fn event(&mut self, ctx: &mut EventCtx, event: Event) -> Option<Self::Msg> {
         match event {
-            Event::HumanInput(HidEvent::ButtonPressed(which)) => {
-                match self.state {
-                    State::Disabled => {
-                        // Do nothing.
-                    }
-                    _ => {
-                        if self.pos.hit(&which) {
-                            // Touch started in our area, transform to `Pressed` state.
-                            self.set(ctx, State::Pressed);
-                        }
-                    }
-                }
+            Event::Button(ButtonEvent::ButtonPressed(which)) if self.pos.hit(&which) => {
+                self.set(ctx, State::Pressed);
             }
-            Event::HumanInput(HidEvent::ButtonReleased(which)) => {
-                match self.state {
-                    State::Pressed if self.pos.hit(&which) => {
-                        // Touch finished in our area, we got clicked.
-                        self.set(ctx, State::Initial);
-
-                        return Some(ButtonMsg::Clicked);
-                    }
-                    _ => {
-                        // Do nothing.
-                    }
+            Event::Button(ButtonEvent::ButtonReleased(which)) if self.pos.hit(&which) => {
+                if matches!(self.state, State::Pressed) {
+                    self.set(ctx, State::Released);
+                    return Some(ButtonMsg::Clicked);
                 }
             }
             _ => {}
@@ -170,10 +133,11 @@ impl<T: AsRef<[u8]>> Component for Button<T> {
 
         match &self.content {
             ButtonContent::Text(text) => {
+                let background_color = style.text_color.neg();
                 if style.border_horiz {
-                    display::rounded_rect1(self.area, style.background_color, theme::BG);
+                    display::rounded_rect1(self.area, background_color, theme::BG);
                 } else {
-                    display::rect(self.area, style.background_color)
+                    display::rect(self.area, background_color)
                 }
 
                 display::text(
@@ -181,7 +145,7 @@ impl<T: AsRef<[u8]>> Component for Button<T> {
                     text.as_ref(),
                     style.font,
                     style.text_color,
-                    style.background_color,
+                    background_color,
                 );
             }
             ButtonContent::Icon(_image) => {
@@ -208,10 +172,8 @@ where
 
 #[derive(PartialEq, Eq)]
 enum State {
-    Initial,
-    Pressed,
     Released,
-    Disabled,
+    Pressed,
 }
 
 pub enum ButtonContent<T> {
@@ -222,12 +184,10 @@ pub enum ButtonContent<T> {
 pub struct ButtonStyleSheet {
     pub normal: &'static ButtonStyle,
     pub active: &'static ButtonStyle,
-    pub disabled: &'static ButtonStyle,
 }
 
 pub struct ButtonStyle {
     pub font: Font,
     pub text_color: Color,
-    pub background_color: Color,
     pub border_horiz: bool,
 }

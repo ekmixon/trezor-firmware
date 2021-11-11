@@ -4,16 +4,17 @@ use crate::{
     error::Error,
     micropython::{buffer::Buffer, map::Map, obj::Obj, qstr::Qstr},
     ui::{
-        component::{
-            model_t1::{theme, Button, Dialog, DialogMsg},
-            Child, Text,
-        },
+        component::{Child, Text},
         display,
+        layout::obj::LayoutObj,
     },
     util,
 };
 
-use super::obj::LayoutObj;
+use super::{
+    component::{Button, Dialog, DialogMsg},
+    theme,
+};
 
 impl<T> TryFrom<DialogMsg<T>> for Obj
 where
@@ -63,7 +64,7 @@ extern "C" fn ui_layout_new_confirm_action(
         let obj = LayoutObj::new(Child::new(Dialog::new(
             display::screen(),
             |area| {
-                Text::new(area, format)
+                Text::new::<theme::T1DefaultText>(area, format)
                     .with(b"action", action.unwrap_or("".into()))
                     .with(b"description", description.unwrap_or("".into()))
             },

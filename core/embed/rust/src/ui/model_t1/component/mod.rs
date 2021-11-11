@@ -1,7 +1,7 @@
 mod button;
-pub mod constants;
 mod dialog;
-pub mod theme;
+
+use super::{event, theme};
 
 pub use button::{Button, ButtonContent, ButtonMsg, ButtonPos, ButtonStyle, ButtonStyleSheet};
 pub use dialog::{Dialog, DialogMsg};

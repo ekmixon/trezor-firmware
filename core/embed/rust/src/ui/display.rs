@@ -159,6 +159,10 @@ impl Color {
     pub fn to_u16(self) -> u16 {
         self.0
     }
+
+    pub fn neg(self) -> Self {
+        Self(!self.0)
+    }
 }
 
 impl From<u16> for Color {
