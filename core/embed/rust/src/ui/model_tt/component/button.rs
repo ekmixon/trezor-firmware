@@ -1,8 +1,9 @@
 use crate::ui::{
-    component::{model::HidEvent, Component, Event, EventCtx},
+    component::{Component, Event, EventCtx},
     display::{self, Color, Font},
     geometry::{Offset, Rect},
 };
+use super::event::TouchEvent;
 
 pub enum ButtonMsg {
     Clicked,
@@ -77,7 +78,7 @@ impl Component for Button {
 
     fn event(&mut self, ctx: &mut EventCtx, event: Event) -> Option<Self::Msg> {
         match event {
-            Event::HumanInput(HidEvent::TouchStart(pos)) => {
+            Event::Touch(TouchEvent::TouchStart(pos)) => {
                 match self.state {
                     State::Disabled => {
                         // Do nothing.
@@ -90,7 +91,7 @@ impl Component for Button {
                     }
                 }
             }
-            Event::HumanInput(HidEvent::TouchMove(pos)) => {
+            Event::Touch(TouchEvent::TouchMove(pos)) => {
                 match self.state {
                     State::Released if self.area.contains(pos) => {
                         // Touch entered our area, transform to `Pressed` state.
@@ -105,7 +106,7 @@ impl Component for Button {
                     }
                 }
             }
-            Event::HumanInput(HidEvent::TouchEnd(pos)) => {
+            Event::Touch(TouchEvent::TouchEnd(pos)) => {
                 match self.state {
                     State::Initial | State::Disabled => {
                         // Do nothing.

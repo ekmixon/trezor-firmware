@@ -2,7 +2,7 @@ use core::{mem, time::Duration};
 
 use heapless::Vec;
 
-use super::model::HidEvent;
+use crate::ui::{model_t1::event::ButtonEvent, model_tt::event::TouchEvent};
 
 /// Type used by components that do not return any messages.
 ///

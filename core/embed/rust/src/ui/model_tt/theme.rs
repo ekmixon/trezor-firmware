@@ -1,7 +1,8 @@
 use crate::ui::{
-    component::model_tt::{ButtonStyle, ButtonStyleSheet, LabelStyle},
     display::{Color, Font},
 };
+
+use super::component::{ButtonStyle, ButtonStyleSheet, LabelStyle};
 
 // Font constants.
 pub const FONT_NORMAL: Font = Font::new(-1);
