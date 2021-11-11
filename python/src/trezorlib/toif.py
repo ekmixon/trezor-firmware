@@ -1,6 +1,12 @@
 import struct
 import zlib
-from typing import Any, Literal, Sequence, Tuple
+from typing import Any, Sequence, Tuple
+
+# Literal is not available in typing for python < 3.8
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 import attr
 

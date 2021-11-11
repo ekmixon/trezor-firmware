@@ -15,7 +15,13 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import re
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+
+# Literal is not available in typing for python < 3.8
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 from . import exceptions, messages
 from .tools import expect, normalize_nfc, session
