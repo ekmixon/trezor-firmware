@@ -263,7 +263,7 @@ def from_camelcase(s: str) -> str:
     return ALL_CAP_RE.sub(r"\1_\2", s).lower()
 
 
-def dict_from_camelcase(d: dict, renames: Optional[dict] = None) -> dict:
+def dict_from_camelcase(d: Union[dict, Any], renames: Optional[dict] = None) -> dict:
     if not isinstance(d, dict):
         return d
 

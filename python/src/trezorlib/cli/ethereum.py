@@ -229,18 +229,18 @@ def sign_tx(
     chain_id: int,
     address: str,
     amount: int,
-    gas_limit: int,
-    gas_price: int,
-    nonce: int,
-    data: str,
+    gas_limit: Optional[int],
+    gas_price: Optional[int],
+    nonce: Optional[int],
+    data: Optional[str],
     publish: bool,
     to_address: str,
-    tx_type: int,
-    token: str,
+    tx_type: Optional[int],
+    token: Optional[str],
     max_gas_fee: int,
     max_priority_fee: int,
     access_list: List[ethereum.messages.EthereumAccessList],
-    eip2718_type: int,
+    eip2718_type: Optional[int],
 ) -> str:
     """Sign (and optionally publish) Ethereum transaction.
 
@@ -292,9 +292,9 @@ def sign_tx(
         amount = 0
 
     if data:
-        data = ethereum.decode_hex(data)
+        data_bytes = ethereum.decode_hex(data)
     else:
-        data = b""
+        data_bytes = b""
 
     if gas_price is None and not is_eip1559:
         gas_price = w3.eth.gasPrice
@@ -305,7 +305,7 @@ def sign_tx(
                 "to": to_address,
                 "from": from_address,
                 "value": amount,
-                "data": f"0x{data.hex()}",
+                "data": f"0x{data_bytes.hex()}",
             }
         )
 
@@ -320,7 +320,7 @@ def sign_tx(
             gas_limit=gas_limit,
             to=to_address,
             value=amount,
-            data=data,
+            data=data_bytes,
             chain_id=chain_id,
             max_gas_fee=max_gas_fee,
             max_priority_fee=max_priority_fee,
@@ -336,7 +336,7 @@ def sign_tx(
             gas_limit=gas_limit,
             to=to_address,
             value=amount,
-            data=data,
+            data=data_bytes,
             chain_id=chain_id,
         )
     )
@@ -352,16 +352,18 @@ def sign_tx(
                 gas_limit,
                 to,
                 amount,
-                data,
+                data_bytes,
                 _format_access_list(access_list) if access_list is not None else [],
             )
             + sig
         )
     elif tx_type is None:
-        transaction = rlp.encode((nonce, gas_price, gas_limit, to, amount, data) + sig)
+        transaction = rlp.encode(
+            (nonce, gas_price, gas_limit, to, amount, data_bytes) + sig
+        )
     else:
         transaction = rlp.encode(
-            (tx_type, nonce, gas_price, gas_limit, to, amount, data) + sig
+            (tx_type, nonce, gas_price, gas_limit, to, amount, data_bytes) + sig
         )
     if eip2718_type is not None:
         eip2718_prefix = f"{eip2718_type:02x}"

@@ -127,7 +127,7 @@ class ClickUI:
             else:
                 return pin
 
-    def get_passphrase(self, available_on_device: bool) -> str:
+    def get_passphrase(self, available_on_device: bool) -> Union[str, object]:
         if available_on_device and not self.passphrase_on_host:
             return PASSPHRASE_ON_DEVICE
 

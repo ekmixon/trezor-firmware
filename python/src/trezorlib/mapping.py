@@ -50,7 +50,7 @@ def register_message(msg_class: Type[protobuf.MessageType]) -> None:
     map_type_to_class[msg_class.MESSAGE_WIRE_TYPE] = msg_class
 
 
-def get_type(msg: Type[protobuf.MessageType]) -> int:
+def get_type(msg: protobuf.MessageType) -> int:
     return map_class_to_type[msg.__class__]
 
 

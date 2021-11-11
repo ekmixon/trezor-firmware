@@ -535,7 +535,7 @@ def format_message(
         if field is not None:
             if isinstance(value, int) and safe_issubclass(field.type, IntEnum):
                 try:
-                    assert isinstance(field.type, IntEnum)
+                    assert callable(field.type)
                     return f"{field.type(value).name} ({value})"
                 except ValueError:
                     return str(value)
@@ -557,6 +557,7 @@ def value_to_proto(field: Field, value: Any) -> Any:
     if safe_issubclass(field_type_object, IntEnum):
         assert field_type_object is not None
         if isinstance(value, str):
+            assert isinstance(field_type_object, IntEnum)
             return field_type_object.__members__[value]
         else:
             try:

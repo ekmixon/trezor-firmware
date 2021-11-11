@@ -44,6 +44,12 @@ from .tools import expect
 
 if TYPE_CHECKING:
     from .transport import Transport
+    from .transport.bridge import BridgeTransport
+    from .transport.hid import HidTransport
+    from .transport.udp import UdpTransport
+    from .transport.webusb import WebUsbTransport
+
+    TransportType = Union[BridgeTransport, HidTransport, UdpTransport, WebUsbTransport]
 
 
 EXPECTED_RESPONSES_CONTEXT_LINES = 3
@@ -384,7 +390,7 @@ class TrezorClientDebugLink(TrezorClient):
     # without special DebugLink interface provided
     # by the device.
 
-    def __init__(self, transport: "Transport", auto_interact: bool = True) -> None:
+    def __init__(self, transport: "TransportType", auto_interact: bool = True) -> None:
         try:
             debug_transport = transport.find_debug()
             self.debug = DebugLink(debug_transport, auto_interact)
@@ -653,7 +659,7 @@ class TrezorClientDebugLink(TrezorClient):
 @expect(messages.Success, field="message")
 def load_device(
     client: "TrezorClient",
-    mnemonic: list,
+    mnemonic: Union[list, tuple, str],
     pin: str,
     passphrase_protection: bool,
     label: str,

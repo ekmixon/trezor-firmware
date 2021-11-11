@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from .protobuf import MessageType
     from .ui import TrezorClientUI
     from .transport import Transport
+    from .debuglink import DebugUI
 
 LOG = logging.getLogger(__name__)
 
@@ -93,7 +94,7 @@ class TrezorClient:
     def __init__(
         self,
         transport: "Transport",
-        ui: "TrezorClientUI",
+        ui: "DebugUI",
         session_id: Optional[bytes] = None,
         derive_cardano: Optional[bool] = None,
     ) -> None:

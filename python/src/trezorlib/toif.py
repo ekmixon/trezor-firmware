@@ -2,15 +2,15 @@ import struct
 import zlib
 from typing import Any, Sequence, Tuple
 
+import attr
+
+from . import firmware
+
 # Literal is not available in typing for python < 3.8
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
-
-import attr
-
-from . import firmware
 
 try:
     from PIL import Image
@@ -132,6 +132,8 @@ def from_image(image: Image, background: Tuple[int, ...] = (0, 0, 0, 255)) -> To
         raise RuntimeError(
             "PIL is not available. Please install via 'pip install Pillow'"
         )
+
+    assert image is not None
 
     if image.mode == "RGBA":
         img_background = Image.new("RGBA", image.size, background)

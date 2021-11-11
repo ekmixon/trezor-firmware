@@ -17,14 +17,14 @@
 import re
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
+from . import exceptions, messages
+from .tools import expect, normalize_nfc, session
+
 # Literal is not available in typing for python < 3.8
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
-
-from . import exceptions, messages
-from .tools import expect, normalize_nfc, session
 
 if TYPE_CHECKING:
     from .client import TrezorClient
