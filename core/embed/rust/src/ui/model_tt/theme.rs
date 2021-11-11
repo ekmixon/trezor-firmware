@@ -1,9 +1,9 @@
 use crate::ui::{
-    component::text::DefaultTextTheme,
+    component::{label::LabelStyle, text::DefaultTextTheme},
     display::{Color, Font},
 };
 
-use super::component::{ButtonStyle, ButtonStyleSheet, LabelStyle};
+use super::component::{ButtonStyle, ButtonStyleSheet};
 
 // Font constants.
 pub const FONT_NORMAL: Font = Font::new(-1);
