@@ -26,7 +26,7 @@ from . import cosi, messages, tools
 try:
     from hashlib import blake2s
 except ImportError:
-    from pyblake2 import blake2s
+    from pyblake2 import blake2s  # type: ignore  [no-redef]
 
 if TYPE_CHECKING:
     from .client import TrezorClient

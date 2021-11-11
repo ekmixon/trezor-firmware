@@ -180,7 +180,7 @@ class _MessageTypeMeta(type):
     def __init__(cls, name: str, bases: tuple, d: dict) -> None:
         super().__init__(name, bases, d)
         if name != "MessageType":
-            cls.__init__ = MessageType.__init__
+            cls.__init__ = MessageType.__init__  # type: ignore [misc]
 
 
 class MessageType(metaclass=_MessageTypeMeta):
@@ -557,7 +557,6 @@ def value_to_proto(field: Field, value: Any) -> Any:
     if safe_issubclass(field_type_object, IntEnum):
         assert field_type_object is not None
         if isinstance(value, str):
-            assert isinstance(field_type_object, IntEnum)
             return field_type_object.__members__[value]
         else:
             try:

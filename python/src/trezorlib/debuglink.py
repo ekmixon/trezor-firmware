@@ -25,6 +25,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generator,
     Iterable,
     Iterator,
     List,
@@ -225,7 +226,8 @@ class DebugLink:
 
 class NullDebugLink(DebugLink):
     def __init__(self) -> None:
-        super().__init__(None)
+        # Ignoring mypy error as self.transport will not be touched while using NullDebugLink
+        super().__init__(None)  # type: ignore [arg-type]
 
     def open(self) -> None:
         pass
@@ -255,7 +257,9 @@ class DebugUI:
     def clear(self) -> None:
         self.pins: Optional[Iterator[str]] = None
         self.passphrase = ""
-        self.input_flow = None
+        self.input_flow: Union[
+            Generator[None, messages.ButtonRequest, None], object, None
+        ] = None
 
     def button_request(self, br: messages.ButtonRequest) -> None:
         if self.input_flow is None:
@@ -304,7 +308,10 @@ class MessageFilter:
 
     @classmethod
     def from_message_or_type(
-        cls, message_or_type: Union[protobuf.MessageType, Type[protobuf.MessageType]]
+        cls,
+        message_or_type: Union[
+            protobuf.MessageType, Type[protobuf.MessageType], "MessageFilter"
+        ],
     ) -> "MessageFilter":
         if isinstance(message_or_type, cls):
             return message_or_type
@@ -412,10 +419,10 @@ class TrezorClientDebugLink(TrezorClient):
 
         Clears all debugging state that might have been modified by a testcase.
         """
-        self.ui = DebugUI(self.debug)
+        self.ui: DebugUI = DebugUI(self.debug)
         self.in_with_statement = False
-        self.expected_responses: Optional[list] = None
-        self.actual_responses: Optional[list] = None
+        self.expected_responses: Optional[List[MessageFilter]] = None
+        self.actual_responses: Optional[List[protobuf.MessageType]] = None
         self.filters: Dict[
             Type[protobuf.MessageType],
             Callable[[protobuf.MessageType], protobuf.MessageType],
@@ -458,7 +465,9 @@ class TrezorClientDebugLink(TrezorClient):
         else:
             return msg
 
-    def set_input_flow(self, input_flow) -> None:
+    def set_input_flow(
+        self, input_flow: Generator[None, Optional[messages.ButtonRequest], None]
+    ) -> None:
         """Configure a sequence of input events for the current with-block.
 
         The `input_flow` must be a generator function. A `yield` statement in the
@@ -565,7 +574,7 @@ class TrezorClientDebugLink(TrezorClient):
         ]
         self.actual_responses = []
 
-    def use_pin_sequence(self, pins: Iterable) -> None:
+    def use_pin_sequence(self, pins: Iterable[str]) -> None:
         """Respond to PIN prompts from device with the provided PINs.
         The sequence must be at least as long as the expected number of PIN prompts.
         """

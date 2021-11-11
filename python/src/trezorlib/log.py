@@ -38,10 +38,10 @@ class PrettyProtobufFormatter(logging.Formatter):
             msg=super().format(record),
         )
         if hasattr(record, "protobuf"):
-            if type(record.protobuf) in OMITTED_MESSAGES:
-                message += f" ({record.protobuf.ByteSize()} bytes)"
+            if type(record.protobuf) in OMITTED_MESSAGES:  # type: ignore [attr-defined]
+                message += f" ({record.protobuf.ByteSize()} bytes)"  # type: ignore [attr-defined]
             else:
-                message += "\n" + protobuf.format_message(record.protobuf)
+                message += "\n" + protobuf.format_message(record.protobuf)  # type: ignore [attr-defined]
         return message
 
 

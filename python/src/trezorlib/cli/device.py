@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 import click
 
@@ -104,7 +104,7 @@ def wipe(client: "TrezorClient", bootloader: bool) -> str:
 @with_client
 def load(
     client: "TrezorClient",
-    mnemonic: list,
+    mnemonic: Sequence[str],
     pin: str,
     passphrase_protection: bool,
     label: str,
@@ -263,7 +263,7 @@ def sd_protect(
     refresh - Replace the current SD card secret with a new one.
     """
     if client.features.model == "1":
-        raise click.BadUsage("Trezor One does not support SD card protection.")
+        raise click.ClickException("Trezor One does not support SD card protection.")
     return device.sd_protect(client, operation)
 
 

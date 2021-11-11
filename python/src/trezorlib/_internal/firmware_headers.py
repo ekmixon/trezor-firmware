@@ -10,7 +10,7 @@ from .. import cosi, firmware
 try:
     from hashlib import blake2s
 except ImportError:
-    from pyblake2 import blake2s
+    from pyblake2 import blake2s  # type: ignore [no-redef]
 
 
 SYM_OK = click.style("\u2714", fg="green")
@@ -108,7 +108,7 @@ def _format_container(
 
         if isinstance(value, list):
             # short list of simple values
-            if not value or isinstance(value, (int, bool, Enum)):
+            if not value or isinstance(value[0], (int, bool, Enum)):
                 return repr(value)
 
             # long list, one line per entry

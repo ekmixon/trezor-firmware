@@ -24,6 +24,7 @@ from typing import (
     Iterator,
     List,
     Optional,
+    Sequence,
     Tuple,
     Union,
 )
@@ -197,7 +198,7 @@ def parse_output(output: dict) -> OutputWithAssetGroups:
 
 
 def _parse_token_bundle(
-    token_bundle: Iterable, is_mint: bool
+    token_bundle: Iterable[dict], is_mint: bool
 ) -> List[AssetGroupWithTokens]:
     error_message: str
     if is_mint:
@@ -225,7 +226,7 @@ def _parse_token_bundle(
     return result
 
 
-def _parse_tokens(tokens: Iterable, is_mint: bool) -> List[messages.CardanoToken]:
+def _parse_tokens(tokens: Iterable[dict], is_mint: bool) -> List[messages.CardanoToken]:
     error_message: str
     if is_mint:
         error_message = INVALID_MINT_TOKEN_BUNDLE_ENTRY
@@ -531,7 +532,7 @@ def parse_auxiliary_data(
     )
 
 
-def parse_mint(mint: Iterable) -> List[AssetGroupWithTokens]:
+def parse_mint(mint: Iterable[dict]) -> List[AssetGroupWithTokens]:
     return _parse_token_bundle(mint, is_mint=True)
 
 
@@ -545,10 +546,10 @@ def parse_additional_witness_request(
 
 
 def _get_witness_requests(
-    inputs: List[InputWithPath],
-    certificates: List[CertificateWithPoolOwnersAndRelays],
-    withdrawals: List[messages.CardanoTxWithdrawal],
-    additional_witness_requests: List[Path],
+    inputs: Sequence[InputWithPath],
+    certificates: Sequence[CertificateWithPoolOwnersAndRelays],
+    withdrawals: Sequence[messages.CardanoTxWithdrawal],
+    additional_witness_requests: Sequence[Path],
     signing_mode: messages.CardanoTxSigningMode,
 ) -> List[messages.CardanoTxWitnessRequest]:
     paths = set()
@@ -603,7 +604,7 @@ def _get_output_items(outputs: List[OutputWithAssetGroups]) -> Iterator[OutputIt
 
 
 def _get_certificate_items(
-    certificates: List[CertificateWithPoolOwnersAndRelays],
+    certificates: Sequence[CertificateWithPoolOwnersAndRelays],
 ) -> Iterator[CertificateItem]:
     for certificate, pool_owners_and_relays in certificates:
         yield certificate
@@ -613,7 +614,7 @@ def _get_certificate_items(
             yield from relays
 
 
-def _get_mint_items(mint: List[AssetGroupWithTokens]) -> Iterator[MintItem]:
+def _get_mint_items(mint: Sequence[AssetGroupWithTokens]) -> Iterator[MintItem]:
     yield messages.CardanoTxMint(asset_groups_count=len(mint))
     for asset_group, tokens in mint:
         yield asset_group
@@ -680,13 +681,13 @@ def sign_tx(
     fee: int,
     ttl: Optional[int],
     validity_interval_start: Optional[int],
-    certificates: List[CertificateWithPoolOwnersAndRelays] = [],
-    withdrawals: List[messages.CardanoTxWithdrawal] = [],
+    certificates: Sequence[CertificateWithPoolOwnersAndRelays] = (),
+    withdrawals: Sequence[messages.CardanoTxWithdrawal] = (),
     protocol_magic: int = PROTOCOL_MAGICS["mainnet"],
     network_id: int = NETWORK_IDS["mainnet"],
-    auxiliary_data: messages.CardanoTxAuxiliaryData = None,
-    mint: List[AssetGroupWithTokens] = [],
-    additional_witness_requests: List[Path] = [],
+    auxiliary_data: Optional[messages.CardanoTxAuxiliaryData] = None,
+    mint: Sequence[AssetGroupWithTokens] = (),
+    additional_witness_requests: Sequence[Path] = (),
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
 ) -> Dict[str, Any]:
     UNEXPECTED_RESPONSE_ERROR = exceptions.TrezorException("Unexpected response")

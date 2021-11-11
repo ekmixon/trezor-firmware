@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import logging
-from typing import Iterable, List, Tuple, Type
+from typing import Iterable, List, Tuple, Type, Union
 
 from ..exceptions import TrezorException
 
@@ -58,7 +58,7 @@ class Transport:
     a Trezor device to a computer.
     """
 
-    PATH_PREFIX = ""
+    PATH_PREFIX: str
     ENABLED = False
 
     def __str__(self) -> str:
@@ -102,11 +102,15 @@ def all_transports() -> Iterable[Type[Transport]]:
     from .udp import UdpTransport
     from .webusb import WebUsbTransport
 
-    return set(
-        cls
-        for cls in (BridgeTransport, HidTransport, UdpTransport, WebUsbTransport)
-        if cls.ENABLED
+    TransportType = Union[BridgeTransport, HidTransport, UdpTransport, WebUsbTransport]
+
+    transports: Tuple[Type[TransportType], ...] = (
+        BridgeTransport,
+        HidTransport,
+        UdpTransport,
+        WebUsbTransport,
     )
+    return set(t for t in transports if t.ENABLED)
 
 
 def enumerate_devices() -> Iterable[Transport]:

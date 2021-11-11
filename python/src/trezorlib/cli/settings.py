@@ -14,7 +14,7 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import click
 
@@ -243,7 +243,7 @@ def passphrase() -> None:
 @passphrase.command(name="enabled")
 @click.option("-f/-F", "--force-on-device/--no-force-on-device", default=None)
 @with_client
-def passphrase_enable(client: "TrezorClient", force_on_device: bool) -> str:
+def passphrase_enable(client: "TrezorClient", force_on_device: Optional[bool]) -> str:
     """Enable passphrase."""
     return device.apply_settings(
         client, use_passphrase=True, passphrase_always_on_device=force_on_device

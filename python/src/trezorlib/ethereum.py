@@ -17,14 +17,12 @@
 import re
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
+from typing_extensions import (  # Literal is not available in typing for python < 3.8
+    Literal,
+)
+
 from . import exceptions, messages
 from .tools import expect, normalize_nfc, session
-
-# Literal is not available in typing for python < 3.8
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from .client import TrezorClient
@@ -229,7 +227,7 @@ def sign_tx_eip1559(
     chain_id: int,
     max_gas_fee: int,
     max_priority_fee: int,
-    access_list: List[messages.EthereumAccessList] = [],
+    access_list: Optional[List[messages.EthereumAccessList]] = None,
 ) -> Tuple[int, bytes, bytes]:
     length = len(data)
     data, chunk = data[1024:], data[:1024]

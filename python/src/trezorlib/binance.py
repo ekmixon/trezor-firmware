@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 @expect(messages.BinanceAddress, field="address")
 def get_address(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
-) -> str:
+) -> dict:
     return client.call(
         messages.BinanceGetAddress(address_n=address_n, show_display=show_display)
     )

@@ -17,7 +17,7 @@
 import functools
 import sys
 from contextlib import contextmanager
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
 import click
 
@@ -28,11 +28,11 @@ from ..ui import ClickUI
 
 
 class ChoiceType(click.Choice):
-    def __init__(self, typemap: dict) -> None:
+    def __init__(self, typemap: Dict[str, Any]) -> None:
         super().__init__(typemap.keys())
         self.typemap = typemap
 
-    def convert(self, value: str, param, ctx):
+    def convert(self, value: str, param, ctx) -> Any:
         if value in self.typemap.values():
             return value
         value = super().convert(value, param, ctx)

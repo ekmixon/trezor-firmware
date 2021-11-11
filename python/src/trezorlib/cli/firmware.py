@@ -231,7 +231,7 @@ def find_specified_firmware_version(
 
 def find_best_firmware_version(
     client: "TrezorClient",
-    version: str,
+    version: Optional[str],
     beta: bool,
     bitcoin_only: bool,
 ) -> tuple:

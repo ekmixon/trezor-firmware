@@ -3,14 +3,11 @@ import zlib
 from typing import Any, Sequence, Tuple
 
 import attr
+from typing_extensions import (  # Literal is not available in typing for python < 3.8
+    Literal,
+)
 
 from . import firmware
-
-# Literal is not available in typing for python < 3.8
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 try:
     from PIL import Image

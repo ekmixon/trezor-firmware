@@ -19,7 +19,7 @@ import os
 import subprocess
 import time
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, TextIO, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, TextIO, Union, cast
 
 from ..debuglink import TrezorClientDebugLink
 from ..transport.udp import UdpTransport
@@ -37,7 +37,7 @@ def _rm_f(path: Path) -> None:
 
 
 class Emulator:
-    STORAGE_FILENAME: Optional[str] = None
+    STORAGE_FILENAME: str
 
     def __init__(
         self,
@@ -62,7 +62,6 @@ class Emulator:
 
         self.workdir = self.profile_dir
 
-        assert self.STORAGE_FILENAME is not None
         self.storage = self.profile_dir / self.STORAGE_FILENAME
         if storage:
             self.storage.write_bytes(storage)
@@ -90,7 +89,7 @@ class Emulator:
         return UdpTransport(f"127.0.0.1:{self.port}")
 
     def wait_until_ready(self, timeout: float = EMULATOR_WAIT_TIME) -> None:
-        assert self.process is not None
+        assert self.process is not None, "Emulator not started"
         transport = self._get_transport()
         transport.open()
         LOG.info("Waiting for emulator to come up...")
@@ -113,7 +112,7 @@ class Emulator:
         LOG.info(f"Emulator ready after {time.monotonic() - start:.3f} seconds")
 
     def wait(self, timeout: Optional[float] = None) -> int:
-        assert self.process is not None
+        assert self.process is not None, "Emulator not started"
         ret = self.process.wait(timeout=timeout)
         self.process = None
         self.stop()
@@ -133,7 +132,7 @@ class Emulator:
         return subprocess.Popen(
             [str(self.executable)] + args + self.extra_args,
             cwd=self.workdir,
-            stdout=output,  # type: ignore [arg-type]
+            stdout=cast(TextIO, output),
             stderr=subprocess.STDOUT,
             env=env,
         )

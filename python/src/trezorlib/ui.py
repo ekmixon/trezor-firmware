@@ -67,11 +67,11 @@ class TrezorClientUI(Protocol):
 
 
 def echo(*args: Any, **kwargs: Any) -> None:
-    return click.echo(*args, err=True, **kwargs)
+    return click.echo(*args, err=True, **kwargs)  # type: ignore [misc]
 
 
 def prompt(*args: Any, **kwargs: Any) -> Any:
-    return click.prompt(*args, err=True, **kwargs)
+    return click.prompt(*args, err=True, **kwargs)  # type: ignore [misc]
 
 
 class ClickUI:
@@ -163,7 +163,7 @@ def mnemonic_words(
     if expand:
         wordlist = Mnemonic(language).wordlist
     else:
-        wordlist = list()
+        wordlist = []
 
     def expand_word(word: str) -> str:
         if not expand:
