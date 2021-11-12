@@ -21,6 +21,8 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, List, Optional, TextIO, Union
 
 import click
+from eth_typing import ChecksumAddress, HexAddress
+from eth_typing.encoding import HexStr
 
 from .. import ethereum, tools
 from . import with_client
@@ -126,7 +128,9 @@ def _erc20_contract(
             "outputs": [{"name": "", "type": "bool"}],
         }
     ]
-    contract = w3.eth.contract(address=token_address, abi=min_abi)
+    contract = w3.eth.contract(
+        address=ChecksumAddress(HexAddress(HexStr(token_address))), abi=min_abi
+    )
     return contract.encodeABI("transfer", [to_address, amount])
 
 

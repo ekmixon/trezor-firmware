@@ -205,6 +205,7 @@ class TrezorClient:
                 return send_passphrase(on_device=True)
 
         # else process host-entered passphrase
+        assert isinstance(passphrase, str)
         passphrase = Mnemonic.normalize_string(passphrase)
         if len(passphrase) > MAX_PASSPHRASE_LENGTH:
             self.call_raw(messages.Cancel())

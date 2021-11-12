@@ -444,7 +444,7 @@ def dump_message(writer: Writer, msg: "MessageType") -> None:
                 dump_message(writer, svalue)
 
             elif safe_issubclass(field_type_object, IntEnum):
-                if svalue not in field_type_object.__members__.values():
+                if svalue not in field_type_object.__members__.values():  # type: ignore [union-attr]
                     raise ValueError(
                         f"Value {svalue} in field {field.name} unknown for {field.type}"
                     )
@@ -557,7 +557,7 @@ def value_to_proto(field: Field, value: Any) -> Any:
     if safe_issubclass(field_type_object, IntEnum):
         assert field_type_object is not None
         if isinstance(value, str):
-            return field_type_object.__members__[value]
+            return field_type_object.__members__[value]  # type: ignore [attr-defined]
         else:
             try:
                 return field_type_object(value)

@@ -274,6 +274,7 @@ class DebugUI:
             raise AssertionError("input flow ended prematurely")
         else:
             try:
+                assert isinstance(self.input_flow, Generator)
                 self.input_flow.send(br)
             except StopIteration:
                 self.input_flow = self.INPUT_FLOW_DONE
