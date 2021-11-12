@@ -235,15 +235,19 @@ def expect(
     expected: "Type[M]",
     *,
     field: Optional[str] = None,
-    ret_type: "Optional[Type[F]]" = None
+    ret_type: "Optional[Type[F]]" = None,
 ) -> "Callable[[Func[M]], Callable]":
     def decorator(f: "Func[M]") -> Callable:
+        """Decorator checks if the method returned one of expected
+        protobuf messages or raises an exception
+        """
+
         @functools.wraps(f)
         def wrapped_f(*args: Any, **kwargs: Any) -> Any:
-            __tracebackhide__ = True
+            __tracebackhide__ = True  # for pytest # pylint: disable=W0612
             ret = f(*args, **kwargs)
             if not isinstance(ret, expected):
-                raise RuntimeError(...)
+                raise RuntimeError(f"Got {ret.__class__}, expected {expected}")
             if field is not None:
                 return getattr(ret, field)
             else:
