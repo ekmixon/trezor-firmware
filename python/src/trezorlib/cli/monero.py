@@ -57,5 +57,8 @@ def get_watch_key(client: "TrezorClient", address: str, network_type: str) -> di
     """Get Monero watch key for specified path."""
     address_n = tools.parse_path(address)
     res = monero.get_watch_key(client, address_n, int(network_type))
+    # TODO: could be made required in MoneroWatchKey
+    assert res.address is not None
+    assert res.watch_key is not None
     output = {"address": res.address.decode(), "watch_key": res.watch_key.hex()}
     return output

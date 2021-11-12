@@ -25,16 +25,16 @@ if TYPE_CHECKING:
     from .tools import Address
 
 
-@expect(messages.BinanceAddress, field="address")
+@expect(messages.BinanceAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
-) -> dict:
+) -> str:
     return client.call(
         messages.BinanceGetAddress(address_n=address_n, show_display=show_display)
     )
 
 
-@expect(messages.BinancePublicKey, field="public_key")
+@expect(messages.BinancePublicKey, field="public_key", ret_type=bytes)
 def get_public_key(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> bytes:

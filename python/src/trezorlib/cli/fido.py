@@ -69,6 +69,8 @@ def credentials_list(client: "TrezorClient") -> None:
         if cred.curve is not None:
             curve = CURVE_NAME.get(cred.curve, cred.curve)
             click.echo(f"  Curve:                  {curve}")
+        # TODO: could be made required in WebAuthnCredential
+        assert cred.id is not None
         click.echo(f"  Credential ID:          {cred.id.hex()}")
 
     if not creds:

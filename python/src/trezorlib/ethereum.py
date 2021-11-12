@@ -147,7 +147,7 @@ def encode_data(value: Any, type_name: str) -> bytes:
 # ====== Client functions ====== #
 
 
-@expect(messages.EthereumAddress, field="address")
+@expect(messages.EthereumAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", n: "Address", show_display: bool = False
 ) -> str:

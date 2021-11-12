@@ -28,7 +28,7 @@ REQUIRED_FIELDS = ("Fee", "Sequence", "TransactionType", "Payment")
 REQUIRED_PAYMENT_FIELDS = ("Amount", "Destination")
 
 
-@expect(messages.RippleAddress, field="address")
+@expect(messages.RippleAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> str:

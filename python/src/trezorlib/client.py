@@ -350,7 +350,7 @@ class TrezorClient:
             else:
                 raise exceptions.OutdatedFirmwareError(OUTDATED_FIRMWARE_ERROR)
 
-    @tools.expect(messages.Success, field="message")
+    @tools.expect(messages.Success, field="success", ret_type=str)
     def ping(
         self,
         msg: str,

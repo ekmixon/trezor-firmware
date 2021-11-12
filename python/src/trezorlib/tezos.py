@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from .tools import Address
 
 
-@expect(messages.TezosAddress, field="address")
+@expect(messages.TezosAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> str:
@@ -33,7 +33,7 @@ def get_address(
     )
 
 
-@expect(messages.TezosPublicKey, field="public_key")
+@expect(messages.TezosPublicKey, field="public_key", ret_type=str)
 def get_public_key(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> str:

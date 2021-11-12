@@ -206,7 +206,7 @@ class DebugLink:
     def stop_recording(self) -> None:
         self._call(messages.DebugLinkRecordScreen(target_directory=None))
 
-    @expect(messages.DebugLinkMemory, field="memory")
+    @expect(messages.DebugLinkMemory, field="memory", ret_type=bytes)
     def memory_read(self, address: int, length: int) -> bytes:
         return self._call(messages.DebugLinkMemoryRead(address=address, length=length))
 
@@ -666,7 +666,7 @@ class TrezorClientDebugLink(TrezorClient):
         raise RuntimeError("Unexpected call")
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 def load_device(
     client: "TrezorClient",
     mnemonic: Union[list, tuple, str],
@@ -708,7 +708,7 @@ def load_device(
 load_device_by_mnemonic = load_device
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 def self_test(client: "TrezorClient") -> str:
     if client.features.bootloader_mode is not True:
         raise RuntimeError("Device must be in bootloader mode")

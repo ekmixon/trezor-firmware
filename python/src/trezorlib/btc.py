@@ -81,7 +81,7 @@ def get_public_node(
     )
 
 
-@expect(messages.Address, field="address")
+@expect(messages.Address, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient",
     coin_name: str,
@@ -103,7 +103,7 @@ def get_address(
     )
 
 
-@expect(messages.OwnershipId, field="ownership_id")
+@expect(messages.OwnershipId, field="ownership_id", ret_type=bytes)
 def get_ownership_id(
     client: "TrezorClient",
     coin_name: str,
@@ -340,7 +340,7 @@ def sign_tx(
     return signatures, serialized_tx
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 def authorize_coinjoin(
     client: "TrezorClient",
     coordinator: str,

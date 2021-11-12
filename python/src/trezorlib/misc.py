@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from .client import TrezorClient
 
 
-@expect(messages.Entropy, field="entropy")
+@expect(messages.Entropy, field="entropy", ret_type=bytes)
 def get_entropy(client: "TrezorClient", size: int) -> bytes:
     return client.call(messages.GetEntropy(size=size))
 
@@ -63,7 +63,7 @@ def get_ecdh_session_key(
     )
 
 
-@expect(messages.CipheredKeyValue, field="value")
+@expect(messages.CipheredKeyValue, field="value", ret_type=bytes)
 def encrypt_keyvalue(
     client: "TrezorClient",
     n: "Address",
@@ -86,7 +86,7 @@ def encrypt_keyvalue(
     )
 
 
-@expect(messages.CipheredKeyValue, field="value")
+@expect(messages.CipheredKeyValue, field="value", ret_type=bytes)
 def decrypt_keyvalue(
     client: "TrezorClient",
     n: "Address",

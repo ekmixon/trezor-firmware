@@ -188,7 +188,7 @@ def create_sign_tx(transaction: dict) -> messages.NEMSignTx:
 # ====== Client functions ====== #
 
 
-@expect(messages.NEMAddress, field="address")
+@expect(messages.NEMAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", n: "Address", network: int, show_display: bool = False
 ) -> str:

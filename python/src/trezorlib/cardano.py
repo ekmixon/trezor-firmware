@@ -624,7 +624,7 @@ def _get_mint_items(mint: Sequence[AssetGroupWithTokens]) -> Iterator[MintItem]:
 # ====== Client functions ====== #
 
 
-@expect(messages.CardanoAddress, field="address")
+@expect(messages.CardanoAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient",
     address_parameters: messages.CardanoAddressParametersType,

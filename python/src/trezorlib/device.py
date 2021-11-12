@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 RECOVERY_BACK = "\x08"  # backspace character, sent literally
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 @session
 def apply_settings(
     client: "TrezorClient",
@@ -61,7 +61,7 @@ def apply_settings(
     return out
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 @session
 def apply_flags(client: "TrezorClient", flags: int) -> str:
     out = client.call(messages.ApplyFlags(flags=flags))
@@ -69,7 +69,7 @@ def apply_flags(client: "TrezorClient", flags: int) -> str:
     return out
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 @session
 def change_pin(client: "TrezorClient", remove: bool = False) -> str:
     ret = client.call(messages.ChangePin(remove=remove))
@@ -77,7 +77,7 @@ def change_pin(client: "TrezorClient", remove: bool = False) -> str:
     return ret
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 @session
 def change_wipe_code(client: "TrezorClient", remove: bool = False) -> str:
     ret = client.call(messages.ChangeWipeCode(remove=remove))
@@ -85,7 +85,7 @@ def change_wipe_code(client: "TrezorClient", remove: bool = False) -> str:
     return ret
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 @session
 def sd_protect(
     client: "TrezorClient", operation: messages.SdProtectOperationType
@@ -95,7 +95,7 @@ def sd_protect(
     return ret
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 @session
 def wipe(client: "TrezorClient") -> str:
     ret = client.call(messages.WipeDevice())
@@ -156,7 +156,7 @@ def recover(
     return res
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 @session
 def reset(
     client: "TrezorClient",
@@ -207,7 +207,7 @@ def reset(
     return ret
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 @session
 def backup(client: "TrezorClient") -> str:
     ret = client.call(messages.BackupDevice())
@@ -215,12 +215,12 @@ def backup(client: "TrezorClient") -> str:
     return ret
 
 
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 def cancel_authorization(client: "TrezorClient") -> str:
     return client.call(messages.CancelAuthorization())
 
 
 @session
-@expect(messages.Success, field="message")
+@expect(messages.Success, field="message", ret_type=str)
 def reboot_to_bootloader(client: "TrezorClient") -> str:
     return client.call(messages.RebootToBootloader())

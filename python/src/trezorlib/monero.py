@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 # FAKECHAIN = 3
 
 
-@expect(proto.MoneroAddress, field="address")
+@expect(proto.MoneroAddress, field="address", ret_type=bytes)
 def get_address(
     client: "TrezorClient",
     n: "Address",

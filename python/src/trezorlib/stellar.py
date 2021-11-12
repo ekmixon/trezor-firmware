@@ -305,7 +305,7 @@ def _read_asset(asset: "Asset") -> messages.StellarAsset:
 # ====== Client functions ====== #
 
 
-@expect(messages.StellarAddress, field="address")
+@expect(messages.StellarAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
 ) -> str:

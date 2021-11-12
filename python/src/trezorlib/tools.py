@@ -29,11 +29,19 @@ from typing import (
     Optional,
     Type,
     Union,
+    overload,
 )
 
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .protobuf import MessageType
+    from typing import TypeVar
+
+    M = TypeVar("M", bound=MessageType)
+    F = TypeVar("F")
+
+    Func = Callable[..., M]
+    ExpectedFunc = Callable[..., F]
 
 HARDENED_FLAG = 1 << 31
 
@@ -211,29 +219,39 @@ def normalize_nfc(txt: Union[str, bytes]) -> bytes:
     return unicodedata.normalize("NFC", txt).encode()
 
 
-class expect:
-    # Decorator checks if the method
-    # returned one of expected protobuf messages
-    # or raises an exception
-    def __init__(
-        self, expected: Type["MessageType"], field: Optional[str] = None
-    ) -> None:
-        self.expected = expected
-        self.field = field
+@overload
+def expect(expected: "Type[M]") -> "Callable[[Func[M]], Func[M]]":
+    ...
 
-    def __call__(self, f: Callable) -> Callable:
+
+@overload
+def expect(
+    expected: "Type[M]", *, field: str, ret_type: "Type[F]"
+) -> "Callable[[ExpectedFunc[F]], ExpectedFunc[F]]":
+    ...
+
+
+def expect(
+    expected: "Type[M]",
+    *,
+    field: Optional[str] = None,
+    ret_type: "Optional[Type[F]]" = None
+) -> "Callable[[Func[M]], Callable]":
+    def decorator(f: "Func[M]") -> Callable:
         @functools.wraps(f)
         def wrapped_f(*args: Any, **kwargs: Any) -> Any:
-            __tracebackhide__ = True  # for pytest # pylint: disable=W0612
+            __tracebackhide__ = True
             ret = f(*args, **kwargs)
-            if not isinstance(ret, self.expected):
-                raise RuntimeError(f"Got {ret.__class__}, expected {self.expected}")
-            if self.field is not None:
-                return getattr(ret, self.field)
+            if not isinstance(ret, expected):
+                raise RuntimeError(...)
+            if field is not None:
+                return getattr(ret, field)
             else:
                 return ret
 
         return wrapped_f
+
+    return decorator
 
 
 def session(f: Callable) -> Callable:

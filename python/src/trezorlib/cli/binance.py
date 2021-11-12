@@ -49,7 +49,7 @@ def get_address(client: "TrezorClient", address: str, show_display: bool) -> str
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.option("-d", "--show-display", is_flag=True)
 @with_client
-def get_public_key(client: "TrezorClient", address: str, show_display: bool) -> bytes:
+def get_public_key(client: "TrezorClient", address: str, show_display: bool) -> str:
     """Get Binance public key."""
     address_n = tools.parse_path(address)
     return binance.get_public_key(client, address_n, show_display).hex()
