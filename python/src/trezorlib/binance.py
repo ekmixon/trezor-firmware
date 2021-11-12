@@ -23,12 +23,13 @@ from .tools import expect, session
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .tools import Address
+    from .protobuf import MessageType
 
 
 @expect(messages.BinanceAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
-) -> str:
+) -> "MessageType":
     return client.call(
         messages.BinanceGetAddress(address_n=address_n, show_display=show_display)
     )
@@ -37,7 +38,7 @@ def get_address(
 @expect(messages.BinancePublicKey, field="public_key", ret_type=bytes)
 def get_public_key(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
-) -> bytes:
+) -> "MessageType":
     return client.call(
         messages.BinanceGetPublicKey(address_n=address_n, show_display=show_display)
     )

@@ -25,6 +25,7 @@ from . import ChoiceType, with_client
 if TYPE_CHECKING:
     from ..client import TrezorClient
     from . import TrezorConnection
+    from ..protobuf import MessageType
 
 RECOVERY_TYPE = {
     "scrambled": messages.RecoveryDeviceType.ScrambledWords,
@@ -160,7 +161,7 @@ def recover(
     u2f_counter: int,
     rec_type: messages.RecoveryDeviceType,
     dry_run: bool,
-) -> messages.MessageType:
+) -> "MessageType":
     """Start safe recovery workflow."""
     if rec_type == messages.RecoveryDeviceType.ScrambledWords:
         input_callback = ui.mnemonic_words(expand)

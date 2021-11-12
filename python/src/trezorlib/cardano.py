@@ -34,6 +34,7 @@ from .tools import expect
 
 if TYPE_CHECKING:
     from .client import TrezorClient
+    from .protobuf import MessageType
 
 SIGNING_MODE_IDS = {
     "ORDINARY_TRANSACTION": messages.CardanoTxSigningMode.ORDINARY_TRANSACTION,
@@ -632,7 +633,7 @@ def get_address(
     network_id: int = NETWORK_IDS["mainnet"],
     show_display: bool = False,
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
-) -> str:
+) -> "MessageType":
     return client.call(
         messages.CardanoGetAddress(
             address_parameters=address_parameters,
@@ -649,7 +650,7 @@ def get_public_key(
     client: "TrezorClient",
     address_n: List[int],
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
-) -> messages.CardanoPublicKey:
+) -> "MessageType":
     return client.call(
         messages.CardanoGetPublicKey(
             address_n=address_n, derivation_type=derivation_type
@@ -663,7 +664,7 @@ def get_native_script_hash(
     native_script: messages.CardanoNativeScript,
     display_format: messages.CardanoNativeScriptHashDisplayFormat = messages.CardanoNativeScriptHashDisplayFormat.HIDE,
     derivation_type: messages.CardanoDerivationType = messages.CardanoDerivationType.ICARUS,
-) -> messages.CardanoNativeScriptHash:
+) -> "MessageType":
     return client.call(
         messages.CardanoGetNativeScriptHash(
             script=native_script,

@@ -37,10 +37,11 @@ if TYPE_CHECKING:
     from .protobuf import MessageType
     from typing import TypeVar
 
-    M = TypeVar("M", bound=MessageType)
+    # Needed to enforce a return value from decorators
+    FF = TypeVar("FF", bound=Callable[..., Any])
+    MT = TypeVar("MT", bound=MessageType)
     F = TypeVar("F")
-
-    Func = Callable[..., M]
+    Func = Callable[..., MT]
     ExpectedFunc = Callable[..., F]
 
 HARDENED_FLAG = 1 << 31
@@ -220,24 +221,24 @@ def normalize_nfc(txt: Union[str, bytes]) -> bytes:
 
 
 @overload
-def expect(expected: "Type[M]") -> "Callable[[Func[M]], Func[M]]":
+def expect(expected: "Type[MT]") -> "Callable[[Func[MessageType]], Func[MT]]":
     ...
 
 
 @overload
 def expect(
-    expected: "Type[M]", *, field: str, ret_type: "Type[F]"
-) -> "Callable[[ExpectedFunc[F]], ExpectedFunc[F]]":
+    expected: "Type[MT]", *, field: str, ret_type: "Type[F]"
+) -> "Callable[[Func[MessageType]], ExpectedFunc[F]]":
     ...
 
 
 def expect(
-    expected: "Type[M]",
+    expected: "Type[MT]",
     *,
     field: Optional[str] = None,
     ret_type: "Optional[Type[F]]" = None,
-) -> "Callable[[Func[M]], Callable]":
-    def decorator(f: "Func[M]") -> Callable:
+) -> "Callable[[Func[MT]], Callable]":
+    def decorator(f: "Func[MT]") -> Callable:
         """Decorator checks if the method returned one of expected
         protobuf messages or raises an exception
         """
@@ -258,11 +259,13 @@ def expect(
     return decorator
 
 
-def session(f: Callable) -> Callable:
+def session(f: "FF") -> "FF":
     # Decorator wraps a BaseClient method
     # with session activation / deactivation
+    # With "FF" we are enforcing that for type-checking purposes the return value
+    # of this decorator will be the same as the decorated function
     @functools.wraps(f)
-    def wrapped_f(client: "TrezorClient", *args: Any, **kwargs: Any) -> Any:
+    def wrapped_f(client: "TrezorClient", *args: Any, **kwargs: Any) -> "MessageType":
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
         client.open()
         try:

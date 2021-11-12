@@ -16,12 +16,13 @@
 
 from typing import TYPE_CHECKING
 
-from . import messages as proto
+from . import messages
 from .tools import expect
 
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .tools import Address
+    from .protobuf import MessageType
 
 
 # MAINNET = 0
@@ -30,22 +31,24 @@ if TYPE_CHECKING:
 # FAKECHAIN = 3
 
 
-@expect(proto.MoneroAddress, field="address", ret_type=bytes)
+@expect(messages.MoneroAddress, field="address", ret_type=bytes)
 def get_address(
     client: "TrezorClient",
     n: "Address",
     show_display: bool = False,
     network_type: int = 0,
-) -> bytes:
+) -> "MessageType":
     return client.call(
-        proto.MoneroGetAddress(
+        messages.MoneroGetAddress(
             address_n=n, show_display=show_display, network_type=network_type
         )
     )
 
 
-@expect(proto.MoneroWatchKey)
+@expect(messages.MoneroWatchKey)
 def get_watch_key(
     client: "TrezorClient", n: "Address", network_type: int = 0
-) -> proto.MoneroWatchKey:
-    return client.call(proto.MoneroGetWatchKey(address_n=n, network_type=network_type))
+) -> "MessageType":
+    return client.call(
+        messages.MoneroGetWatchKey(address_n=n, network_type=network_type)
+    )

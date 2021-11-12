@@ -23,6 +23,7 @@ from .tools import expect
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .tools import Address
+    from .protobuf import MessageType
 
 # XXX, these could be NewType's, but that would infect users of the cosi module with these types as well.
 # Unsure if we want that.
@@ -140,9 +141,7 @@ def sign_with_privkey(
 
 
 @expect(messages.CosiCommitment)
-def commit(
-    client: "TrezorClient", n: "Address", data: bytes
-) -> messages.CosiCommitment:
+def commit(client: "TrezorClient", n: "Address", data: bytes) -> "MessageType":
     return client.call(messages.CosiCommit(address_n=n, data=data))
 
 
@@ -153,7 +152,7 @@ def sign(
     data: bytes,
     global_commitment: bytes,
     global_pubkey: bytes,
-) -> messages.CosiSignature:
+) -> "MessageType":
     return client.call(
         messages.CosiSign(
             address_n=n,

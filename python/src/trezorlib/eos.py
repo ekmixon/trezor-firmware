@@ -23,6 +23,7 @@ from .tools import b58decode, expect, session
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .tools import Address
+    from .protobuf import MessageType
 
 
 def name_to_number(name: str) -> int:
@@ -323,7 +324,7 @@ def parse_transaction_json(
 @expect(messages.EosPublicKey)
 def get_public_key(
     client: "TrezorClient", n: "Address", show_display: bool = False
-) -> messages.EosPublicKey:
+) -> "MessageType":
     response = client.call(
         messages.EosGetPublicKey(address_n=n, show_display=show_display)
     )

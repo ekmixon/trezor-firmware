@@ -207,7 +207,7 @@ class DebugLink:
         self._call(messages.DebugLinkRecordScreen(target_directory=None))
 
     @expect(messages.DebugLinkMemory, field="memory", ret_type=bytes)
-    def memory_read(self, address: int, length: int) -> bytes:
+    def memory_read(self, address: int, length: int) -> protobuf.MessageType:
         return self._call(messages.DebugLinkMemoryRead(address=address, length=length))
 
     def memory_write(self, address: int, memory: bytes, flash: bool = False) -> None:
@@ -677,7 +677,7 @@ def load_device(
     skip_checksum: bool = False,
     needs_backup: bool = False,
     no_backup: bool = False,
-) -> str:
+) -> protobuf.MessageType:
     if not isinstance(mnemonic, (list, tuple)):
         mnemonic = [mnemonic]
 
@@ -709,7 +709,7 @@ load_device_by_mnemonic = load_device
 
 
 @expect(messages.Success, field="message", ret_type=str)
-def self_test(client: "TrezorClient") -> str:
+def self_test(client: "TrezorClient") -> protobuf.MessageType:
     if client.features.bootloader_mode is not True:
         raise RuntimeError("Device must be in bootloader mode")
 

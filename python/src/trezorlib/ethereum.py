@@ -27,6 +27,7 @@ from .tools import expect, normalize_nfc, session
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .tools import Address
+    from .protobuf import MessageType
 
 
 def int_to_big_endian(value: int) -> bytes:
@@ -150,7 +151,7 @@ def encode_data(value: Any, type_name: str) -> bytes:
 @expect(messages.EthereumAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", n: "Address", show_display: bool = False
-) -> str:
+) -> "MessageType":
     return client.call(
         messages.EthereumGetAddress(address_n=n, show_display=show_display)
     )
@@ -159,7 +160,7 @@ def get_address(
 @expect(messages.EthereumPublicKey)
 def get_public_node(
     client: "TrezorClient", n: "Address", show_display: bool = False
-) -> messages.EthereumPublicKey:
+) -> "MessageType":
     return client.call(
         messages.EthereumGetPublicKey(address_n=n, show_display=show_display)
     )
@@ -198,12 +199,18 @@ def sign_tx(
         msg.data_initial_chunk = chunk
 
     response = client.call(msg)
+    assert isinstance(response, messages.EthereumTxRequest)
 
     while response.data_length is not None:
         data_length = response.data_length
         assert data is not None
         data, chunk = data[data_length:], data[:data_length]
         response = client.call(messages.EthereumTxAck(data_chunk=chunk))
+        assert isinstance(response, messages.EthereumTxRequest)
+
+    assert response.signature_v is not None
+    assert response.signature_r is not None
+    assert response.signature_s is not None
 
     # https://github.com/trezor/trezor-core/pull/311
     # only signature bit returned. recalculate signature_v
@@ -246,19 +253,22 @@ def sign_tx_eip1559(
     )
 
     response = client.call(msg)
+    assert isinstance(response, messages.EthereumTxRequest)
 
     while response.data_length is not None:
         data_length = response.data_length
         data, chunk = data[data_length:], data[:data_length]
         response = client.call(messages.EthereumTxAck(data_chunk=chunk))
+        assert isinstance(response, messages.EthereumTxRequest)
 
+    assert response.signature_v is not None
+    assert response.signature_r is not None
+    assert response.signature_s is not None
     return response.signature_v, response.signature_r, response.signature_s
 
 
 @expect(messages.EthereumMessageSignature)
-def sign_message(
-    client: "TrezorClient", n: "Address", message: bytes
-) -> messages.EthereumMessageSignature:
+def sign_message(client: "TrezorClient", n: "Address", message: bytes) -> "MessageType":
     message = normalize_nfc(message)
     return client.call(messages.EthereumSignMessage(address_n=n, message=message))
 
@@ -270,7 +280,7 @@ def sign_typed_data(
     data: Dict[str, Any],
     *,
     metamask_v4_compat: bool = True,
-) -> messages.EthereumTypedDataSignature:
+) -> "MessageType":
     data = sanitize_typed_data(data)
     types = data["types"]
 

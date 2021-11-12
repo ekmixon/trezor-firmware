@@ -21,7 +21,8 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 import construct as c
 import ecdsa
 
-from . import cosi, messages, tools
+from . import cosi, messages
+from .tools import session
 
 try:
     from hashlib import blake2s
@@ -488,7 +489,7 @@ def validate(
 # ====== Client functions ====== #
 
 
-@tools.session
+@session
 def update(client: "TrezorClient", data: bytes) -> None:
     if client.features.bootloader_mode is False:
         raise RuntimeError("Device must be in bootloader mode")

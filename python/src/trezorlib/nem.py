@@ -23,6 +23,7 @@ from .tools import expect
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .tools import Address
+    from .protobuf import MessageType
 
 TYPE_TRANSACTION_TRANSFER = 0x0101
 TYPE_IMPORTANCE_TRANSFER = 0x0801
@@ -191,16 +192,14 @@ def create_sign_tx(transaction: dict) -> messages.NEMSignTx:
 @expect(messages.NEMAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", n: "Address", network: int, show_display: bool = False
-) -> str:
+) -> "MessageType":
     return client.call(
         messages.NEMGetAddress(address_n=n, network=network, show_display=show_display)
     )
 
 
 @expect(messages.NEMSignedTx)
-def sign_tx(
-    client: "TrezorClient", n: "Address", transaction: dict
-) -> messages.NEMSignedTx:
+def sign_tx(client: "TrezorClient", n: "Address", transaction: dict) -> "MessageType":
     try:
         msg = create_sign_tx(transaction)
     except ValueError as e:

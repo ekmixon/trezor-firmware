@@ -43,7 +43,7 @@ def apply_settings(
     display_rotation: Optional[int] = None,
     safety_checks: Optional[messages.SafetyCheckLevel] = None,
     experimental_features: Optional[bool] = None,
-) -> str:
+) -> "MessageType":
     settings = messages.ApplySettings(
         label=label,
         language=language,
@@ -63,7 +63,7 @@ def apply_settings(
 
 @expect(messages.Success, field="message", ret_type=str)
 @session
-def apply_flags(client: "TrezorClient", flags: int) -> str:
+def apply_flags(client: "TrezorClient", flags: int) -> "MessageType":
     out = client.call(messages.ApplyFlags(flags=flags))
     client.refresh_features()
     return out
@@ -71,7 +71,7 @@ def apply_flags(client: "TrezorClient", flags: int) -> str:
 
 @expect(messages.Success, field="message", ret_type=str)
 @session
-def change_pin(client: "TrezorClient", remove: bool = False) -> str:
+def change_pin(client: "TrezorClient", remove: bool = False) -> "MessageType":
     ret = client.call(messages.ChangePin(remove=remove))
     client.refresh_features()
     return ret
@@ -79,7 +79,7 @@ def change_pin(client: "TrezorClient", remove: bool = False) -> str:
 
 @expect(messages.Success, field="message", ret_type=str)
 @session
-def change_wipe_code(client: "TrezorClient", remove: bool = False) -> str:
+def change_wipe_code(client: "TrezorClient", remove: bool = False) -> "MessageType":
     ret = client.call(messages.ChangeWipeCode(remove=remove))
     client.refresh_features()
     return ret
@@ -89,7 +89,7 @@ def change_wipe_code(client: "TrezorClient", remove: bool = False) -> str:
 @session
 def sd_protect(
     client: "TrezorClient", operation: messages.SdProtectOperationType
-) -> str:
+) -> "MessageType":
     ret = client.call(messages.SdProtect(operation=operation))
     client.refresh_features()
     return ret
@@ -97,7 +97,7 @@ def sd_protect(
 
 @expect(messages.Success, field="message", ret_type=str)
 @session
-def wipe(client: "TrezorClient") -> str:
+def wipe(client: "TrezorClient") -> "MessageType":
     ret = client.call(messages.WipeDevice())
     client.init_device()
     return ret
@@ -170,7 +170,7 @@ def reset(
     skip_backup: bool = False,
     no_backup: bool = False,
     backup_type: messages.BackupType = messages.BackupType.Bip39,
-) -> str:
+) -> "MessageType":
     if client.features.initialized:
         raise RuntimeError(
             "Device is initialized already. Call wipe_device() and try again."
@@ -209,18 +209,18 @@ def reset(
 
 @expect(messages.Success, field="message", ret_type=str)
 @session
-def backup(client: "TrezorClient") -> str:
+def backup(client: "TrezorClient") -> "MessageType":
     ret = client.call(messages.BackupDevice())
     client.refresh_features()
     return ret
 
 
 @expect(messages.Success, field="message", ret_type=str)
-def cancel_authorization(client: "TrezorClient") -> str:
+def cancel_authorization(client: "TrezorClient") -> "MessageType":
     return client.call(messages.CancelAuthorization())
 
 
 @session
 @expect(messages.Success, field="message", ret_type=str)
-def reboot_to_bootloader(client: "TrezorClient") -> str:
+def reboot_to_bootloader(client: "TrezorClient") -> "MessageType":
     return client.call(messages.RebootToBootloader())

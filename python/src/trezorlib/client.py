@@ -21,9 +21,10 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from mnemonic import Mnemonic
 
-from . import MINIMUM_FIRMWARE_VERSION, exceptions, mapping, messages, tools
+from . import MINIMUM_FIRMWARE_VERSION, exceptions, mapping, messages
 from .log import DUMP_BYTES
 from .messages import Capability
+from .tools import expect, parse_path, session
 
 if TYPE_CHECKING:
     from .protobuf import MessageType
@@ -37,7 +38,7 @@ MAX_PASSPHRASE_LENGTH = 50
 MAX_PIN_LENGTH = 50
 
 PASSPHRASE_ON_DEVICE = object()
-PASSPHRASE_TEST_PATH = tools.parse_path("44h/1h/0h/0/0")
+PASSPHRASE_TEST_PATH = parse_path("44h/1h/0h/0/0")
 
 OUTDATED_FIRMWARE_ERROR = """
 Your Trezor firmware is out of date. Update it with the following command:
@@ -220,7 +221,7 @@ class TrezorClient:
         self.ui.button_request(msg)
         return self._raw_read()
 
-    @tools.session
+    @session
     def call(self, msg: "MessageType") -> "MessageType":
         self.check_firmware_version()
         resp = self.call_raw(msg)
@@ -254,7 +255,7 @@ class TrezorClient:
             self.session_id = self.features.session_id
             self.features.session_id = None
 
-    @tools.session
+    @session
     def refresh_features(self) -> messages.Features:
         """Reload features from the device.
 
@@ -267,7 +268,7 @@ class TrezorClient:
         self._refresh_features(resp)
         return resp
 
-    @tools.session
+    @session
     def init_device(
         self,
         *,
@@ -350,12 +351,12 @@ class TrezorClient:
             else:
                 raise exceptions.OutdatedFirmwareError(OUTDATED_FIRMWARE_ERROR)
 
-    @tools.expect(messages.Success, field="success", ret_type=str)
+    @expect(messages.Success, field="message", ret_type=str)
     def ping(
         self,
         msg: str,
         button_protection: bool = False,
-    ) -> str:
+    ) -> "MessageType":
         # We would like ping to work on any valid TrezorClient instance, but
         # due to the protection modes, we need to go through self.call, and that will
         # raise an exception if the firmware is too old.
@@ -380,7 +381,7 @@ class TrezorClient:
     def get_device_id(self) -> Optional[str]:
         return self.features.device_id
 
-    @tools.session
+    @session
     def lock(self, *, _refresh_features: bool = True) -> None:
         """Lock the device.
 
@@ -401,7 +402,7 @@ class TrezorClient:
         if _refresh_features:
             self.refresh_features()
 
-    @tools.session
+    @session
     def ensure_unlocked(self) -> None:
         """Ensure the device is unlocked and a passphrase is cached.
 
@@ -436,7 +437,7 @@ class TrezorClient:
             pass
         self.session_id = None
 
-    @tools.session
+    @session
     def clear_session(self) -> None:
         """Lock the device and present a fresh session.
 

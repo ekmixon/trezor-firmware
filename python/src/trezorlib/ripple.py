@@ -23,6 +23,7 @@ from .tools import dict_from_camelcase, expect
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .tools import Address
+    from .protobuf import MessageType
 
 REQUIRED_FIELDS = ("Fee", "Sequence", "TransactionType", "Payment")
 REQUIRED_PAYMENT_FIELDS = ("Amount", "Destination")
@@ -31,7 +32,7 @@ REQUIRED_PAYMENT_FIELDS = ("Amount", "Destination")
 @expect(messages.RippleAddress, field="address", ret_type=str)
 def get_address(
     client: "TrezorClient", address_n: "Address", show_display: bool = False
-) -> str:
+) -> "MessageType":
     return client.call(
         messages.RippleGetAddress(address_n=address_n, show_display=show_display)
     )
@@ -40,7 +41,7 @@ def get_address(
 @expect(messages.RippleSignedTx)
 def sign_tx(
     client: "TrezorClient", address_n: "Address", msg: messages.RippleSignTx
-) -> messages.RippleSignedTx:
+) -> "MessageType":
     msg.address_n = address_n
     return client.call(msg)
 

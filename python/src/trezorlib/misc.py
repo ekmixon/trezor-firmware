@@ -22,10 +22,11 @@ from .tools import expect
 if TYPE_CHECKING:
     from .tools import Address
     from .client import TrezorClient
+    from .protobuf import MessageType
 
 
 @expect(messages.Entropy, field="entropy", ret_type=bytes)
-def get_entropy(client: "TrezorClient", size: int) -> bytes:
+def get_entropy(client: "TrezorClient", size: int) -> "MessageType":
     return client.call(messages.GetEntropy(size=size))
 
 
@@ -36,7 +37,7 @@ def sign_identity(
     challenge_hidden: bytes,
     challenge_visual: str,
     ecdsa_curve_name: str = None,
-) -> messages.SignedIdentity:
+) -> "MessageType":
     return client.call(
         messages.SignIdentity(
             identity=identity,
@@ -53,7 +54,7 @@ def get_ecdh_session_key(
     identity: messages.IdentityType,
     peer_public_key: bytes,
     ecdsa_curve_name: str = None,
-) -> messages.ECDHSessionKey:
+) -> "MessageType":
     return client.call(
         messages.GetECDHSessionKey(
             identity=identity,
@@ -72,7 +73,7 @@ def encrypt_keyvalue(
     ask_on_encrypt: bool = True,
     ask_on_decrypt: bool = True,
     iv: bytes = b"",
-) -> bytes:
+) -> "MessageType":
     return client.call(
         messages.CipherKeyValue(
             address_n=n,
@@ -95,7 +96,7 @@ def decrypt_keyvalue(
     ask_on_encrypt: bool = True,
     ask_on_decrypt: bool = True,
     iv: bytes = b"",
-) -> bytes:
+) -> "MessageType":
     return client.call(
         messages.CipherKeyValue(
             address_n=n,

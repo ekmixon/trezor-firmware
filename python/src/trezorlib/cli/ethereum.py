@@ -21,8 +21,6 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, List, Optional, TextIO, Union
 
 import click
-from eth_typing import ChecksumAddress, HexAddress
-from eth_typing.encoding import HexStr
 
 from .. import ethereum, tools
 from . import with_client
@@ -128,9 +126,8 @@ def _erc20_contract(
             "outputs": [{"name": "", "type": "bool"}],
         }
     ]
-    contract = w3.eth.contract(
-        address=ChecksumAddress(HexAddress(HexStr(token_address))), abi=min_abi
-    )
+    # w3.eth.contract is expecting HexStr as address, we supply str, we ignore the type error
+    contract = w3.eth.contract(address=token_address, abi=min_abi)  # type: ignore [call-overload]
     return contract.encodeABI("transfer", [to_address, amount])
 
 
@@ -300,9 +297,6 @@ def sign_tx(
     else:
         data_bytes = b""
 
-    if gas_price is None and not is_eip1559:
-        gas_price = w3.eth.gasPrice
-
     if gas_limit is None:
         gas_limit = w3.eth.estimateGas(
             {
@@ -316,8 +310,8 @@ def sign_tx(
     if nonce is None:
         nonce = w3.eth.getTransactionCount(from_address)
 
-    sig = (
-        ethereum.sign_tx_eip1559(
+    if is_eip1559:
+        sig = ethereum.sign_tx_eip1559(
             client,
             n=address_n,
             nonce=nonce,
@@ -330,8 +324,10 @@ def sign_tx(
             max_priority_fee=max_priority_fee,
             access_list=access_list,
         )
-        if is_eip1559
-        else ethereum.sign_tx(
+    else:
+        if gas_price is None:
+            gas_price = w3.eth.gasPrice
+        sig = ethereum.sign_tx(
             client,
             n=address_n,
             tx_type=tx_type,
@@ -343,7 +339,6 @@ def sign_tx(
             data=data_bytes,
             chain_id=chain_id,
         )
-    )
 
     to = ethereum.decode_hex(to_address)
     if is_eip1559:

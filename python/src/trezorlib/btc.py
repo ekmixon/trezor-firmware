@@ -25,6 +25,7 @@ from .tools import expect, normalize_nfc, session
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .tools import Address
+    from .protobuf import MessageType
 
 
 def from_json(json_dict: dict) -> messages.TransactionType:
@@ -68,7 +69,7 @@ def get_public_node(
     coin_name: Optional[str] = None,
     script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
     ignore_xpub_magic: bool = False,
-) -> messages.PublicKey:
+) -> "MessageType":
     return client.call(
         messages.GetPublicKey(
             address_n=n,
@@ -90,7 +91,7 @@ def get_address(
     multisig: Optional[messages.MultisigRedeemScriptType] = None,
     script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
     ignore_xpub_magic: bool = False,
-) -> str:
+) -> "MessageType":
     return client.call(
         messages.GetAddress(
             address_n=n,
@@ -110,7 +111,7 @@ def get_ownership_id(
     n: "Address",
     multisig: Optional[messages.MultisigRedeemScriptType] = None,
     script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
-) -> bytes:
+) -> "MessageType":
     return client.call(
         messages.GetOwnershipId(
             address_n=n,
@@ -163,7 +164,7 @@ def sign_message(
     message: bytes,
     script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
     no_script_type: bool = False,
-) -> messages.MessageSignature:
+) -> "MessageType":
     message = normalize_nfc(message)
     return client.call(
         messages.SignMessage(
@@ -349,7 +350,7 @@ def authorize_coinjoin(
     coin_name: str,
     fee_per_anonymity: Optional[int] = None,
     script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
-) -> str:
+) -> "MessageType":
     return client.call(
         messages.AuthorizeCoinJoin(
             coordinator=coordinator,
