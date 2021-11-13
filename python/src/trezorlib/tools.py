@@ -220,6 +220,24 @@ def normalize_nfc(txt: Union[str, bytes]) -> bytes:
     return unicodedata.normalize("NFC", txt).encode()
 
 
+# NOTE for mypy type tests:
+# Overloads below have a goal of enforcing the return value
+# that should be returned from the original function being decorated.
+# Unfortunately this will disguise the argument signature
+# of the decorated function, and therefore mypy will not check that
+# we are supplying correct arguments into these functions.
+# To change this behavior to check the arguments, the return
+# types from these overloads should be changed to "Callable[[FF], FF]"
+# (meaning it will return the same signatures as it gets from decorated function).
+# However, after changing these, mypy will report a lot of errors
+# regarding incorrect return values from decorated functions.
+# One should then go through the mypy errors and check that they
+# come only from the incorrect return values.
+# One quick (but not 100% reliable) way is to just disregard the errors
+# not containing "MessageType", which is connected with these
+# incorrect return values - `make mypy | grep -v MessageType`
+
+
 @overload
 def expect(expected: "Type[MT]") -> "Callable[[Func[MessageType]], Func[MT]]":
     ...

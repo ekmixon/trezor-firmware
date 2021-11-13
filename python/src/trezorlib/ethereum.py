@@ -268,7 +268,7 @@ def sign_tx_eip1559(
 
 
 @expect(messages.EthereumMessageSignature)
-def sign_message(client: "TrezorClient", n: "Address", message: bytes) -> "MessageType":
+def sign_message(client: "TrezorClient", n: "Address", message: Union[str, bytes]) -> "MessageType":
     message = normalize_nfc(message)
     return client.call(messages.EthereumSignMessage(address_n=n, message=message))
 

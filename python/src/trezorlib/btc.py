@@ -161,7 +161,7 @@ def sign_message(
     client: "TrezorClient",
     coin_name: str,
     n: "Address",
-    message: bytes,
+    message: Union[str, bytes],
     script_type: messages.InputScriptType = messages.InputScriptType.SPENDADDRESS,
     no_script_type: bool = False,
 ) -> "MessageType":
