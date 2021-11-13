@@ -273,7 +273,7 @@ def session(f: "FF") -> "FF":
         finally:
             client.close()
 
-    return wrapped_f
+    return wrapped_f  # type: ignore [return-value]
 
 
 # de-camelcasifier

@@ -56,3 +56,12 @@ style_check:
 	flake8
 
 .PHONY: all build install clean style style_check git-clean clean-build clean-pyc clean-test
+
+test:
+	pytest tests
+
+mypy:
+	mypy --config-file ./setup.cfg ./src/trezorlib/
+
+mypy_report:
+	mypy --config-file ./setup.cfg ./src/trezorlib/ --html-report mypy_report
