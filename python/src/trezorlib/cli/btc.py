@@ -16,7 +16,7 @@
 
 import base64
 import json
-from typing import TYPE_CHECKING, List, Optional, TextIO, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, TextIO, Tuple
 
 import click
 import construct as c
@@ -94,7 +94,7 @@ def cli() -> None:
 
 
 @cli.command()
-@click.option("-c", "--coin")
+@click.option("-c", "--coin", default=DEFAULT_COIN)
 @click.option("-n", "--address", required=True, help="BIP-32 path")
 @click.option("-t", "--script-type", type=ChoiceType(INPUT_SCRIPTS), default="address")
 @click.option("-d", "--show-display", is_flag=True)
@@ -115,7 +115,7 @@ def get_address(
     script_type: messages.InputScriptType,
     show_display: bool,
     multisig_xpub: List[str],
-    multisig_threshold: int,
+    multisig_threshold: Optional[int],
     multisig_suffix_length: int,
 ) -> str:
     """Get address for specified path.
@@ -138,7 +138,6 @@ def get_address(
     You can specify a different suffix length by using the -N option. For example, to
     use final xpubs, specify '-N 0'.
     """
-    coin = coin or DEFAULT_COIN
     address_n = tools.parse_path(address)
 
     multisig: Optional[messages.MultisigRedeemScriptType]
@@ -167,7 +166,7 @@ def get_address(
 
 
 @cli.command()
-@click.option("-c", "--coin")
+@click.option("-c", "--coin", default=DEFAULT_COIN)
 @click.option("-n", "--address", required=True, help="BIP-32 path, e.g. m/44'/0'/0'")
 @click.option("-e", "--curve")
 @click.option("-t", "--script-type", type=ChoiceType(INPUT_SCRIPTS), default="address")
@@ -177,12 +176,11 @@ def get_public_node(
     client: "TrezorClient",
     coin: str,
     address: str,
-    curve: str,
+    curve: Optional[str],
     script_type: messages.InputScriptType,
     show_display: bool,
 ) -> dict:
     """Get public node of given path."""
-    coin = coin or DEFAULT_COIN
     address_n = tools.parse_path(address)
     result = btc.get_public_node(
         client,
@@ -211,7 +209,7 @@ def _append_descriptor_checksum(desc: str) -> str:
 
 def _get_descriptor(
     client: "TrezorClient",
-    coin: str,
+    coin: Optional[str],
     account: str,
     script_type: messages.InputScriptType,
     show_display: bool,
@@ -265,7 +263,7 @@ def _get_descriptor(
 @with_client
 def get_descriptor(
     client: "TrezorClient",
-    coin: str,
+    coin: Optional[str],
     account: str,
     script_type: messages.InputScriptType,
     show_display: bool,
@@ -330,7 +328,7 @@ def sign_tx(client: "TrezorClient", json_file: TextIO) -> None:
 
 
 @cli.command()
-@click.option("-c", "--coin")
+@click.option("-c", "--coin", default=DEFAULT_COIN)
 @click.option("-n", "--address", required=True, help="BIP-32 path")
 @click.option("-t", "--script-type", type=ChoiceType(INPUT_SCRIPTS), default="address")
 @click.argument("message")
@@ -341,9 +339,8 @@ def sign_message(
     address: str,
     message: str,
     script_type: messages.InputScriptType,
-) -> dict:
+) -> Dict[str, str]:
     """Sign message using address of given path."""
-    coin = coin or DEFAULT_COIN
     address_n = tools.parse_path(address)
     res = btc.sign_message(client, coin, address_n, message, script_type)
     return {
@@ -354,7 +351,7 @@ def sign_message(
 
 
 @cli.command()
-@click.option("-c", "--coin")
+@click.option("-c", "--coin", default=DEFAULT_COIN)
 @click.argument("address")
 @click.argument("signature")
 @click.argument("message")
@@ -364,7 +361,6 @@ def verify_message(
 ) -> bool:
     """Verify message."""
     signature_bytes = base64.b64decode(signature)
-    coin = coin or DEFAULT_COIN
     return btc.verify_message(client, coin, address, signature_bytes, message)
 
 

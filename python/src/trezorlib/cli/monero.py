@@ -14,7 +14,7 @@
 # You should have received a copy of the License along with this library.
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 import click
 
@@ -53,12 +53,13 @@ def get_address(
     "-t", "--network-type", type=click.Choice(["0", "1", "2", "3"]), default="0"
 )
 @with_client
-def get_watch_key(client: "TrezorClient", address: str, network_type: str) -> dict:
+def get_watch_key(
+    client: "TrezorClient", address: str, network_type: str
+) -> Dict[str, str]:
     """Get Monero watch key for specified path."""
     address_n = tools.parse_path(address)
     res = monero.get_watch_key(client, address_n, int(network_type))
     # TODO: could be made required in MoneroWatchKey
     assert res.address is not None
     assert res.watch_key is not None
-    output = {"address": res.address.decode(), "watch_key": res.watch_key.hex()}
-    return output
+    return {"address": res.address.decode(), "watch_key": res.watch_key.hex()}

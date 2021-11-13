@@ -349,7 +349,7 @@ class MessageFilter:
         return True
 
     def to_string(self, maxwidth: int = 80) -> str:
-        fields = []
+        fields: List[Tuple[str, str]] = []
         for field in self.message_type.FIELDS.values():
             if field.name not in self.fields:
                 continue
@@ -370,7 +370,7 @@ class MessageFilter:
         if len(oneline_str) < maxwidth:
             return f"{self.message_type.__name__}({oneline_str})"
         else:
-            item = []
+            item: List[str] = []
             item.append(f"{self.message_type.__name__}(")
             for pair in pairs:
                 item.append(f"    {pair}")
@@ -537,7 +537,7 @@ class TrezorClientDebugLink(TrezorClient):
             # (raises AssertionError on mismatch)
             self._verify_responses(expected_responses, actual_responses)
 
-    def set_expected_responses(self, expected: list) -> None:
+    def set_expected_responses(self, expected: List[MessageFilter]) -> None:
         """Set a sequence of expected responses to client calls.
 
         Within a given with-block, the list of received responses from device must
@@ -603,7 +603,7 @@ class TrezorClientDebugLink(TrezorClient):
         return super()._raw_write(self._filter_message(msg))
 
     @staticmethod
-    def _expectation_lines(expected: list, current: int) -> List[str]:
+    def _expectation_lines(expected: List[MessageFilter], current: int) -> List[str]:
         start_at = max(current - EXPECTED_RESPONSES_CONTEXT_LINES, 0)
         stop_at = min(current + EXPECTED_RESPONSES_CONTEXT_LINES + 1, len(expected))
         output = []
@@ -623,7 +623,9 @@ class TrezorClientDebugLink(TrezorClient):
 
     @classmethod
     def _verify_responses(
-        cls, expected: Optional[list], actual: Optional[list]
+        cls,
+        expected: Optional[List[MessageFilter]],
+        actual: Optional[List[protobuf.MessageType]],
     ) -> None:
         __tracebackhide__ = True  # for pytest # pylint: disable=W0612
 
@@ -669,7 +671,7 @@ class TrezorClientDebugLink(TrezorClient):
 @expect(messages.Success, field="message", ret_type=str)
 def load_device(
     client: "TrezorClient",
-    mnemonic: Union[list, tuple, str],
+    mnemonic: Union[List[str], Tuple[str, ...], str],
     pin: str,
     passphrase_protection: bool,
     label: str,

@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import json
-from typing import TYPE_CHECKING, TextIO
+from typing import TYPE_CHECKING, Optional, TextIO
 
 import click
 import requests
@@ -53,7 +53,9 @@ def get_address(
 @click.option("-f", "--file", "_ignore", is_flag=True, hidden=True, expose_value=False)
 @click.option("-b", "--broadcast", help="NIS to announce transaction to")
 @with_client
-def sign_tx(client: "TrezorClient", address: str, file: TextIO, broadcast: str) -> dict:
+def sign_tx(
+    client: "TrezorClient", address: str, file: TextIO, broadcast: Optional[str]
+) -> dict:
     """Sign (and optionally broadcast) NEM transaction.
 
     Transaction file is expected in the NIS (RequestPrepareAnnounce) format.

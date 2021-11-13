@@ -73,7 +73,7 @@ def parse_asset(asset: str) -> messages.EosAsset:
     return messages.EosAsset(amount=amount, symbol=symbol)
 
 
-def public_key_to_buffer(pub_key: str) -> tuple:
+def public_key_to_buffer(pub_key: str) -> Tuple[int, bytes]:
     _t = 0
     if pub_key[:3] == "EOS":
         pub_key = pub_key[3:]

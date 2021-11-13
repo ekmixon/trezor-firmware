@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import json
-from typing import TYPE_CHECKING, TextIO
+from typing import TYPE_CHECKING, Optional, TextIO
 
 import click
 
@@ -163,15 +163,15 @@ def sign_tx(
 @with_client
 def get_address(
     client: "TrezorClient",
-    address: str,
+    address: Optional[str],
     address_type: messages.CardanoAddressType,
-    staking_address: str,
-    staking_key_hash: str,
-    block_index: int,
-    tx_index: int,
-    certificate_index: int,
-    script_payment_hash: str,
-    script_staking_hash: str,
+    staking_address: Optional[str],
+    staking_key_hash: Optional[str],
+    block_index: Optional[int],
+    tx_index: Optional[int],
+    certificate_index: Optional[int],
+    script_payment_hash: Optional[str],
+    script_staking_hash: Optional[str],
     protocol_magic: int,
     network_id: int,
     show_display: bool,

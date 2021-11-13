@@ -317,7 +317,7 @@ def get_address(
 def sign_tx(
     client: "TrezorClient",
     tx: messages.StellarSignTx,
-    operations: list,
+    operations: List["MessageType"],
     address_n: "Address",
     network_passphrase=DEFAULT_NETWORK_PASSPHRASE,
 ) -> messages.StellarSignedTx:

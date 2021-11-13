@@ -16,7 +16,7 @@
 
 import os
 import sys
-from typing import TYPE_CHECKING, BinaryIO, Iterable, Optional
+from typing import TYPE_CHECKING, Any, BinaryIO, Dict, Iterable, List, Optional, Tuple
 from urllib.parse import urlparse
 
 import click
@@ -164,7 +164,7 @@ def check_device_match(
 
 def get_all_firmware_releases(
     bitcoin_only: bool, beta: bool, major_version: int
-) -> list:
+) -> List[Dict[str, Any]]:
     """Get sorted list of all releases suitable for inputted parameters"""
     url = f"https://data.trezor.io/firmware/{major_version}/releases.json"
     releases = requests.get(url).json()
@@ -192,7 +192,7 @@ def get_all_firmware_releases(
 def get_url_and_fingerprint_from_release(
     release: dict,
     bitcoin_only: bool,
-) -> tuple:
+) -> Tuple[str, str]:
     """Get appropriate url and fingerprint from release dictionary."""
     if bitcoin_only:
         url = release["url_bitcoinonly"]
@@ -214,7 +214,7 @@ def find_specified_firmware_version(
     version: str,
     beta: bool,
     bitcoin_only: bool,
-) -> tuple:
+) -> Tuple[str, str]:
     """Get the url from which to download the firmware and its expected fingerprint.
 
     If the specified version is not found, exits with a failure.
@@ -234,7 +234,7 @@ def find_best_firmware_version(
     version: Optional[str],
     beta: bool,
     bitcoin_only: bool,
-) -> tuple:
+) -> Tuple[str, str]:
     """Get the url from which to download the firmware and its expected fingerprint.
 
     When the version (X.Y.Z) is specified, checks for that specific release.
@@ -418,7 +418,7 @@ def verify(
     obj: "TrezorConnection",
     filename: BinaryIO,
     check_device: bool,
-    fingerprint: str,
+    fingerprint: Optional[str],
 ) -> None:
     """Verify the integrity of the firmware data stored in a file.
 
@@ -459,10 +459,10 @@ def verify(
 # fmt: on
 def download(
     obj: "TrezorConnection",
-    output: BinaryIO,
-    version: str,
+    output: Optional[BinaryIO],
+    version: Optional[str],
     skip_check: bool,
-    fingerprint: str,
+    fingerprint: Optional[str],
     beta: bool,
     bitcoin_only: bool,
 ) -> None:
@@ -522,11 +522,11 @@ def download(
 @with_client
 def update(
     client: "TrezorClient",
-    filename: BinaryIO,
-    url: str,
-    version: str,
+    filename: Optional[BinaryIO],
+    url: Optional[str],
+    version: Optional[str],
     skip_check: bool,
-    fingerprint: str,
+    fingerprint: Optional[str],
     raw: bool,
     dry_run: bool,
     beta: bool,

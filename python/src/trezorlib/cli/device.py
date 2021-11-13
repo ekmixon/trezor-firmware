@@ -15,7 +15,7 @@
 # If not, see <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 import sys
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Optional, Sequence
 
 import click
 
@@ -157,7 +157,7 @@ def recover(
     expand: bool,
     pin_protection: bool,
     passphrase_protection: bool,
-    label: str,
+    label: Optional[str],
     u2f_counter: int,
     rec_type: messages.RecoveryDeviceType,
     dry_run: bool,
@@ -197,10 +197,10 @@ def recover(
 def setup(
     client: "TrezorClient",
     show_entropy: bool,
-    strength: int,
+    strength: Optional[int],
     passphrase_protection: bool,
     pin_protection: bool,
-    label: str,
+    label: Optional[str],
     u2f_counter: int,
     skip_backup: bool,
     no_backup: bool,

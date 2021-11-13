@@ -18,7 +18,7 @@ import json
 import re
 import sys
 from decimal import Decimal
-from typing import TYPE_CHECKING, List, Optional, TextIO, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, TextIO, Union
 
 import click
 
@@ -238,8 +238,8 @@ def sign_tx(
     to_address: str,
     tx_type: Optional[int],
     token: Optional[str],
-    max_gas_fee: int,
-    max_priority_fee: int,
+    max_gas_fee: Optional[int],
+    max_priority_fee: Optional[int],
     access_list: List[ethereum.messages.EthereumAccessList],
     eip2718_type: Optional[int],
 ) -> str:
@@ -311,6 +311,8 @@ def sign_tx(
         nonce = w3.eth.getTransactionCount(from_address)
 
     if is_eip1559:
+        assert max_gas_fee is not None
+        assert max_priority_fee is not None
         sig = ethereum.sign_tx_eip1559(
             client,
             n=address_n,
@@ -381,7 +383,7 @@ def sign_tx(
 @click.option("-n", "--address", required=True, help=PATH_HELP)
 @click.argument("message")
 @with_client
-def sign_message(client: "TrezorClient", address: str, message: str) -> dict:
+def sign_message(client: "TrezorClient", address: str, message: str) -> Dict[str, str]:
     """Sign message with Ethereum address."""
     address_n = tools.parse_path(address)
     ret = ethereum.sign_message(client, address_n, message)
@@ -404,7 +406,7 @@ def sign_message(client: "TrezorClient", address: str, message: str) -> dict:
 @with_client
 def sign_typed_data(
     client: "TrezorClient", address: str, metamask_v4_compat: bool, file: TextIO
-) -> dict:
+) -> Dict[str, str]:
     """Sign typed data (EIP-712) with Ethereum address.
 
     Currently NOT supported:
