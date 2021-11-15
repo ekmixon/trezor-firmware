@@ -1,0 +1,8 @@
+{
+    "include": ["src/trezorlib"],
+    "exclude": ["src/trezorlib/messages.py"],
+    "typeCheckingMode": "basic",
+    "reportMissingImports": false,
+    "reportUntypedFunctionDecorator": true,
+    "reportUntypedClassDecorator": true
+}

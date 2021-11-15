@@ -17,7 +17,7 @@
 import functools
 import sys
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
 import click
 
@@ -25,6 +25,15 @@ from .. import exceptions
 from ..client import TrezorClient
 from ..transport import Transport, get_transport
 from ..ui import ClickUI
+
+if TYPE_CHECKING:
+    # Needed to enforce a return value from decorators
+    # More details: https://www.python.org/dev/peps/pep-0612/
+    from typing import TypeVar
+    from typing_extensions import ParamSpec, Concatenate
+
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
 
 class ChoiceType(click.Choice):
@@ -96,7 +105,7 @@ class TrezorConnection:
             # other exceptions may cause a traceback
 
 
-def with_client(func: Callable) -> Callable:
+def with_client(func: "Callable[Concatenate[TrezorClient, P], R]") -> "Callable[P, R]":
     """Wrap a Click command in `with obj.client_context() as client`.
 
     Sessions are handled transparently. The user is warned when session did not resume
@@ -106,7 +115,9 @@ def with_client(func: Callable) -> Callable:
 
     @click.pass_obj
     @functools.wraps(func)
-    def trezorctl_command_with_client(obj, *args, **kwargs):
+    def trezorctl_command_with_client(
+        obj: TrezorConnection, *args: "P.args", **kwargs: "P.kwargs"
+    ) -> "R":
         with obj.client_context() as client:
             session_was_resumed = obj.session_id == client.session_id
             if not session_was_resumed and obj.session_id is not None:

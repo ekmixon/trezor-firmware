@@ -35,14 +35,16 @@ from typing import (
 if TYPE_CHECKING:
     from .client import TrezorClient
     from .protobuf import MessageType
-    from typing import TypeVar
 
     # Needed to enforce a return value from decorators
+    # More details: https://www.python.org/dev/peps/pep-0612/
+    from typing import TypeVar
+    from typing_extensions import ParamSpec
+
     FF = TypeVar("FF", bound=Callable[..., Any])
     MT = TypeVar("MT", bound=MessageType)
-    F = TypeVar("F")
-    Func = Callable[..., MT]
-    ExpectedFunc = Callable[..., F]
+    P = ParamSpec("P")
+    R = TypeVar("R")
 
 HARDENED_FLAG = 1 << 31
 
@@ -220,33 +222,27 @@ def normalize_nfc(txt: Union[str, bytes]) -> bytes:
     return unicodedata.normalize("NFC", txt).encode()
 
 
-# NOTE for mypy type tests:
+# NOTE for type tests (mypy/pyright):
 # Overloads below have a goal of enforcing the return value
-# that should be returned from the original function being decorated.
-# Unfortunately this will disguise the argument signature
-# of the decorated function, and therefore mypy will not check that
-# we are supplying correct arguments into these functions.
-# To change this behavior to check the arguments, the return
-# types from these overloads should be changed to "Callable[[FF], FF]"
-# (meaning it will return the same signatures as it gets from decorated function).
-# However, after changing these, mypy will report a lot of errors
-# regarding incorrect return values from decorated functions.
-# One should then go through the mypy errors and check that they
-# come only from the incorrect return values.
-# One quick (but not 100% reliable) way is to just disregard the errors
-# not containing "MessageType", which is connected with these
-# incorrect return values - `make mypy | grep -v MessageType`
+# that should be returned from the original function being decorated
+# while still preserving the function signature (the inputted arguments
+# are going to be type-checked).
+# Currently (November 2021) mypy does not support "ParamSpec" typing
+# construct, so it will not understand it and will complain above
+# definitions below.
 
 
 @overload
-def expect(expected: "Type[MT]") -> "Callable[[Func[MessageType]], Func[MT]]":
+def expect(
+    expected: "Type[MT]",
+) -> "Callable[[Callable[P, MessageType]], Callable[P, MT]]":
     ...
 
 
 @overload
 def expect(
-    expected: "Type[MT]", *, field: str, ret_type: "Type[F]"
-) -> "Callable[[Func[MessageType]], ExpectedFunc[F]]":
+    expected: "Type[MT]", *, field: str, ret_type: "Type[R]"
+) -> "Callable[[Callable[P, MessageType]], Callable[P, R]]":
     ...
 
 
@@ -254,15 +250,17 @@ def expect(
     expected: "Type[MT]",
     *,
     field: Optional[str] = None,
-    ret_type: "Optional[Type[F]]" = None,
-) -> "Callable[[Func[MT]], Callable]":
-    def decorator(f: "Func[MT]") -> Callable:
-        """Decorator checks if the method returned one of expected
-        protobuf messages or raises an exception
-        """
+    ret_type: "Optional[Type[R]]" = None,
+) -> "Callable[[Callable[P, MessageType]], Union[Callable[P, MT], Callable[P, R]]]":
+    """
+    Decorator checks if the method
+    returned one of expected protobuf messages
+    or raises an exception
+    """
 
+    def decorator(f: "Callable[P, MessageType]") -> "Callable[P, Union[MT, R]]":
         @functools.wraps(f)
-        def wrapped_f(*args: Any, **kwargs: Any) -> Any:
+        def wrapped_f(*args: "P.args", **kwargs: "P.kwargs") -> "Union[MT, R]":
             __tracebackhide__ = True  # for pytest # pylint: disable=W0612
             ret = f(*args, **kwargs)
             if not isinstance(ret, expected):
