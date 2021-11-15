@@ -65,3 +65,6 @@ mypy:
 
 mypy_report:
 	mypy --config-file ./setup.cfg ./src/trezorlib/ --html-report mypy_report
+
+pyright:
+	pyright -p pyrightconfig.json

@@ -41,8 +41,10 @@ def build_map() -> None:
 
 def register_message(msg_class: Type[protobuf.MessageType]) -> None:
     if msg_class.MESSAGE_WIRE_TYPE in map_type_to_class:
+        assert msg_class.MESSAGE_WIRE_TYPE is not None
         raise Exception(
-            f"Message for wire type {msg_class.MESSAGE_WIRE_TYPE} is already registered by {get_class(msg_class.MESSAGE_WIRE_TYPE)}"
+            f"Message for wire type {msg_class.MESSAGE_WIRE_TYPE} is already "
+            f"registered by {get_class(msg_class.MESSAGE_WIRE_TYPE)}"
         )
 
     assert msg_class.MESSAGE_WIRE_TYPE is not None

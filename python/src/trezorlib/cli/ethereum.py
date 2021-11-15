@@ -112,7 +112,7 @@ def _list_units(ctx, param, value: bool) -> None:
 
 
 def _erc20_contract(
-    w3: web3.Web3, token_address: str, to_address: str, amount: int
+    w3: "web3.Web3", token_address: str, to_address: str, amount: int
 ) -> str:
     min_abi = [
         {
@@ -309,6 +309,9 @@ def sign_tx(
 
     if nonce is None:
         nonce = w3.eth.getTransactionCount(from_address)
+
+    assert gas_limit is not None
+    assert nonce is not None
 
     if is_eip1559:
         assert max_gas_fee is not None

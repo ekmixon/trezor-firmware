@@ -184,7 +184,7 @@ def cli(
 
 
 if TYPE_CHECKING:
-    cli = cast(TrezorctlGroup, cli)
+    cli = cast(TrezorctlGroup, cli)  # type: ignore [cli needs to be recasted - pyright]
 
 
 @cli.resultcallback()

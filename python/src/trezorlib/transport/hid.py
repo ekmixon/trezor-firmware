@@ -17,7 +17,7 @@
 import logging
 import sys
 import time
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, List
 
 from ..log import DUMP_PACKETS
 from . import DEV_TREZOR1, UDEV_RULES_STR, TransportException
@@ -46,6 +46,7 @@ class HidHandle:
         self.hid_version = None if probe_hid_version else 2
 
     def open(self) -> None:
+        assert hid is not None
         self.handle = hid.device()
         try:
             self.handle.open_path(self.path)
@@ -131,7 +132,8 @@ class HidTransport(ProtocolBasedTransport):
 
     @classmethod
     def enumerate(cls, debug: bool = False) -> Iterable["HidTransport"]:
-        devices = []
+        devices: List[HidTransport] = []
+        assert hid is not None
         for dev in hid.enumerate(0, 0):
             usb_id = (dev["vendor_id"], dev["product_id"])
             if usb_id != DEV_TREZOR1:

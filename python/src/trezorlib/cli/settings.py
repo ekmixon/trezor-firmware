@@ -74,7 +74,7 @@ def image_to_tt(filename: str) -> bytes:
     else:
         try:
             image = Image.open(filename)
-            toif_image = toif.from_image(image)
+            toif_image = toif.from_image(image)  # type: ignore [Argument of type "Image" cannot be assigned to parameter "image" - pyright]
         except Exception as e:
             raise click.ClickException(
                 "Failed to convert image to Trezor format"

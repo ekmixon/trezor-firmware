@@ -1,6 +1,6 @@
 {
     "include": ["src/trezorlib"],
-    "exclude": ["src/trezorlib/messages.py"],
+    "exclude": ["src/trezorlib/messages.py", "src/trezorlib/toif.py"],
     "typeCheckingMode": "basic",
     "reportMissingImports": false,
     "reportUntypedFunctionDecorator": true,

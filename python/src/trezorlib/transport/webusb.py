@@ -39,12 +39,12 @@ DEBUG_ENDPOINT = 2
 
 
 class WebUsbHandle:
-    def __init__(self, device: "usb1.USBDevice", debug: bool = False) -> None:
+    def __init__(self, device: "usb1.USBDevice", debug: bool = False) -> None:  # type: ignore [usb1 should not be None - pyright]
         self.device = device
         self.interface = DEBUG_INTERFACE if debug else INTERFACE
         self.endpoint = DEBUG_ENDPOINT if debug else ENDPOINT
         self.count = 0
-        self.handle: Optional[usb1.USBDeviceHandle] = None
+        self.handle: Optional["usb1.USBDeviceHandle"] = None  # type: ignore [usb1 should not be None - pyright]
 
     def open(self) -> None:
         self.handle = self.device.open()
@@ -110,10 +110,11 @@ class WebUsbTransport(ProtocolBasedTransport):
 
     @classmethod
     def enumerate(cls, usb_reset: bool = False) -> Iterable["WebUsbTransport"]:
+        assert usb1 is not None
         if cls.context is None:
             cls.context = usb1.USBContext()
             cls.context.open()
-            atexit.register(cls.context.close)
+            atexit.register(cls.context.close)  # type: ignore [Param spec "_P@register" has no bound value - pyright]
         devices = []
         for dev in cls.context.getDeviceIterator(skip_on_error=True):
             usb_id = (dev.getVendorID(), dev.getProductID())
@@ -143,16 +144,17 @@ class WebUsbTransport(ProtocolBasedTransport):
         return WebUsbTransport(self.device, debug=True)
 
 
-def is_vendor_class(dev: "usb1.USBDevice") -> bool:
+def is_vendor_class(dev: "usb1.USBDevice") -> bool:  # type: ignore [usb1 should not be None - pyright]
     configurationId = 0
     altSettingId = 0
+    assert usb1 is not None
     return (
         dev[configurationId][INTERFACE][altSettingId].getClass()
         == usb1.libusb1.LIBUSB_CLASS_VENDOR_SPEC
     )
 
 
-def dev_to_str(dev: "usb1.USBDevice") -> str:
+def dev_to_str(dev: "usb1.USBDevice") -> str:  # type: ignore [usb1 should not be None - pyright]
     return ":".join(
         str(x) for x in ["%03i" % (dev.getBusNumber(),)] + dev.getPortNumberList()
     )

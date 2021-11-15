@@ -30,7 +30,7 @@ pystyle_check: ## run code style check on application sources and tests
 	@echo [PYLINT]
 	@pylint $(PY_FILES)
 	@echo [PYTHON]
-	make -C python mypy
+	make -C python pyright
 	make -C python style_check
 
 pystyle: ## apply code style on application sources and tests
@@ -45,7 +45,7 @@ pystyle: ## apply code style on application sources and tests
 	@echo [PYLINT]
 	@pylint $(PY_FILES)
 	@echo [PYTHON]
-	make -C python mypy
+	make -C python pyright
 	make -C python style
 
 changelog_check: ## check changelog format

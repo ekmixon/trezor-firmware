@@ -54,6 +54,7 @@ def enable_debug_output(
     formatter = PrettyProtobufFormatter()
     handler.setFormatter(formatter)
 
+    level = 0
     if verbosity > 0:
         level = logging.DEBUG
     if verbosity > 1:

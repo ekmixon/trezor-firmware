@@ -124,7 +124,7 @@ def load(filename: str) -> Toif:
         return from_bytes(f.read())
 
 
-def from_image(image: Image, background: Tuple[int, ...] = (0, 0, 0, 255)) -> Toif:
+def from_image(image: "Image", background: Tuple[int, ...] = (0, 0, 0, 255)) -> Toif:
     if not PIL_AVAILABLE:
         raise RuntimeError(
             "PIL is not available. Please install via 'pip install Pillow'"

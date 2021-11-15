@@ -341,6 +341,7 @@ class MessageFilter:
         for field, expected_value in self.fields.items():
             actual_value = getattr(message, field, None)
             if isinstance(expected_value, MessageFilter):
+                assert actual_value is not None
                 if not expected_value.match(actual_value):
                     return False
             elif expected_value != actual_value:
@@ -606,7 +607,7 @@ class TrezorClientDebugLink(TrezorClient):
     def _expectation_lines(expected: List[MessageFilter], current: int) -> List[str]:
         start_at = max(current - EXPECTED_RESPONSES_CONTEXT_LINES, 0)
         stop_at = min(current + EXPECTED_RESPONSES_CONTEXT_LINES + 1, len(expected))
-        output = []
+        output: List[str] = []
         output.append("Expected responses:")
         if start_at > 0:
             output.append(f"    (...{start_at} previous responses omitted)")

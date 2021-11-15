@@ -36,7 +36,7 @@ MT = TypeVar("MT", bound="MessageType")
 
 
 class Reader(Protocol):
-    def readinto(self, buffer: bytearray) -> int:
+    def readinto(self, buf: bytearray) -> int:
         """
         Reads exactly `len(buffer)` bytes into `buffer`. Returns number of bytes read,
         or 0 if it cannot read that much.
@@ -44,7 +44,7 @@ class Reader(Protocol):
 
 
 class Writer(Protocol):
-    def write(self, buffer: bytes) -> int:
+    def write(self, buf: bytes) -> int:
         """
         Writes all bytes from `buffer`, or raises `EOFError`
         """
@@ -178,7 +178,7 @@ class Field:
 
 class _MessageTypeMeta(type):
     def __init__(cls, name: str, bases: tuple, d: dict) -> None:
-        super().__init__(name, bases, d)
+        super().__init__(name, bases, d)  # type: ignore [Expected 1 positional - pyright]
         if name != "MessageType":
             cls.__init__ = MessageType.__init__  # type: ignore [misc]
 
@@ -271,7 +271,7 @@ class CountingWriter:
         return nwritten
 
 
-def get_field_type_object(field: Field) -> Optional[type]:
+def get_field_type_object(field: Field) -> Optional[Type[MT]]:
     from . import messages
 
     field_type_object = getattr(messages, field.type, None)
@@ -439,6 +439,7 @@ def dump_message(writer: Writer, msg: "MessageType") -> None:
             field_type_object = get_field_type_object(field)
             if safe_issubclass(field_type_object, MessageType):
                 counter = CountingWriter()
+                assert isinstance(svalue, MessageType)
                 dump_message(counter, svalue)
                 dump_uvarint(writer, counter.size)
                 dump_message(writer, svalue)
@@ -468,10 +469,12 @@ def dump_message(writer: Writer, msg: "MessageType") -> None:
                 dump_uvarint(writer, int(svalue))
 
             elif field.type == "bytes":
+                assert isinstance(svalue, bytes)
                 dump_uvarint(writer, len(svalue))
                 writer.write(svalue)
 
             elif field.type == "string":
+                assert isinstance(svalue, str)
                 svalue_bytes = svalue.encode()
                 dump_uvarint(writer, len(svalue_bytes))
                 writer.write(svalue_bytes)
