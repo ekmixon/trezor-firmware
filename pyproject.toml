@@ -33,6 +33,7 @@ fido2 = "^0.8.0"
 
 ## typing
 mypy = "^0.910"
+pyright = "^0.0.12"
 typing-extensions = ">=3.7.4"
 
 ## style

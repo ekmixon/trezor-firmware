@@ -538,6 +538,14 @@ protobuf = ">=3.6"
 grpcio-tools = ["grpcio-tools (>=1.26.0rc1)"]
 
 [[package]]
+name = "nodeenv"
+version = "1.6.0"
+description = "Node.js virtual environment builder"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "nose"
 version = "1.3.7"
 description = "nose extends unittest to make testing easier"
@@ -681,6 +689,22 @@ description = "Python parsing module"
 category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
+name = "pyright"
+version = "0.0.12"
+description = "Command line wrapper for pyright"
+category = "main"
+optional = false
+python-versions = ">=3"
+
+[package.dependencies]
+nodeenv = ">=1.6.0"
+typing-extensions = {version = ">=3.7", markers = "python_version < \"3.8\""}
+
+[package.extras]
+all = ["twine (>=3.4.1)"]
+dev = ["twine (>=3.4.1)"]
 
 [[package]]
 name = "pyro4"
@@ -1025,7 +1049,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "b1d15025f87ed1594781eed4d6dd75e42936053e11c7f9a0ff5aad544785b5bd"
+content-hash = "99a3421e4a6ad0ada771e64d9d25a8170aa25d75a39f5d2ea39a98faa0c839f9"
 
 [metadata.files]
 appdirs = [
@@ -1386,6 +1410,10 @@ nanopb = [
     {file = "nanopb-0.4.5.post1-py2.py3-none-any.whl", hash = "sha256:ff8d09a0e5dab73ace1bff538a0ff0dcee2a9abdc0c8aded6068eb215a25102e"},
     {file = "nanopb-0.4.5.post1.tar.gz", hash = "sha256:81b693d10f73772eeb030a59e3342952080dc3b8239738e95c700a90fa403f02"},
 ]
+nodeenv = [
+    {file = "nodeenv-1.6.0-py2.py3-none-any.whl", hash = "sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7"},
+    {file = "nodeenv-1.6.0.tar.gz", hash = "sha256:3ef13ff90291ba2a4a7a4ff9a979b63ffdd00a464dbe04acf0ea6471517a4c2b"},
+]
 nose = [
     {file = "nose-1.3.7-py2-none-any.whl", hash = "sha256:dadcddc0aefbf99eea214e0f1232b94f2fa9bd98fa8353711dacb112bfcbbb2a"},
     {file = "nose-1.3.7-py3-none-any.whl", hash = "sha256:9ff7c6cc443f8c51994b34a667bbcf45afd6d945be7477b52e97516fd17c53ac"},
@@ -1510,6 +1538,10 @@ pylint = [
 pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
+]
+pyright = [
+    {file = "pyright-0.0.12-py3-none-any.whl", hash = "sha256:2c829291e23589ce52f2051e9c46830bf067a620caef95818200fa5d0cc2527f"},
+    {file = "pyright-0.0.12.tar.gz", hash = "sha256:a80003bc10e6400ee235b77bf30f87cb442611e8bd6f496fe4afd4ee44cda580"},
 ]
 pyro4 = [
     {file = "Pyro4-4.80-py2.py3-none-any.whl", hash = "sha256:f195a4a9403f58807e66ca269c771e1d268064945f65cfbbf59a1feb12a1695f"},
