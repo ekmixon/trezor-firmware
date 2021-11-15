@@ -16,6 +16,7 @@
 
 import hashlib
 from enum import Enum
+from hashlib import blake2s
 from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 
 import construct as c
@@ -23,11 +24,6 @@ import ecdsa
 
 from . import cosi, messages
 from .tools import session
-
-try:
-    from hashlib import blake2s
-except ImportError:
-    from pyblake2 import blake2s  # type: ignore  [no-redef]
 
 if TYPE_CHECKING:
     from .client import TrezorClient
