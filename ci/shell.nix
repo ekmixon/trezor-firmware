@@ -61,6 +61,7 @@ stdenv.mkDerivation ({
     libffi
     libjpeg
     libusb1
+    nodejs
     openssl
     pkgconfig
     poetry
