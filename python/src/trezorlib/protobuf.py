@@ -469,7 +469,7 @@ def dump_message(writer: Writer, msg: "MessageType") -> None:
                 dump_uvarint(writer, int(svalue))
 
             elif field.type == "bytes":
-                assert isinstance(svalue, bytes)
+                assert isinstance(svalue, (bytes, bytearray))
                 dump_uvarint(writer, len(svalue))
                 writer.write(svalue)
 
