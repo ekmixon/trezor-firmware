@@ -19,6 +19,7 @@ pystyle_check: ## run code style check on application sources and tests
 	black --version
 	mypy --version
 	pylint --version
+	pyright --version
 	@echo [MYPY]
 	@make -C core mypy
 	@echo [FLAKE8]
