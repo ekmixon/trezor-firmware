@@ -332,6 +332,7 @@ def sign_tx(
     else:
         if gas_price is None:
             gas_price = w3.eth.gasPrice
+        assert gas_price is not None
         sig = ethereum.sign_tx(
             client,
             n=address_n,
