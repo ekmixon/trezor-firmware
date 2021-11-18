@@ -46,16 +46,18 @@ from trezor.wire.errors import ActionCancelled, DataError, Error
 # other packages.
 from trezor.wire.errors import *  # isort:skip # noqa: F401,F403
 
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Container,
+    Coroutine,
+    Iterable,
+    TypeVar,
+    TYPE_CHECKING,
+)
+
 if TYPE_CHECKING:
-    from typing import (
-        Any,
-        Awaitable,
-        Callable,
-        Container,
-        Coroutine,
-        Iterable,
-        TypeVar,
-    )
     from trezorio import WireInterface
 
     Msg = TypeVar("Msg", bound=protobuf.MessageType)

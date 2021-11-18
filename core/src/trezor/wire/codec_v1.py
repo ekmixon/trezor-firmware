@@ -3,9 +3,9 @@ from micropython import const
 
 from trezor import io, loop, utils
 
-if TYPE_CHECKING:
-    from typing import Any
+from typing import Any, TYPE_CHECKING
 
+if TYPE_CHECKING:
     from trezorio import WireInterface
 
 _REP_LEN = const(64)
@@ -24,7 +24,7 @@ INVALID_TYPE = const(-1)
 # use it at the same time, thus we check this at runtime in debug builds.
 if __debug__:
 
-    class BufferLock(object):
+    class BufferLock:  # type: ignore
         def __init__(self) -> None:
             self.in_use = False
 
@@ -38,7 +38,7 @@ if __debug__:
 
 else:
 
-    class BufferLock(object):  # type: ignore
+    class BufferLock:
         def __enter__(self) -> None:
             pass
 

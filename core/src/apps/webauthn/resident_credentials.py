@@ -5,8 +5,7 @@ from storage.resident_credentials import MAX_RESIDENT_CREDENTIALS
 
 from .credential import Fido2Credential
 
-if TYPE_CHECKING:
-    from typing import Iterator
+from typing import Iterator
 
 
 RP_ID_HASH_LENGTH = const(32)
