@@ -1,0 +1,10 @@
+{
+    "include": [
+        "src/apps"
+    ],
+    "exclude": [
+        "src/apps/monero",
+    ],
+    "typeCheckingMode": "basic",
+    "pythonVersion": "3.10"
+}
