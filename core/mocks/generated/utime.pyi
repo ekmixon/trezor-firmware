@@ -1,1 +1,1 @@
-/home/matejcik/projekty/prace/trezor-firmware/core/mocks/utime.pyi
+../utime.pyi

@@ -10,8 +10,7 @@ from pathlib import Path
 
 CORE_DIR = Path(__file__).parent.parent.resolve()
 EXTMOD_PATH = CORE_DIR / "embed" / "extmod"
-MOCKS_PATH = CORE_DIR / "mocks"
-GENERATED_PATH = MOCKS_PATH / "generated"
+MOCKS_PATH = CORE_DIR / "mocks" / "generated"
 
 COMMENT_PREFIX = "/// "
 
@@ -113,7 +112,7 @@ def do_check():
     with tempfile.TemporaryDirectory() as tmpdir:
         build_directory(EXTMOD_PATH, Path(tmpdir))
         diff_out = subprocess.run(
-            ["diff", "-ur", str(GENERATED_PATH), tmpdir],
+            ["diff", "-ur", str(MOCKS_PATH), tmpdir],
             stdout=subprocess.PIPE,
             universal_newlines=True,
         ).stdout
@@ -123,13 +122,13 @@ def do_check():
 
 
 def do_generate():
-    shutil.rmtree(GENERATED_PATH)
-    build_directory(EXTMOD_PATH, GENERATED_PATH)
+    shutil.rmtree(MOCKS_PATH)
+    build_directory(EXTMOD_PATH, MOCKS_PATH)
 
     # make symlinks for the non-generated files
-    for pyi in MOCKS_PATH.glob("*.pyi"):
-        dest_file = GENERATED_PATH / pyi.name
-        dest_file.symlink_to(pyi)
+    for pyi in MOCKS_PATH.glob("../*.pyi"):
+        dest_file = MOCKS_PATH / pyi.name
+        dest_file.symlink_to(pyi.relative_to(MOCKS_PATH))
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--check":

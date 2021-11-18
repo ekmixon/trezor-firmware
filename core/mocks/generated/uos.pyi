@@ -1,1 +1,1 @@
-/home/matejcik/projekty/prace/trezor-firmware/core/mocks/uos.pyi
+../uos.pyi
