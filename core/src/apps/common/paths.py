@@ -105,7 +105,7 @@ class PathSchema:
     _EMPTY_TUPLE = ()
 
     @staticmethod
-    def _parse_hardened(s: str) -> int:
+    def _parse_hardened(s: str | int) -> int:
         return int(s) | HARDENED
 
     @staticmethod

@@ -89,6 +89,7 @@ def decode_bech32_address(prefix: str, address: str) -> Tuple[int, bytes]:
     witver, raw = bech32.decode(prefix, address)
     if witver not in _BECH32_WITVERS:
         raise wire.ProcessError("Invalid address witness program")
+    assert witver is not None
     assert raw is not None
     return witver, bytes(raw)
 

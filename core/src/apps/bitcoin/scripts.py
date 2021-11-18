@@ -170,7 +170,7 @@ def parse_input_script_p2pkh(script_sig: bytes) -> tuple[memoryview, memoryview,
         if len(pubkey) != n:
             raise ValueError
     except (ValueError, EOFError):
-        wire.DataError("Invalid scriptSig.")
+        raise wire.DataError("Invalid scriptSig.")
 
     return pubkey, signature, hash_type
 

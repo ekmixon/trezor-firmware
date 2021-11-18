@@ -91,4 +91,5 @@ def get_op_code(msg: protobuf.MessageType) -> int:
     wire = msg.MESSAGE_WIRE_TYPE
     if wire not in op_codes:
         raise ValueError("Stellar: op code unknown")
+    assert isinstance(wire, int)
     return op_codes[wire]
