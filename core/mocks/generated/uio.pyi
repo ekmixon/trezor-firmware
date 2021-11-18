@@ -1,0 +1,1 @@
+/home/matejcik/projekty/prace/trezor-firmware/core/mocks/uio.pyi
