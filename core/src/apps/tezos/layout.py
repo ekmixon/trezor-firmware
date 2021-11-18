@@ -11,7 +11,7 @@ from trezor.ui.layouts import (
 
 from .helpers import TEZOS_AMOUNT_DECIMALS
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
 
 

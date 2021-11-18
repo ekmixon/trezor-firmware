@@ -27,7 +27,7 @@ from trezor.wire import DataError, ProcessError
 from .. import consts, helpers
 from ..layout import format_amount, format_asset
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
 
 

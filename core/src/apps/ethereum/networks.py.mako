@@ -3,7 +3,7 @@
 
 from apps.common.paths import HARDENED
 
-if False:
+if TYPE_CHECKING:
     from typing import Iterator
 
 

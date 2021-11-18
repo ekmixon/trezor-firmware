@@ -46,7 +46,7 @@ from trezor.wire.errors import ActionCancelled, DataError, Error
 # other packages.
 from trezor.wire.errors import *  # isort:skip # noqa: F401,F403
 
-if False:
+if TYPE_CHECKING:
     from typing import (
         Any,
         Awaitable,
@@ -72,7 +72,7 @@ def setup(iface: WireInterface, is_debug_session: bool = False) -> None:
     loop.schedule(handle_session(iface, codec_v1.SESSION_ID, is_debug_session))
 
 
-if False:
+if TYPE_CHECKING:
     from typing import Protocol, TypeVar
 
     LoadedMessageType = TypeVar("LoadedMessageType", bound=protobuf.MessageType)

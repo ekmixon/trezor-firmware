@@ -12,7 +12,7 @@ from apps.common.paths import HARDENED
 
 from . import common
 
-if False:
+if TYPE_CHECKING:
     from typing import Iterable
 
 # Credential ID values

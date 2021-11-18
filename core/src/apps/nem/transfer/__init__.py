@@ -2,7 +2,7 @@ from trezor.messages import NEMImportanceTransfer, NEMTransactionCommon, NEMTran
 
 from . import layout, serialize
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
     from trezor.crypto import bip32
 

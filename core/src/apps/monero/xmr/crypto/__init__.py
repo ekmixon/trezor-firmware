@@ -10,7 +10,7 @@
 from trezor.crypto import monero as tcry, random
 from trezor.crypto.hashlib import sha3_256
 
-if False:
+if TYPE_CHECKING:
     from apps.monero.xmr.types import Sc25519, Ge25519
 
 

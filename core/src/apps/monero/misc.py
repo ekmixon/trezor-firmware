@@ -1,4 +1,4 @@
-if False:
+if TYPE_CHECKING:
     from apps.monero.xmr.types import Sc25519
 
 

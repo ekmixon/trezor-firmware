@@ -8,7 +8,7 @@ from ..helpers import (
 )
 from ..writers import serialize_tx_common, write_bytes_with_len, write_uint32_le
 
-if False:
+if TYPE_CHECKING:
     from trezor.utils import Writer
 
 

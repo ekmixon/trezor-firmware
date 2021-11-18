@@ -15,7 +15,7 @@ from ..writers import (
     write_uint64_le,
 )
 
-if False:
+if TYPE_CHECKING:
     from trezor.utils import Writer
 
 

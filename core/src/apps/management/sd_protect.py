@@ -13,7 +13,7 @@ from apps.common.request_pin import (
 )
 from apps.common.sdcard import confirm_retry_sd, ensure_sdcard
 
-if False:
+if TYPE_CHECKING:
     from typing import Awaitable
     from trezor.messages import SdProtect
 

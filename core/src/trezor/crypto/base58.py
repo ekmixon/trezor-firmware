@@ -13,7 +13,7 @@
 # This module adds shiny packaging and support for python3.
 #
 
-if False:
+if TYPE_CHECKING:
     from typing import Callable
 
 # 58 character alphabet used

@@ -17,7 +17,7 @@ from .scripts import (
     write_input_script_p2wsh_in_p2sh,
 )
 
-if False:
+if TYPE_CHECKING:
     from apps.common.coininfo import CoinInfo
 
 

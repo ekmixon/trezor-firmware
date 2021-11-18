@@ -3,7 +3,7 @@ from micropython import const
 from trezor import ui
 from trezor.ui import display, in_area
 
-if False:
+if TYPE_CHECKING:
     from typing import Union
 
 
@@ -109,7 +109,7 @@ class ButtonMonoConfirm(ButtonDefault):
         text_style = ui.MONO
 
 
-if False:
+if TYPE_CHECKING:
     ButtonContent = Union[str, bytes, None]
     ButtonStyleType = type[ButtonDefault]
     ButtonStyleStateType = type[ButtonDefault.normal]

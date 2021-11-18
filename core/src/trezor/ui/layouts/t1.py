@@ -1,7 +1,7 @@
 from trezor import ui, wire
 from trezor.enums import ButtonRequestType
 
-if False:
+if TYPE_CHECKING:
     from typing import NoReturn, Type, Union
 
     ExceptionType = Union[BaseException, Type[BaseException]]

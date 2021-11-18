@@ -6,7 +6,7 @@ from apps.common import coininfo
 
 from .. import scripts, writers
 
-if False:
+if TYPE_CHECKING:
     from typing import Protocol, Sequence
 
     class Hash143(Protocol):

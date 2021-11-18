@@ -9,7 +9,7 @@ from trezor import log, utils
 
 from . import readers
 
-if False:
+if TYPE_CHECKING:
     from typing import Any, Generic, Iterator, Tuple, TypeVar, Union
 
     K = TypeVar("K")

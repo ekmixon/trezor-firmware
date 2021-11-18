@@ -10,7 +10,7 @@ from .helpers import public_key_from_address
 write_uint32 = write_uint32_be
 write_uint64 = write_uint64_be
 
-if False:
+if TYPE_CHECKING:
     from typing import AnyStr
 
     from trezor.utils import Writer

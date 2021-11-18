@@ -16,7 +16,7 @@ from ...components.tt.text import Text
 from ...components.tt.word_select import WordSelector
 from ..common import button_request, interact
 
-if False:
+if TYPE_CHECKING:
     from typing import Callable, Iterable
 
 

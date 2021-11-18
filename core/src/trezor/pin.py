@@ -1,6 +1,6 @@
 from trezor import utils
 
-if False:
+if TYPE_CHECKING:
     from typing import Any
 
 

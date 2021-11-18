@@ -6,7 +6,7 @@ from trezor.ui import display
 from .button import Button, ButtonClear, ButtonConfirm
 from .swipe import SWIPE_HORIZONTAL, SWIPE_LEFT, Swipe
 
-if False:
+if TYPE_CHECKING:
     from typing import Iterable
     from .button import ButtonContent, ButtonStyleStateType
 

@@ -4,7 +4,7 @@
 
 from trezor import protobuf
 
-if False:
+if TYPE_CHECKING:
     from typing import TYPE_CHECKING, Any, TypeGuard
 else:
     TYPE_CHECKING = False

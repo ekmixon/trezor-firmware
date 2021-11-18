@@ -13,7 +13,7 @@ from .common import BIP32_WALLET_DEPTH
 from .keychain import validate_path_against_script_type, with_keychain
 from .sign_tx.layout import format_coin_amount
 
-if False:
+if TYPE_CHECKING:
     from trezor import wire
     from apps.common.coininfo import CoinInfo
     from apps.common.keychain import Keychain

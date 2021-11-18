@@ -5,7 +5,7 @@ from .button import Button, ButtonConfirm
 from .confirm import CONFIRMED
 from .text import render_text
 
-if False:
+if TYPE_CHECKING:
     from .button import ButtonContent
 
 
@@ -22,7 +22,7 @@ class DefaultInfoConfirm:
             border_color = ui.BLACKISH
 
 
-if False:
+if TYPE_CHECKING:
     InfoConfirmStyleType = type[DefaultInfoConfirm]
 
 

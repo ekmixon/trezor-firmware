@@ -13,7 +13,7 @@ if __debug__:
     from trezor.ui.components.tt.scroll import Paginated
 
 
-if False:
+if TYPE_CHECKING:
     from typing import Any, Callable
     from trezor import ui
     from trezor.ui.components.tt.confirm import ButtonContent, ButtonStyleType

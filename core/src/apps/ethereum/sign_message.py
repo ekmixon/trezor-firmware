@@ -10,7 +10,7 @@ from apps.common.signverify import decode_message
 from . import address
 from .keychain import PATTERNS_ADDRESS, with_keychain_from_path
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import EthereumSignMessage
     from trezor.wire import Context
 

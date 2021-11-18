@@ -7,7 +7,7 @@ from trezor.utils import BufferReader, ensure
 from apps.common.readers import read_uint32_be
 from apps.common.writers import write_bytes_unchecked, write_uint8
 
-if False:
+if TYPE_CHECKING:
     from trezor.utils import Writer
 
 

@@ -22,7 +22,7 @@ from .writers import (
     write_op_push,
 )
 
-if False:
+if TYPE_CHECKING:
     from typing import Sequence
 
     from trezor.messages import MultisigRedeemScriptType, TxInput

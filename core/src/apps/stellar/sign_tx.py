@@ -12,7 +12,7 @@ from apps.common.keychain import auto_keychain
 from . import consts, helpers, layout, writers
 from .operations import process_operation
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
     from trezor.utils import Writer
 

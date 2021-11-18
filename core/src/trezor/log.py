@@ -2,7 +2,7 @@ import sys
 import utime
 from micropython import const
 
-if False:
+if TYPE_CHECKING:
     from typing import Any
 
 NOTSET = const(0)

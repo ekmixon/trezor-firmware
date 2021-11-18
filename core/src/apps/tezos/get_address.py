@@ -7,7 +7,7 @@ from apps.common.keychain import with_slip44_keychain
 
 from . import CURVE, PATTERNS, SLIP44_ID, helpers
 
-if False:
+if TYPE_CHECKING:
     from apps.common.keychain import Keychain
     from trezor.wire import Context
 

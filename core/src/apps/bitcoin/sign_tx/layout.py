@@ -13,7 +13,7 @@ if not utils.BITCOIN_ONLY:
     from trezor.ui.layouts.tt import altcoin
 
 
-if False:
+if TYPE_CHECKING:
     from trezor import wire
     from trezor.messages import TxOutput
     from trezor.ui.layouts import LayoutType

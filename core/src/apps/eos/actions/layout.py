@@ -4,7 +4,7 @@ from trezor.ui.layouts import confirm_properties
 
 from .. import helpers
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
     from trezor.messages import (
         EosActionBuyRam,

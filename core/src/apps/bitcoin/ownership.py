@@ -9,7 +9,7 @@ from . import common
 from .scripts import read_bip322_signature_proof, write_bip322_signature_proof
 from .verification import SignatureVerifier
 
-if False:
+if TYPE_CHECKING:
     from trezor.enums import InputScriptType
     from trezor.messages import MultisigRedeemScriptType
     from apps.common.coininfo import CoinInfo

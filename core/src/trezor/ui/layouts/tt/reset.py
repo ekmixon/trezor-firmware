@@ -12,7 +12,7 @@ from ...components.tt.scroll import Paginated
 from ...components.tt.text import Text
 from ..common import interact
 
-if False:
+if TYPE_CHECKING:
     from typing import Sequence
 
     NumberedWords = Sequence[tuple[int, str]]

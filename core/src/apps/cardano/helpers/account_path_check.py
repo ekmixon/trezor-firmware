@@ -9,7 +9,7 @@ from . import (
 from .paths import ACCOUNT_PATH_INDEX, ACCOUNT_PATH_LENGTH
 from .utils import to_account_path
 
-if False:
+if TYPE_CHECKING:
     from trezor import wire
     from trezor.messages import (
         CardanoPoolOwner,

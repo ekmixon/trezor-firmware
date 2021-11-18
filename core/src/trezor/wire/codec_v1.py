@@ -3,7 +3,7 @@ from micropython import const
 
 from trezor import io, loop, utils
 
-if False:
+if TYPE_CHECKING:
     from typing import Any
 
     from trezorio import WireInterface

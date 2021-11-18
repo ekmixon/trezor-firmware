@@ -6,7 +6,7 @@ from trezor.crypto import bip32
 from . import paths, safety_checks
 from .seed import Slip21Node, get_seed
 
-if False:
+if TYPE_CHECKING:
     from typing import (
         Any,
         Awaitable,

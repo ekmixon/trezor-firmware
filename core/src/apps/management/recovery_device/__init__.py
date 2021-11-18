@@ -14,7 +14,7 @@ from apps.common.request_pin import (
 
 from .homescreen import recovery_homescreen, recovery_process
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import RecoveryDevice
 
 

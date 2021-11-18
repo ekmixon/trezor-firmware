@@ -7,7 +7,7 @@ from apps.common import authorization
 
 from .common import BIP32_WALLET_DEPTH
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import (
         GetOwnershipProof,
         SignTx,

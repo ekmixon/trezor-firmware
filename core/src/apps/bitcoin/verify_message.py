@@ -15,7 +15,7 @@ from .addresses import (
     address_to_cashaddr,
 )
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import VerifyMessage
 
 

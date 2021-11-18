@@ -9,7 +9,7 @@ from ...components.tt.text import Text
 from ...constants.tt import MONO_ADDR_PER_LINE
 from ..common import interact
 
-if False:
+if TYPE_CHECKING:
     from typing import Sequence
 
 

@@ -24,7 +24,7 @@ if __debug__:
     else:
         LOG_MEMORY = 0
 
-if False:
+if TYPE_CHECKING:
     from typing import (
         Any,
         Iterator,
@@ -124,7 +124,7 @@ def ensure(cond: bool, msg: str | None = None) -> None:
             raise AssertionError(msg)
 
 
-if False:
+if TYPE_CHECKING:
     Chunkable = TypeVar("Chunkable", str, Sequence[Any])
 
 
@@ -145,7 +145,7 @@ def chunks_intersperse(
         yield items[i : i + size]
 
 
-if False:
+if TYPE_CHECKING:
 
     class HashContext(Protocol):
         def __init__(self, data: bytes = None) -> None:
@@ -184,7 +184,7 @@ class HashWriter:
         return self.ctx.digest()
 
 
-if False:
+if TYPE_CHECKING:
     BufferType = Union[bytearray, memoryview]
 
 

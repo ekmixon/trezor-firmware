@@ -16,7 +16,7 @@ from .layout import (
     require_confirm_unknown_token,
 )
 
-if False:
+if TYPE_CHECKING:
     from typing import Tuple
 
     from apps.common.keychain import Keychain

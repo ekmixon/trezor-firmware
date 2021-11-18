@@ -16,7 +16,7 @@ from . import approvers, helpers, progress
 from .hash143 import Bip143Hash
 from .tx_info import OriginalTxInfo, TxInfo
 
-if False:
+if TYPE_CHECKING:
     from typing import Sequence
 
     from trezor.crypto import bip32

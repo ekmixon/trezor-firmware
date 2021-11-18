@@ -15,7 +15,7 @@ from apps.common.writers import (
 
 from . import CURVE, PATTERNS, SLIP44_ID, helpers, layout
 
-if False:
+if TYPE_CHECKING:
     from typing import Union
     from apps.common.keychain import Keychain
     from trezor.wire import Context

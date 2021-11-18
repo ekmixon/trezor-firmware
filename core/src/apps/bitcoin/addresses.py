@@ -12,7 +12,7 @@ from .common import ecdsa_hash_pubkey, encode_bech32_address
 from .multisig import multisig_get_pubkeys, multisig_pubkey_index
 from .scripts import output_script_native_segwit, write_output_script_multisig
 
-if False:
+if TYPE_CHECKING:
     from trezor.crypto import bip32
 
 

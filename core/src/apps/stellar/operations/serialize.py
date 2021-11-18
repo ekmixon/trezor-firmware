@@ -17,7 +17,7 @@ from trezor.wire import DataError, ProcessError
 
 from .. import writers
 
-if False:
+if TYPE_CHECKING:
     from trezor.utils import Writer
 
 

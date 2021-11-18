@@ -4,7 +4,7 @@ from .button import Button
 from .num_input import NumInput
 from .text import Text
 
-if False:
+if TYPE_CHECKING:
     from trezor import loop
     from typing import Callable, NoReturn, Sequence
 

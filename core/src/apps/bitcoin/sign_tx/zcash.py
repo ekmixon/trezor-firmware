@@ -23,7 +23,7 @@ from ..writers import (
 from . import approvers, helpers
 from .bitcoinlike import Bitcoinlike
 
-if False:
+if TYPE_CHECKING:
     from typing import Sequence
     from apps.common import coininfo
     from .hash143 import Hash143

@@ -6,7 +6,7 @@ from apps.common import cbor
 from .helpers import INVALID_ADDRESS, NETWORK_MISMATCH, protocol_magics
 from .helpers.utils import derive_public_key
 
-if False:
+if TYPE_CHECKING:
     from . import seed
 
 PROTOCOL_MAGIC_KEY = 2

@@ -12,7 +12,7 @@ from trezor.messages import RippleSignTx
 
 from . import helpers
 
-if False:
+if TYPE_CHECKING:
     from trezor.utils import Writer
 
 

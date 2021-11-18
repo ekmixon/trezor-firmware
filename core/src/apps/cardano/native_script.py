@@ -12,7 +12,7 @@ from .helpers.paths import SCHEMA_MINT
 from .helpers.utils import get_public_key_hash
 from .seed import Keychain, is_multisig_path
 
-if False:
+if TYPE_CHECKING:
     from typing import Any
 
     from trezor.messages import CardanoNativeScript

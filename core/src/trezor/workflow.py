@@ -3,7 +3,7 @@ import utime
 import storage.cache
 from trezor import log, loop
 
-if False:
+if TYPE_CHECKING:
     from typing import Callable
 
     IdleCallback = Callable[[], None]

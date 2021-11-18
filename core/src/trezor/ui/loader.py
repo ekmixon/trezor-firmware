@@ -35,7 +35,7 @@ class LoaderNeutral(LoaderDefault):
         fg_color = ui.FG
 
 
-if False:
+if TYPE_CHECKING:
     LoaderStyleType = type[LoaderDefault]
 
 

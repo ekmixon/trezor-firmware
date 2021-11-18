@@ -6,7 +6,7 @@ from trezor.ui.layouts import confirm_action
 
 from .apply_settings import reload_settings_from_storage
 
-if False:
+if TYPE_CHECKING:
     from trezor import wire
     from trezor.messages import WipeDevice
 

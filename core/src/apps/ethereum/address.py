@@ -2,7 +2,7 @@ from ubinascii import hexlify, unhexlify
 
 from trezor import wire
 
-if False:
+if TYPE_CHECKING:
     from .networks import NetworkInfo
 
 

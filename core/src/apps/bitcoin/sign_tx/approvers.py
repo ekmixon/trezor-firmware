@@ -10,7 +10,7 @@ from ..authorization import FEE_PER_ANONYMITY_DECIMALS
 from . import helpers, tx_weight
 from .tx_info import OriginalTxInfo, TxInfo
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import SignTx
     from trezor.messages import TxInput
     from trezor.messages import TxOutput

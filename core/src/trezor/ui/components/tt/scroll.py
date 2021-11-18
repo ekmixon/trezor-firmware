@@ -16,7 +16,7 @@ from .text import (
     Text,
 )
 
-if False:
+if TYPE_CHECKING:
     from typing import Callable, Iterable
 
     from ..common.text import TextContent
@@ -25,7 +25,7 @@ if False:
 WAS_PAGED = object()
 
 
-if False:
+if TYPE_CHECKING:
     from typing import Any
 
 

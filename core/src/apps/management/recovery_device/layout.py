@@ -15,7 +15,7 @@ from .. import backup_types
 from . import word_validity
 from .recover import RecoveryAborted
 
-if False:
+if TYPE_CHECKING:
     from typing import Callable
     from trezor.enums import BackupType
 

@@ -10,7 +10,7 @@ from trezor.messages import (
     BinanceTransferMsg,
 )
 
-if False:
+if TYPE_CHECKING:
     from trezor.protobuf import MessageType
 
 ENVELOPE_BLUEPRINT = '{{"account_number":"{account_number}","chain_id":"{chain_id}","data":null,"memo":"{memo}","msgs":[{msgs}],"sequence":"{sequence}","source":"{source}"}}'

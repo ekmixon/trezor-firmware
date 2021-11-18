@@ -2,7 +2,7 @@ from micropython import const
 
 from trezor.utils import BufferReader, empty_bytearray
 
-if False:
+if TYPE_CHECKING:
     from trezor.utils import Writer
 
 # Maximum length of a DER-encoded secp256k1 or secp256p1 signature.

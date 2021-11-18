@@ -8,7 +8,7 @@ from apps.common.seed import get_seed
 
 from .helpers import paths
 
-if False:
+if TYPE_CHECKING:
     from typing import Callable, Awaitable
 
     from apps.common.paths import Bip32Path

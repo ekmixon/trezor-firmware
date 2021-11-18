@@ -2,7 +2,7 @@ from micropython import const
 
 HARDENED = const(0x8000_0000)
 
-if False:
+if TYPE_CHECKING:
     from typing import (
         Any,
         Callable,

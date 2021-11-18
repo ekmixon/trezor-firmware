@@ -2,7 +2,7 @@ from trezor.messages import NEMProvisionNamespace, NEMTransactionCommon
 
 from ..layout import require_confirm_content, require_confirm_fee, require_confirm_final
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
 
 

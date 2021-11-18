@@ -4,7 +4,7 @@ from trezor import res, ui
 
 from ...constants import TEXT_HEADER_HEIGHT, TEXT_LINE_HEIGHT
 
-if False:
+if TYPE_CHECKING:
     from typing import Iterable, Union
 
     ChecklistItem = Union[str, Iterable[str]]

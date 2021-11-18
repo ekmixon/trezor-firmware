@@ -5,7 +5,7 @@ from trezorui import Display
 
 from trezor import io, loop, res, utils, workflow
 
-if False:
+if TYPE_CHECKING:
     from typing import Any, Awaitable, Generator, TypeVar
 
     Pos = tuple[int, int]

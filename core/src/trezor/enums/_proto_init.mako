@@ -1,4 +1,4 @@
-if False:
+if TYPE_CHECKING:
     from typing import TYPE_CHECKING
 else:
     TYPE_CHECKING = False

@@ -12,7 +12,7 @@ import gc
 
 from apps.monero.xmr import crypto
 
-if False:
+if TYPE_CHECKING:
     from apps.monero.xmr.types import Sc25519
     from apps.monero.xmr.serialize_messages.tx_rsig_bulletproof import Bulletproof
 

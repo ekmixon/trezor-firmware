@@ -7,7 +7,7 @@ from apps.common import mnemonic
 
 from .reset_device import backup_seed, layout
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import BackupDevice
 
 

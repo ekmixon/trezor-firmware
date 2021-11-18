@@ -36,7 +36,7 @@ from trezorcrypto import shamir, slip39
 from trezor.crypto import hmac, pbkdf2, random
 from trezor.errors import MnemonicError
 
-if False:
+if TYPE_CHECKING:
     from typing import Iterable, Tuple
 
     Indices = Tuple[int, ...]

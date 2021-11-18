@@ -18,7 +18,7 @@ resfiles = chain.from_iterable(sorted(SRCDIR.glob(p)) for p in PATTERNS)
 %>\
 
 def load_resource(name: str) -> bytes:
-    if False:
+    if TYPE_CHECKING:
         raise RuntimeError
 % for resfile in resfiles:
     elif name == "${resfile.relative_to(SRCDIR)}":

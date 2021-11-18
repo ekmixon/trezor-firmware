@@ -3,7 +3,7 @@ from storage.device import set_flags
 from trezor import wire
 from trezor.messages import Success
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import ApplyFlags
 
 

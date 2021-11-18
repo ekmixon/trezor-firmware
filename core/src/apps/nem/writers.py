@@ -2,7 +2,7 @@ from trezor.messages import NEMTransactionCommon
 
 from apps.common.writers import write_bytes_unchecked, write_uint32_le, write_uint64_le
 
-if False:
+if TYPE_CHECKING:
     from trezor.utils import Writer
 
 

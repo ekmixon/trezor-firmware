@@ -10,7 +10,7 @@ from . import seed
 from .helpers.paths import SCHEMA_MINT, SCHEMA_PUBKEY
 from .helpers.utils import derive_public_key
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import CardanoGetPublicKey
 
 

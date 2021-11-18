@@ -22,11 +22,11 @@ UNKNOWN_TOKEN = TokenInfo("Wei UNKN", 0)
 
 
 def token_by_chain_address(chain_id: int, address: bytes) -> TokenInfo:
-    if False:
+    if TYPE_CHECKING:
         pass
 % for token_chain_id, tokens in group_tokens(supported_on("trezor2", erc20)).items():
     elif chain_id == ${token_chain_id}:
-        if False:
+        if TYPE_CHECKING:
             pass
         % for t in tokens:
         elif address == ${black_repr(t.address_bytes)}:

@@ -12,7 +12,7 @@ import utimeq
 
 from trezor import io, log
 
-if False:
+if TYPE_CHECKING:
     from typing import (
         Any,
         Awaitable,

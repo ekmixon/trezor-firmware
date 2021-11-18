@@ -6,7 +6,7 @@ from trezor.ui.layouts import confirm_address
 
 from ..layout import require_confirm_fee, require_confirm_final, require_confirm_text
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
 
 

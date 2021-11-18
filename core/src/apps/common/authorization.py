@@ -3,7 +3,7 @@ from trezor import protobuf
 from trezor.enums import MessageType
 from trezor.utils import ensure
 
-if False:
+if TYPE_CHECKING:
     from typing import Iterable
 
 WIRE_TYPES: dict[int, tuple[int, ...]] = {

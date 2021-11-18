@@ -3,7 +3,7 @@ from trezorcrypto import random  # avoid pulling in trezor.crypto
 
 from trezor import utils
 
-if False:
+if TYPE_CHECKING:
     from typing import Sequence, TypeVar, overload
 
     T = TypeVar("T")
@@ -233,7 +233,7 @@ def delete(key: int) -> None:
     return _SESSIONS[_active_session_idx].delete(key)
 
 
-if False:
+if TYPE_CHECKING:
     from typing import Awaitable, Callable, TypeVar
 
     ByteFunc = TypeVar("ByteFunc", bound=Callable[..., bytes])

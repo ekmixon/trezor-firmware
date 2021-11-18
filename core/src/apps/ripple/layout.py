@@ -5,7 +5,7 @@ from trezor.ui.layouts.tt.altcoin import confirm_total_ripple
 
 from . import helpers
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
 
 

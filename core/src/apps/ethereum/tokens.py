@@ -13,10 +13,10 @@ UNKNOWN_TOKEN = TokenInfo("Wei UNKN", 0)
 
 
 def token_by_chain_address(chain_id: int, address: bytes) -> TokenInfo:
-    if False:
+    if TYPE_CHECKING:
         pass
     elif chain_id == 1:
-        if False:
+        if TYPE_CHECKING:
             pass
         elif address == b"\x4e\x84\xe9\xe5\xfb\x0a\x97\x26\x28\xcf\x45\x68\xc4\x03\x16\x7e\xf1\xd4\x04\x31":
             return TokenInfo("$FFC", 18)  # eth / $Fluzcoin
@@ -3551,7 +3551,7 @@ def token_by_chain_address(chain_id: int, address: bytes) -> TokenInfo:
         elif address == b"\x83\xe2\xbe\x8d\x11\x4f\x96\x61\x22\x13\x84\xb3\xa5\x0d\x24\xb9\x6a\x56\x53\xf5":
             return TokenInfo("ZXC", 18)  # eth / 0xcert Protocol Token
     elif chain_id == 3:
-        if False:
+        if TYPE_CHECKING:
             pass
         elif address == b"\x95\xd7\x32\x1e\xdc\xe5\x19\x41\x9b\xa1\xdb\xc6\x0a\x89\xba\xfb\xf5\x5e\xac\x0d":
             return TokenInfo("*PLASMA", 6)  # rop / *PLASMA
@@ -3566,7 +3566,7 @@ def token_by_chain_address(chain_id: int, address: bytes) -> TokenInfo:
         elif address == b"\x73\x14\xdc\x4d\x77\x94\xb5\xe7\x89\x42\x12\xca\x15\x56\xae\x8e\x3d\xe5\x86\x21":
             return TokenInfo("RLC", 9)  # rop / iExec RLC
     elif chain_id == 4:
-        if False:
+        if TYPE_CHECKING:
             pass
         elif address == b"\xe2\x78\x26\xee\x77\x8b\x6f\x78\xa4\x9a\x68\x6d\xa7\xd6\x4f\x6e\x7b\x08\x4a\x4f":
             return TokenInfo("BHNT", 0)  # rin / Berlin Hack&Tell winner token
@@ -3587,7 +3587,7 @@ def token_by_chain_address(chain_id: int, address: bytes) -> TokenInfo:
         elif address == b"\x0a\x05\x7a\x87\xce\x9c\x56\xd7\xe3\x36\xb4\x17\xc7\x9c\xf3\x0e\x8d\x27\x86\x0b":
             return TokenInfo("WALL", 15)  # rin / WALLETH Community-Token
     elif chain_id == 8:
-        if False:
+        if TYPE_CHECKING:
             pass
         elif address == b"\xff\x3b\xf0\x57\xad\xf3\xb0\xe0\x15\xb6\x46\x53\x31\xa6\x23\x6e\x55\x68\x82\x74":
             return TokenInfo("BEER", 0)  # ubq / BEER
@@ -3600,12 +3600,12 @@ def token_by_chain_address(chain_id: int, address: bytes) -> TokenInfo:
         elif address == b"\x5e\x17\x15\xbb\x79\x80\x5b\xd6\x72\x72\x97\x60\xb3\xf7\xf3\x4d\x6f\x48\x50\x98":
             return TokenInfo("RICKS", 8)  # ubq / RICKS
     elif chain_id == 30:
-        if False:
+        if TYPE_CHECKING:
             pass
         elif address == b"\x2a\xcc\x95\x75\x8f\x8b\x5f\x58\x34\x70\xba\x26\x5e\xb6\x85\xa8\xf4\x5f\xc9\xd5":
             return TokenInfo("RIF", 18)  # rsk / RIF Token
     elif chain_id == 42:
-        if False:
+        if TYPE_CHECKING:
             pass
         elif address == b"\x86\x67\x55\x92\x54\x24\x1d\xde\xd4\xd1\x13\x92\xf8\x68\xd7\x20\x92\x76\x53\x67":
             return TokenInfo("Aeternity", 18)  # kov / Aeternity
@@ -3634,7 +3634,7 @@ def token_by_chain_address(chain_id: int, address: bytes) -> TokenInfo:
         elif address == b"\x6f\xf6\xc0\xff\x1d\x68\xb9\x64\x90\x1f\x98\x6d\x4c\x9f\xa3\xac\x68\x34\x65\x70":
             return TokenInfo("ZRX", 18)  # kov / RadarRelay test 0x Protocol Token
     elif chain_id == 61:
-        if False:
+        if TYPE_CHECKING:
             pass
         elif address == b"\x08\x5f\xb4\xf2\x40\x31\xea\xed\xbc\x2b\x61\x1a\xa5\x28\xf2\x23\x43\xeb\x52\xdb":
             return TokenInfo("BEC", 8)  # etc / BEC
@@ -3645,12 +3645,12 @@ def token_by_chain_address(chain_id: int, address: bytes) -> TokenInfo:
         elif address == b"\xd6\xdf\x0c\x57\x9f\x2a\x65\x04\x9a\x89\x3f\xda\xec\x9f\xce\x09\x8c\xc1\x9f\x87":
             return TokenInfo("UVCX", 18)  # etc / UniversalCoin X
     elif chain_id == 64:
-        if False:
+        if TYPE_CHECKING:
             pass
         elif address == b"\x99\x1e\x7f\xe4\xb0\x5f\x2b\x3d\xb1\xd7\x88\xe7\x05\x96\x3f\x5d\x64\x7b\x00\x44":
             return TokenInfo("MINING", 18)  # ella / Ella Mining Tokens
     elif chain_id == 31102:
-        if False:
+        if TYPE_CHECKING:
             pass
         elif address == b"\x72\xea\x35\x08\xd9\xd8\x17\xa9\x14\x65\xab\xb5\x9b\xe1\x0f\xef\x98\x57\xa0\x55":
             return TokenInfo("DGT", 0)  # esn / DGT

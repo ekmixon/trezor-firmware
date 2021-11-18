@@ -1,7 +1,7 @@
 from trezor import utils
 from trezor.enums import MessageType
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Handler
     from trezorio import WireInterface
 
@@ -24,7 +24,7 @@ def find_message_handler_module(msg_type: int) -> str:
     - collecting everything as strings instead of importing directly means that we don't
       need to load any of the modules into memory until we actually need them
     """
-    if False:
+    if TYPE_CHECKING:
         raise RuntimeError
 
     # debug
@@ -81,7 +81,7 @@ def find_message_handler_module(msg_type: int) -> str:
         return "apps.misc.cipher_key_value"
 
     elif not utils.BITCOIN_ONLY:
-        if False:
+        if TYPE_CHECKING:
             raise RuntimeError
 
         elif msg_type == MessageType.SetU2FCounter:

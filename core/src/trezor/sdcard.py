@@ -5,7 +5,7 @@ try:
 except Exception:
     HAVE_SDCARD = False
 
-if False:
+if TYPE_CHECKING:
     from typing import Any, Callable, TypeVar
 
     T = TypeVar("T", bound=Callable)

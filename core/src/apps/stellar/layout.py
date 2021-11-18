@@ -11,7 +11,7 @@ from trezor.wire import DataError
 
 from . import consts
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
 
     from trezor.messages import StellarAsset

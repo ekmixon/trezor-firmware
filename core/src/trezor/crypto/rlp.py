@@ -1,6 +1,6 @@
 from micropython import const
 
-if False:
+if TYPE_CHECKING:
     from typing import Union
     from trezor.utils import Writer
 

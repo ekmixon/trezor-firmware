@@ -6,7 +6,7 @@ from trezor.ui import display
 
 from .button import Button, ButtonCancel, ButtonClear, ButtonConfirm, ButtonMono
 
-if False:
+if TYPE_CHECKING:
     from trezor import loop
     from typing import Iterable
 

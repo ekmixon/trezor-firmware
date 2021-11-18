@@ -4,7 +4,7 @@ from trezor.utils import ensure
 from .. import multisig
 from ..common import BIP32_WALLET_DEPTH
 
-if False:
+if TYPE_CHECKING:
     from typing import Any, Generic, TypeVar
 
     from trezor.messages import TxInput, TxOutput

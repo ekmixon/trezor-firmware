@@ -4,7 +4,7 @@ from trezor.ui import display
 
 from .button import Button, ButtonClear, ButtonMono, ButtonMonoConfirm
 
-if False:
+if TYPE_CHECKING:
     from .button import ButtonContent, ButtonStyleStateType
 
 

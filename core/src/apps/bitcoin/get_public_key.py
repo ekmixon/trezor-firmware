@@ -5,7 +5,7 @@ from trezor.messages import HDNodeType, PublicKey
 from apps.common import coininfo, paths
 from apps.common.keychain import get_keychain
 
-if False:
+if TYPE_CHECKING:
     from trezor.messages import GetPublicKey
 
 

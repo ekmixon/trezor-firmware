@@ -8,7 +8,7 @@ from . import CURVE, PATTERNS, SLIP44_ID
 from .helpers import check_path, get_network_str
 from .validators import validate_network
 
-if False:
+if TYPE_CHECKING:
     from apps.common.keychain import Keychain
     from trezor.wire import Context
     from trezor.messages import NEMGetAddress

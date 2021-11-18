@@ -1,6 +1,6 @@
 from apps.common import cbor
 
-if False:
+if TYPE_CHECKING:
     from typing import Any, Generic, TypeVar
     from trezor.utils import HashContext
 

@@ -35,7 +35,7 @@ from .helpers.utils import (
 )
 from .seed import is_minting_path, is_multisig_path
 
-if False:
+if TYPE_CHECKING:
     from trezor import wire
     from trezor.messages import (
         CardanoNativeScript,

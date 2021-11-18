@@ -6,7 +6,7 @@ from trezor.ui.layouts import confirm_action
 from apps.common.keychain import get_keychain
 from apps.common.paths import AlwaysMatchingSchema
 
-if False:
+if TYPE_CHECKING:
     from trezor.wire import Context
 
     from trezor.messages import CipherKeyValue

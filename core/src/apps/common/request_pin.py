@@ -6,7 +6,7 @@ from trezor import config, wire
 
 from .sdcard import SdCardUnavailable, request_sd_salt
 
-if False:
+if TYPE_CHECKING:
     from typing import Any, NoReturn
 
 

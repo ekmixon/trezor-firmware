@@ -6,7 +6,7 @@ from trezor.messages import Success
 
 from . import workflow_handlers
 
-if False:
+if TYPE_CHECKING:
     from trezor import protobuf
     from typing import NoReturn
     from trezor.messages import (

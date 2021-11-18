@@ -2,7 +2,7 @@ from trezor import ui
 
 from .button import Button
 
-if False:
+if TYPE_CHECKING:
     from trezor import loop
 
 # todo improve?

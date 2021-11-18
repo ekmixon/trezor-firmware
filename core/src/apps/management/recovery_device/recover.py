@@ -5,7 +5,7 @@ from trezor.errors import MnemonicError
 
 from .. import backup_types
 
-if False:
+if TYPE_CHECKING:
     from trezor.enums import BackupType
     from typing import Union
 
@@ -91,7 +91,7 @@ def process_slip39(words: str) -> tuple[bytes | None, slip39.Share]:
     return secret, share
 
 
-if False:
+if TYPE_CHECKING:
     Slip39State = Union[tuple[int, BackupType], tuple[None, None]]
 
 

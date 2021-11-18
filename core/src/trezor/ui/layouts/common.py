@@ -2,7 +2,7 @@ from trezor import log, wire, workflow
 from trezor.enums import ButtonRequestType
 from trezor.messages import ButtonAck, ButtonRequest
 
-if False:
+if TYPE_CHECKING:
     from typing import Any, Awaitable, Optional, Tuple, Type, Union
 
     LayoutType = Awaitable[Any]

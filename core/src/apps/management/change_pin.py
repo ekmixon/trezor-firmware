@@ -10,7 +10,7 @@ from apps.common.request_pin import (
     request_pin_confirm,
 )
 
-if False:
+if TYPE_CHECKING:
     from typing import Awaitable
 
     from trezor.messages import ChangePin

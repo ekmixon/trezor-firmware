@@ -2,7 +2,7 @@ from micropython import const
 
 from trezor.enums import MessageType
 
-if False:
+if TYPE_CHECKING:
     from typing import Union
     from trezor import protobuf
 
