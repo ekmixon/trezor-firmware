@@ -3,6 +3,7 @@
 # flake8: noqa
 # fmt: off
 
+from typing import TYPE_CHECKING
 
 class TokenInfo:
     def __init__(self, symbol: str, decimals: int) -> None:

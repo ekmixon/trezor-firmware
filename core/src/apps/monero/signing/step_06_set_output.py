@@ -12,6 +12,7 @@ from apps.monero.xmr import crypto, serialize
 
 from .state import State
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.monero.xmr.types import Sc25519, Ge25519
     from apps.monero.xmr.serialize_messages.tx_ecdh import EcdhTuple

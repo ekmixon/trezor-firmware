@@ -1,5 +1,6 @@
 from trezor.utils import ensure
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Union
     from trezor.utils import Writer

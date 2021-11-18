@@ -8,6 +8,7 @@ from . import addresses, common, scripts
 from .keychain import validate_path_against_script_type, with_keychain
 from .ownership import generate_proof, get_identifier
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.common.coininfo import CoinInfo
     from apps.common.keychain import Keychain

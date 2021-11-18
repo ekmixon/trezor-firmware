@@ -5,6 +5,7 @@ from trezor.crypto import bip32, hmac
 from . import mnemonic
 from .passphrase import get as get_passphrase
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .paths import Bip32Path, Slip21Path
 

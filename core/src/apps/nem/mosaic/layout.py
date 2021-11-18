@@ -15,6 +15,7 @@ from ..layout import (
     require_confirm_text,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.wire import Context
 

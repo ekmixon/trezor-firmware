@@ -10,6 +10,7 @@ from apps.common.paths import HARDENED, AlwaysMatchingSchema
 
 from .sign_identity import serialize_identity, serialize_identity_without_proto
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import GetECDHSessionKey, IdentityType
 

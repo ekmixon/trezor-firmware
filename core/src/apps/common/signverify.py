@@ -5,6 +5,7 @@ from trezor.crypto.hashlib import blake256, sha256
 
 from apps.common.writers import write_bitcoin_varint
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.common.coininfo import CoinInfo
 

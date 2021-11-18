@@ -38,6 +38,7 @@ from ...constants.tt import (
 )
 from ..common import button_request, interact
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Awaitable, Iterable, Iterator, NoReturn, Sequence
 

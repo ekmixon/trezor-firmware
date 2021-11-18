@@ -8,6 +8,7 @@ from apps.monero import layout, misc, signing
 from apps.monero.signing.state import State
 from apps.monero.xmr import crypto, monero
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.monero.xmr.types import Sc25519, Ge25519
     from trezor.messages import (

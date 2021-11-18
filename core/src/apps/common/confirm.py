@@ -13,6 +13,7 @@ if __debug__:
     from trezor.ui.components.tt.scroll import Paginated
 
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any, Callable
     from trezor import ui

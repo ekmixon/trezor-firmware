@@ -16,6 +16,7 @@ from apps.monero.xmr.crypto import chacha_poly
 
 from .state import State
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.monero.xmr.types import Sc25519
 

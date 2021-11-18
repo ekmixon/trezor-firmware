@@ -8,6 +8,7 @@ from . import CURVE, PATTERNS, SLIP44_ID
 from .helpers import check_path, get_network_str
 from .validators import validate_network
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.common.keychain import Keychain
     from trezor.wire import Context

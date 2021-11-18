@@ -4,10 +4,7 @@
 
 from trezor import protobuf
 
-if TYPE_CHECKING:
-    from typing import TYPE_CHECKING, Any, TypeGuard
-else:
-    TYPE_CHECKING = False
+from typing import TYPE_CHECKING
 
 
 def __getattr__(name: str) -> Any:
@@ -18,6 +15,7 @@ def __getattr__(name: str) -> Any:
 
 
 if TYPE_CHECKING:
+    from typing import TYPE_CHECKING, Any, TypeGuard
     from trezor.enums import AmountUnit  # noqa: F401
     from trezor.enums import BackupType  # noqa: F401
     from trezor.enums import BinanceOrderSide  # noqa: F401

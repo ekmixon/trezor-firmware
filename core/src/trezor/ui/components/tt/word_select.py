@@ -2,6 +2,7 @@ from trezor import ui
 
 from .button import Button
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor import loop
 

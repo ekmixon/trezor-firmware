@@ -4,6 +4,7 @@ from ubinascii import hexlify
 import storage.cache
 from storage import common
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.enums import BackupType
     from typing_extensions import Literal

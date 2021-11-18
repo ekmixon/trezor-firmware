@@ -12,6 +12,7 @@ from ...components.tt.scroll import Paginated
 from ...components.tt.text import Text
 from ..common import interact
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Sequence
 

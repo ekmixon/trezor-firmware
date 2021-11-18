@@ -7,6 +7,7 @@ from apps.common import coins, paths
 
 from .keychain import with_keychain_from_path
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import EthereumGetPublicKey
     from trezor.wire import Context

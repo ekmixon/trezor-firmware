@@ -15,6 +15,7 @@ from ..writers import (
     write_uint64_le,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.utils import Writer
 
@@ -104,7 +105,7 @@ def _write_property(w: Writer, name: str, value: int | bool | str | None) -> Non
             value = "false"
     elif type(value) == int:
         value = str(value)
-    if type(value) != str:
+    if not isinstance(value, str):
         raise ValueError("Incompatible value type")
     byte_name = name.encode()
     byte_value = value.encode()

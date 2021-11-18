@@ -9,6 +9,7 @@ from . import networks
 from .address import address_from_bytes
 from .keychain import PATTERNS_ADDRESS, with_keychain_from_path
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import EthereumGetAddress
     from trezor.wire import Context

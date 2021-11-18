@@ -2,6 +2,7 @@ from micropython import const
 
 from trezor.utils import BufferReader, empty_bytearray
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.utils import Writer
 

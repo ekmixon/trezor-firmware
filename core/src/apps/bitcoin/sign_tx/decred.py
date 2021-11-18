@@ -23,6 +23,7 @@ OUTPUT_SCRIPT_NULL_SSTXCHANGE = (
     b"\xBD\x76\xA9\x14\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x88\xAC"
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Sequence
 

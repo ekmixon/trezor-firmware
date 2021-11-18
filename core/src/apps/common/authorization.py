@@ -3,6 +3,7 @@ from trezor import protobuf
 from trezor.enums import MessageType
 from trezor.utils import ensure
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Iterable
 

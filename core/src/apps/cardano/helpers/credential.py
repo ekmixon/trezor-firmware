@@ -4,6 +4,7 @@ from ...common.paths import address_n_to_str
 from .paths import CHAIN_STAKING_KEY, SCHEMA_PAYMENT, SCHEMA_STAKING
 from .utils import format_key_hash, format_script_hash, to_account_path
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import (
         CardanoBlockchainPointerType,

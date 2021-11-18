@@ -6,6 +6,7 @@ from apps.common import coininfo
 
 from .. import scripts, writers
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Protocol, Sequence
 

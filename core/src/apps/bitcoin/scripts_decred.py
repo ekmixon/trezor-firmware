@@ -14,6 +14,7 @@ from .scripts import (  # noqa: F401
 )
 from .writers import op_push_length, write_bitcoin_varint, write_op_push
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import MultisigRedeemScriptType
 

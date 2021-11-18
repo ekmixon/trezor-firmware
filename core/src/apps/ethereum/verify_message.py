@@ -9,6 +9,7 @@ from apps.common.signverify import decode_message
 from .address import address_from_bytes, bytes_from_address
 from .sign_message import message_digest
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import EthereumVerifyMessage
     from trezor.wire import Context

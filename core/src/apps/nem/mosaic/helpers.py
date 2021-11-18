@@ -1,5 +1,6 @@
 from .nem_mosaics import mosaics
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any
 

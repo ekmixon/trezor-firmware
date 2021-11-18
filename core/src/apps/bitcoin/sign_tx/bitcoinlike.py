@@ -10,6 +10,7 @@ from ..common import input_is_nonsegwit
 from . import helpers
 from .bitcoin import Bitcoin
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Sequence
     from .tx_info import OriginalTxInfo, TxInfo

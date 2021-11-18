@@ -1,6 +1,7 @@
 from trezor import utils
 from trezor.enums import MessageType
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.wire import Handler
     from trezorio import WireInterface

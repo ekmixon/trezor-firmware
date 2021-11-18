@@ -1,6 +1,7 @@
 from trezor import ui, wire
 from trezor.enums import ButtonRequestType
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import NoReturn, Type, Union
 

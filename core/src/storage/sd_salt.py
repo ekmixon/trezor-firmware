@@ -5,6 +5,7 @@ from trezor import io
 from trezor.sdcard import with_filesystem
 from trezor.utils import consteq
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import TypeVar, Callable
 

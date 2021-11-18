@@ -8,6 +8,7 @@ from .. import common, writers
 from ..common import BIP32_WALLET_DEPTH, input_is_external
 from .matchcheck import MultisigFingerprintChecker, WalletPathChecker
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Protocol
     from trezor.messages import (

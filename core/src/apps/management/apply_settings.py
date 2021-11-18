@@ -8,6 +8,7 @@ from trezor.ui.layouts import confirm_action
 from apps.base import reload_settings_from_storage
 from apps.common import safety_checks
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import ApplySettings
 

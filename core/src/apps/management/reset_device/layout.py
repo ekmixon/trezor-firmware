@@ -11,6 +11,7 @@ from trezor.ui.layouts.tt.reset import (  # noqa: F401
     slip39_show_checklist,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Sequence
 

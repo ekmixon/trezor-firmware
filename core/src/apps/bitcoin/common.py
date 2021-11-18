@@ -6,6 +6,7 @@ from trezor.crypto.curve import secp256k1
 from trezor.enums import InputScriptType, OutputScriptType
 from trezor.utils import ensure
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Tuple
     from apps.common.coininfo import CoinInfo

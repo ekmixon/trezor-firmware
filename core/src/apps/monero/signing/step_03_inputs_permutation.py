@@ -20,6 +20,7 @@ from apps.monero.layout import transaction_step
 
 from .state import State
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import MoneroTransactionInputsPermutationAck
 

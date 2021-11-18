@@ -1,5 +1,6 @@
 from apps.monero.xmr import crypto
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.monero.xmr.types import Ge25519, Sc25519
     from apps.monero.xmr.credentials import AccountCreds

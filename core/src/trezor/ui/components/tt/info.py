@@ -5,6 +5,7 @@ from .button import Button, ButtonConfirm
 from .confirm import CONFIRMED
 from .text import render_text
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .button import ButtonContent
 

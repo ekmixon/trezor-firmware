@@ -9,6 +9,7 @@ from apps.common import coininfo
 from apps.common.keychain import get_keychain
 from apps.common.paths import HARDENED, AlwaysMatchingSchema
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import IdentityType, SignIdentity
 

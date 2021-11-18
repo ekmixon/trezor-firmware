@@ -5,6 +5,8 @@
 <%
 from collections import defaultdict
 
+from typing import TYPE_CHECKING
+
 def group_tokens(tokens):
     r = defaultdict(list)
     for t in sorted(tokens, key=lambda t: t.chain_id):

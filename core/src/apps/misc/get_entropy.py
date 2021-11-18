@@ -3,6 +3,7 @@ from trezor.enums import ButtonRequestType
 from trezor.messages import Entropy
 from trezor.ui.layouts import confirm_action
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.wire import Context
     from trezor.messages import GetEntropy

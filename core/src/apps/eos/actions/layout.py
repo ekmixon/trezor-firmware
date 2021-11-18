@@ -4,6 +4,7 @@ from trezor.ui.layouts import confirm_properties
 
 from .. import helpers
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.wire import Context
     from trezor.messages import (

@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.crypto import monero as tcry
 

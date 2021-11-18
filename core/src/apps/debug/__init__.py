@@ -16,6 +16,7 @@ if __debug__:
 
     from apps import workflow_handlers
 
+    from typing import TYPE_CHECKING
     if TYPE_CHECKING:
         from trezor.ui import Layout
         from trezor.messages import (

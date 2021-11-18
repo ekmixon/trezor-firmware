@@ -2,6 +2,7 @@ from trezor.messages import NEMAggregateModification, NEMSignTx, NEMTransactionC
 
 from . import layout, serialize
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.wire import Context
 

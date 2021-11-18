@@ -4,6 +4,7 @@ from trezor import res, ui
 
 from ...constants import TEXT_HEADER_HEIGHT, TEXT_LINE_HEIGHT
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Iterable, Union
 

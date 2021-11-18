@@ -11,6 +11,7 @@ from apps.common.paths import PATTERN_BIP44, PathSchema
 from . import authorization
 from .common import BITCOIN_NAMES
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Awaitable, Callable, Iterable, TypeVar
     from typing_extensions import Protocol

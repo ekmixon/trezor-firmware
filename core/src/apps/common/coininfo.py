@@ -4,6 +4,7 @@ from trezor import utils
 from trezor.crypto.base58 import blake256d_32, groestl512d_32, keccak_32, sha256d_32
 from trezor.crypto.scripts import blake256_ripemd160, sha256_ripemd160
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any, Type
 

@@ -7,6 +7,7 @@ from apps.common import authorization
 
 from .common import BIP32_WALLET_DEPTH
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import (
         GetOwnershipProof,

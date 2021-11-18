@@ -14,6 +14,7 @@ from apps.common.writers import (  # noqa: F401
     write_uint64_le,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import (
         PrevInput,

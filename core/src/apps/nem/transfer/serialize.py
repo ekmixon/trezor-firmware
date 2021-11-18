@@ -19,6 +19,7 @@ from ..writers import (
     write_uint64_le,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.crypto import bip32
     from trezor.utils import Writer

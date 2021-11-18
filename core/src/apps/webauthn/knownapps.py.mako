@@ -34,7 +34,7 @@ for app in fido:
 %>\
 # fmt: off
 def by_rp_id_hash(rp_id_hash: bytes) -> FIDOApp | None:
-    if TYPE_CHECKING:
+    if False:
         raise RuntimeError  # if false
 % for label, rp_id_hash, type, app in fido_entries:
     elif rp_id_hash == ${black_repr(rp_id_hash)}:

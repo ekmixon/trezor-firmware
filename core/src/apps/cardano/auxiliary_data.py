@@ -16,6 +16,7 @@ from .helpers.paths import SCHEMA_STAKING_ANY_ACCOUNT
 from .helpers.utils import derive_public_key
 from .layout import confirm_catalyst_registration, show_auxiliary_data_hash
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Union
     from trezor import wire

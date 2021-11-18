@@ -5,6 +5,7 @@ from apps.common.keychain import get_keychain
 
 from . import CURVE, networks
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Callable, Iterable, TypeVar, Union
 

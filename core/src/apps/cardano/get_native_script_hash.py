@@ -5,6 +5,7 @@ from trezor.messages import CardanoNativeScriptHash
 from . import native_script, seed
 from .layout import show_native_script, show_script_hash
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import CardanoGetNativeScriptHash
 

@@ -10,6 +10,7 @@ from apps.common.request_pin import (
     request_pin_confirm,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Awaitable
 

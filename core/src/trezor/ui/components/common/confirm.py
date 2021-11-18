@@ -1,5 +1,6 @@
 from trezor import loop, ui, wire
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Callable, Any, Awaitable, TypeVar
 

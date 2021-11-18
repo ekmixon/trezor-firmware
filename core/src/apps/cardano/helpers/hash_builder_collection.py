@@ -1,5 +1,6 @@
 from apps.common import cbor
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any, Generic, TypeVar
     from trezor.utils import HashContext

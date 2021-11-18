@@ -10,6 +10,7 @@ from apps.common.writers import (
     write_uvarint,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import (
         EosActionBuyRam,

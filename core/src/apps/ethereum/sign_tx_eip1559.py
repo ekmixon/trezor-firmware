@@ -16,6 +16,7 @@ from .layout import (
 )
 from .sign_tx import check_common_fields, handle_erc20, send_request_chunk
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Tuple
 

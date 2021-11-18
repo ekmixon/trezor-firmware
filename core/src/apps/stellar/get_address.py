@@ -6,6 +6,7 @@ from apps.common.keychain import auto_keychain
 
 from . import helpers
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.wire import Context
     from apps.common.keychain import Keychain

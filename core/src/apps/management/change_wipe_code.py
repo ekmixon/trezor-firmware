@@ -9,6 +9,7 @@ from apps.common.request_pin import (
     request_pin_and_sd_salt,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Awaitable
 

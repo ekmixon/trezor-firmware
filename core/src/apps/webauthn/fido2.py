@@ -21,6 +21,7 @@ from . import common
 from .credential import CRED_ID_MAX_LENGTH, Credential, Fido2Credential, U2fCredential
 from .resident_credentials import find_by_rp_id_hash, store_resident_credential
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import (
         Any,

@@ -105,6 +105,7 @@ from .layout import (
 )
 from .seed import is_byron_path, is_multisig_path, is_shelley_path
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any, Union
     from apps.common.paths import PathSchema

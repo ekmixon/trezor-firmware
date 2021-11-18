@@ -15,6 +15,7 @@ from apps.common.writers import (
 
 from . import CURVE, PATTERNS, SLIP44_ID, helpers, layout
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Union
     from apps.common.keychain import Keychain

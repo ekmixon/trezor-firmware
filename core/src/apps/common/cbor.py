@@ -9,6 +9,7 @@ from trezor import log, utils
 
 from . import readers
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any, Generic, Iterator, Tuple, TypeVar, Union
 

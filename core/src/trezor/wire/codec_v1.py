@@ -4,7 +4,6 @@ from micropython import const
 from trezor import io, loop, utils
 
 from typing import Any, TYPE_CHECKING
-
 if TYPE_CHECKING:
     from trezorio import WireInterface
 

@@ -3,6 +3,7 @@ from micropython import const
 from trezor import ui
 from trezor.ui import display, in_area
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Union
 

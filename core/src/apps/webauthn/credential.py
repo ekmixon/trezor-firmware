@@ -12,6 +12,7 @@ from apps.common.paths import HARDENED
 
 from . import common
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Iterable
 

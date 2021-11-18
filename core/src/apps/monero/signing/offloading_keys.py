@@ -4,6 +4,7 @@ from trezor import utils
 
 from apps.monero.xmr import crypto
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.monero.xmr.types import Sc25519
     from trezor.messages import (

@@ -14,6 +14,7 @@ from trezor.ui.layouts.tt.altcoin import confirm_total_ethereum
 from . import networks, tokens
 from .address import address_from_bytes
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Awaitable
 

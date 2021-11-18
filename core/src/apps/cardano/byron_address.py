@@ -6,6 +6,7 @@ from apps.common import cbor
 from .helpers import INVALID_ADDRESS, NETWORK_MISMATCH, protocol_magics
 from .helpers.utils import derive_public_key
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from . import seed
 

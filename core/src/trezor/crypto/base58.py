@@ -13,6 +13,7 @@
 # This module adds shiny packaging and support for python3.
 #
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Callable
 

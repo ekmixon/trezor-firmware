@@ -10,6 +10,7 @@ from apps.common.seed import remove_ed25519_prefix
 
 from . import ADDRESS_KEY_HASH_SIZE, SCRIPT_HASH_SIZE, bech32
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor import wire
     from .. import seed

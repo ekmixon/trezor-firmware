@@ -35,6 +35,7 @@ class LoaderNeutral(LoaderDefault):
         fg_color = ui.FG
 
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     LoaderStyleType = type[LoaderDefault]
 

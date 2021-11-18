@@ -4,6 +4,7 @@ from trezor.ui.layouts import confirm_metadata, confirm_properties
 
 from .helpers import NEM_MAX_DIVISIBILITY
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.wire import Context
 

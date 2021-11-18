@@ -10,6 +10,7 @@ from apps.common.signverify import decode_message, message_digest
 from .addresses import get_address
 from .keychain import with_keychain
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import SignMessage
 

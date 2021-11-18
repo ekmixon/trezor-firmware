@@ -9,6 +9,7 @@ from apps.monero.xmr import crypto
 
 from .state import State
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.messages import (
         MoneroTransactionInputViniAck,

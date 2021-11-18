@@ -15,6 +15,7 @@ from .helpers.paths import SCHEMA_STAKING_ANY_ACCOUNT
 from .helpers.utils import get_public_key_hash, variable_length_encode
 from .seed import is_byron_path, is_shelley_path
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any
 

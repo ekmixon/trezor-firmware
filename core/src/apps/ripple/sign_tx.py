@@ -10,6 +10,7 @@ from apps.common.keychain import auto_keychain
 from . import helpers, layout
 from .serialize import serialize
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.common.keychain import Keychain
     from trezor.wire import Context

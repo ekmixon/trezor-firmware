@@ -9,6 +9,7 @@ from . import approvers, bitcoin, helpers, progress
 if not utils.BITCOIN_ONLY:
     from . import bitcoinlike, decred, zcash
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Protocol, Union
 

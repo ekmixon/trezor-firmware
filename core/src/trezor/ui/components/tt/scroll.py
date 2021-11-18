@@ -16,6 +16,7 @@ from .text import (
     Text,
 )
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Callable, Iterable
 

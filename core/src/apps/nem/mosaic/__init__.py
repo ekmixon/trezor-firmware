@@ -6,6 +6,7 @@ from trezor.messages import (
 
 from . import layout, serialize
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor.wire import Context
 

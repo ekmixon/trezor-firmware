@@ -2,6 +2,7 @@ from apps.monero.xmr import crypto
 from apps.monero.xmr.addresses import encode_addr
 from apps.monero.xmr.networks import NetworkTypes, net_version
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.monero.xmr.types import Sc25519, Ge25519
 

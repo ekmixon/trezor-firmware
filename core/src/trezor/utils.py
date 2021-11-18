@@ -13,6 +13,8 @@ from trezorutils import (  # noqa: F401
     memcpy,
 )
 
+from typing import TYPE_CHECKING
+
 DISABLE_ANIMATION = 0
 
 if __debug__:

@@ -5,6 +5,7 @@ from trezor.utils import HashWriter
 from .. import helpers, writers
 from . import layout
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from trezor import wire
     from trezor.utils import Writer

@@ -15,6 +15,7 @@ from .helpers import ADDRESS_KEY_HASH_SIZE, INVALID_CERTIFICATE, LOVELACE_MAX_SU
 from .helpers.paths import SCHEMA_STAKING_ANY_ACCOUNT
 from .helpers.utils import validate_stake_credential
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any
 

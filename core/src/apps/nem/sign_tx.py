@@ -10,6 +10,7 @@ from . import CURVE, PATTERNS, SLIP44_ID, mosaic, multisig, namespace, transfer
 from .helpers import NEM_HASH_ALG, check_path
 from .validators import validate
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from apps.common.keychain import Keychain
 
