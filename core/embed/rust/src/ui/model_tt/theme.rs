@@ -92,7 +92,7 @@ pub fn button_clear() -> ButtonStyleSheet {
     button_default()
 }
 
-pub enum TTDefaultText {}
+pub struct TTDefaultText;
 
 impl DefaultTextTheme for TTDefaultText {
     const BACKGROUND_COLOR: Color = BG;
