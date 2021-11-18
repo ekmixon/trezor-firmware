@@ -30,6 +30,9 @@ def generate(env):
         sed_scripts = " ".join([
             f"-e 's/utils\.BITCOIN_ONLY/{btc_only}/g'",
             "-e 's/if TYPE_CHECKING/if False/'",
+            "-e '/import typing/d'",
+            r"-e '/from typing import (/,/^\s*)/d'",
+            "-e '/from typing import/d'"
         ])
         return f'$SED {sed_scripts} {source} > {interim} && $MPY_CROSS -o {target} -s {source_name} {interim}'
 
