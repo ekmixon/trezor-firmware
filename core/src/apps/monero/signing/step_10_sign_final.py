@@ -8,6 +8,7 @@ so we can recover it just from the transaction and the spend key.
 The private tx keys are used in other numerous Monero features.
 """
 
+
 from trezor.messages import MoneroTransactionFinalAck
 
 from apps.monero import misc
@@ -15,9 +16,6 @@ from apps.monero.xmr import crypto
 from apps.monero.xmr.crypto import chacha_poly
 
 from .state import State
-
-if False:
-    from apps.monero.xmr.types import Sc25519
 
 
 def final_msg(state: State) -> MoneroTransactionFinalAck:

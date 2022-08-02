@@ -1,5 +1,4 @@
-if False:
-    from apps.monero.xmr.types import Sc25519
+pass
 
 
 def get_creds(keychain, address_n=None, network_type=None):
@@ -11,8 +10,7 @@ def get_creds(keychain, address_n=None, network_type=None):
     key_seed = node.private_key()
     spend_sec, _, view_sec, _ = monero.generate_monero_keys(key_seed)
 
-    creds = AccountCreds.new_wallet(view_sec, spend_sec, network_type)
-    return creds
+    return AccountCreds.new_wallet(view_sec, spend_sec, network_type)
 
 
 def compute_tx_key(
@@ -25,8 +23,7 @@ def compute_tx_key(
 
     rand_inp = crypto.sc_add(spend_key_private, rand_mult_num)
     passwd = crypto.keccak_2hash(crypto.encodeint(rand_inp) + tx_prefix_hash)
-    tx_key = crypto.compute_hmac(salt, passwd)
-    return tx_key
+    return crypto.compute_hmac(salt, passwd)
 
 
 def compute_enc_key_host(

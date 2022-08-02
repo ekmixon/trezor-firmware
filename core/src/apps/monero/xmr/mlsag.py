@@ -42,18 +42,11 @@ Mostly ported from official Monero client, but also inspired by Mininero.
 Author: Dusan Klinec, ph4r05, 2018
 """
 
+
 import gc
 
 from apps.monero.xmr import crypto
 from apps.monero.xmr.serialize import int_serialize
-
-if False:
-    from apps.monero.xmr.types import Ge25519, Sc25519
-    from apps.monero.xmr.serialize_messages.tx_ct_key import CtKey
-    from trezor.messages import MoneroRctKeyPublic
-
-    KeyM = list[list[bytes]]
-
 
 _HASH_KEY_CLSAG_ROUND = b"CLSAG_round\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 _HASH_KEY_CLSAG_AGG_0 = b"CLSAG_agg_0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -215,9 +208,7 @@ def generate_mlsag(
     rows_b_size = int_serialize.uvarint_size(rows)
 
     # Preallocation of the chunked buffer, len + cols + cc
-    for _ in range(1 + cols + 1):
-        mg_buff.append(None)
-
+    mg_buff.extend(None for _ in range(1 + cols + 1))
     mg_buff[0] = int_serialize.dump_uvarint_b(cols)
     cc = crypto.new_scalar()  # rv.cc
     c = crypto.new_scalar()
@@ -473,7 +464,7 @@ def _key_matrix(rows, cols):
     first index is columns (so slightly backward from math)
     """
     rv = [None] * cols
-    for i in range(0, cols):
+    for i in range(cols):
         rv[i] = _key_vector(rows)
     return rv
 

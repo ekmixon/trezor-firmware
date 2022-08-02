@@ -13,13 +13,6 @@ if not utils.BITCOIN_ONLY:
     from trezor.ui.layouts.tt import altcoin
 
 
-if False:
-    from trezor import wire
-    from trezor.messages import TxOutput
-    from trezor.ui.layouts import LayoutType
-
-    from apps.common.coininfo import CoinInfo
-
 _LOCKTIME_TIMESTAMP_MIN_VALUE = const(500_000_000)
 
 
@@ -27,13 +20,13 @@ def format_coin_amount(amount: int, coin: CoinInfo, amount_unit: AmountUnit) -> 
     decimals, shortcut = coin.decimals, coin.coin_shortcut
     if amount_unit == AmountUnit.SATOSHI:
         decimals = 0
-        shortcut = "sat " + shortcut
+        shortcut = f"sat {shortcut}"
     elif amount_unit == AmountUnit.MICROBITCOIN and decimals >= 6:
         decimals -= 6
-        shortcut = "u" + shortcut
+        shortcut = f"u{shortcut}"
     elif amount_unit == AmountUnit.MILLIBITCOIN and decimals >= 3:
         decimals -= 3
-        shortcut = "m" + shortcut
+        shortcut = f"m{shortcut}"
     # we don't need to do anything for AmountUnit.BITCOIN
     return f"{format_amount(amount, decimals)} {shortcut}"
 

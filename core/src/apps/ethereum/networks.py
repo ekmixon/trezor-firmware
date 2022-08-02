@@ -3,9 +3,6 @@
 
 from apps.common.paths import HARDENED
 
-if False:
-    from typing import Iterator
-
 
 def shortcut_by_chain_id(chain_id: int) -> str:
     n = by_chain_id(chain_id)
@@ -13,17 +10,11 @@ def shortcut_by_chain_id(chain_id: int) -> str:
 
 
 def by_chain_id(chain_id: int) -> "NetworkInfo" | None:
-    for n in _networks_iterator():
-        if n.chain_id == chain_id:
-            return n
-    return None
+    return next((n for n in _networks_iterator() if n.chain_id == chain_id), None)
 
 
 def by_slip44(slip44: int) -> "NetworkInfo" | None:
-    for n in _networks_iterator():
-        if n.slip44 == slip44:
-            return n
-    return None
+    return next((n for n in _networks_iterator() if n.slip44 == slip44), None)
 
 
 def all_slip44_ids_hardened() -> Iterator[int]:

@@ -13,10 +13,6 @@ from apps.common.request_pin import (
 )
 from apps.common.sdcard import confirm_retry_sd, ensure_sdcard
 
-if False:
-    from typing import Awaitable
-    from trezor.messages import SdProtect
-
 
 def _make_salt() -> tuple[bytes, bytes, bytes]:
     salt = random.bytes(storage.sd_salt.SD_SALT_LEN_BYTES)

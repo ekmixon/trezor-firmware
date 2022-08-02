@@ -2,9 +2,6 @@ from apps.monero.xmr import crypto
 from apps.monero.xmr.addresses import encode_addr
 from apps.monero.xmr.networks import NetworkTypes, net_version
 
-if False:
-    from apps.monero.xmr.types import Sc25519, Ge25519
-
 
 class AccountCreds:
     """

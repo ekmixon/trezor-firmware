@@ -11,9 +11,6 @@ from trezor.ui.layouts.tt.reset import (  # noqa: F401
     slip39_show_checklist,
 )
 
-if False:
-    from typing import Sequence
-
 
 async def show_internal_entropy(ctx: wire.GenericContext, entropy: bytes) -> None:
     await confirm_blob(
@@ -58,19 +55,20 @@ async def _show_confirmation_success(
         text = ""
 
     elif share_index == num_of_shares - 1:
-        if group_index is None:
-            subheader = "You have finished\nverifying your\nrecovery shares."
-        else:
-            subheader = f"You have finished\nverifying your\nrecovery shares\nfor group {group_index + 1}."
+        subheader = (
+            "You have finished\nverifying your\nrecovery shares."
+            if group_index is None
+            else f"You have finished\nverifying your\nrecovery shares\nfor group {group_index + 1}."
+        )
+
         text = ""
 
+    elif group_index is None:
+        subheader = f"Recovery share #{share_index + 1}\nchecked successfully."
+        text = f"Continue with share #{share_index + 2}."
     else:
-        if group_index is None:
-            subheader = f"Recovery share #{share_index + 1}\nchecked successfully."
-            text = f"Continue with share #{share_index + 2}."
-        else:
-            subheader = f"Group {group_index + 1} - Share {share_index + 1}\nchecked successfully."
-            text = "Continue with the next\nshare."
+        subheader = f"Group {group_index + 1} - Share {share_index + 1}\nchecked successfully."
+        text = "Continue with the next\nshare."
 
     return await show_success(ctx, "success_recovery", text, subheader=subheader)
 

@@ -105,12 +105,6 @@ from .layout import (
 )
 from .seed import is_byron_path, is_multisig_path, is_shelley_path
 
-if False:
-    from typing import Any, Union
-    from apps.common.paths import PathSchema
-
-    CardanoTxResponseType = Union[CardanoTxItemAck, CardanoTxWitnessResponse]
-
 MINTING_POLICY_ID_LENGTH = 28
 MAX_ASSET_NAME_LENGTH = 32
 
@@ -768,12 +762,10 @@ def _should_show_output(
         # and no spending witnesses. It is thus safe to not show the outputs.
         return False
 
-    if output.address_parameters:  # is change output
-        if not should_show_address_credentials(output.address_parameters):
-            # we don't need to display simple address outputs
-            return False
-
-    return True
+    return bool(
+        not output.address_parameters
+        or should_show_address_credentials(output.address_parameters)
+    )
 
 
 async def _show_output(
@@ -834,9 +826,8 @@ def _validate_token(
     if is_mint:
         if token.mint_amount is None or token.amount is not None:
             raise INVALID_TOKEN_BUNDLE
-    else:
-        if token.amount is None or token.mint_amount is not None:
-            raise INVALID_TOKEN_BUNDLE
+    elif token.amount is None or token.mint_amount is not None:
+        raise INVALID_TOKEN_BUNDLE
 
     if len(token.asset_name_bytes) > MAX_ASSET_NAME_LENGTH:
         raise INVALID_TOKEN_BUNDLE
@@ -896,9 +887,8 @@ def _get_output_address(
         return derive_address_bytes(
             keychain, output.address_parameters, protocol_magic, network_id
         )
-    else:
-        assert output.address is not None  # _validate_output
-        return get_address_bytes_unsafe(output.address)
+    assert output.address is not None  # _validate_output
+    return get_address_bytes_unsafe(output.address)
 
 
 def _sign_tx_hash(
@@ -997,15 +987,14 @@ async def _show_witness_request(
         # depending on Trezor's configuration. If it's a minting path, we always show it.
         is_payment = SCHEMA_PAYMENT.match(witness_path)
         is_staking = SCHEMA_STAKING.match(witness_path)
-        is_minting = SCHEMA_MINT.match(witness_path)
-
-        if is_minting:
+        if is_minting := SCHEMA_MINT.match(witness_path):
             await confirm_witness_request(ctx, witness_path)
         elif not is_payment and not is_staking:
             await _fail_or_warn_path(ctx, witness_path, WITNESS_PATH_NAME)
-    elif signing_mode == CardanoTxSigningMode.MULTISIG_TRANSACTION:
-        await confirm_witness_request(ctx, witness_path)
-    elif signing_mode == CardanoTxSigningMode.POOL_REGISTRATION_AS_OWNER:
+    elif signing_mode in [
+        CardanoTxSigningMode.MULTISIG_TRANSACTION,
+        CardanoTxSigningMode.POOL_REGISTRATION_AS_OWNER,
+    ]:
         await confirm_witness_request(ctx, witness_path)
 
 

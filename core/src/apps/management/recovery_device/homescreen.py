@@ -32,8 +32,7 @@ async def recovery_process(ctx: wire.GenericContext) -> Success:
     try:
         return await _continue_recovery_process(ctx)
     except recover.RecoveryAborted:
-        dry_run = storage.recovery.is_dry_run()
-        if dry_run:
+        if dry_run := storage.recovery.is_dry_run():
             storage.recovery.end_progress()
         else:
             storage.wipe()
@@ -82,12 +81,11 @@ async def _continue_recovery_process(ctx: wire.GenericContext) -> Success:
             await layout.show_invalid_mnemonic(ctx, word_count)
 
     assert backup_type is not None
-    if dry_run:
-        result = await _finish_recovery_dry_run(ctx, secret, backup_type)
-    else:
-        result = await _finish_recovery(ctx, secret, backup_type)
-
-    return result
+    return (
+        await _finish_recovery_dry_run(ctx, secret, backup_type)
+        if dry_run
+        else await _finish_recovery(ctx, secret, backup_type)
+    )
 
 
 async def _finish_recovery_dry_run(
@@ -182,8 +180,7 @@ async def _request_share_first_screen(
     ctx: wire.GenericContext, word_count: int
 ) -> None:
     if backup_types.is_slip39_word_count(word_count):
-        remaining = storage.recovery.fetch_slip39_remaining_shares()
-        if remaining:
+        if remaining := storage.recovery.fetch_slip39_remaining_shares():
             await _request_share_next_screen(ctx)
         else:
             await layout.homescreen_dialog(
@@ -234,12 +231,13 @@ async def _show_remaining_groups_and_shares(ctx: wire.GenericContext) -> None:
             m = storage.recovery_shares.fetch_group(index)[0]
             if not share:
                 share = slip39.decode_mnemonic(m)
-            identifier = m.split(" ")[0:3]
+            identifier = m.split(" ")[:3]
             groups.add((remaining, tuple(identifier)))
         elif remaining == slip39.MAX_SHARE_COUNT:  # no shares yet
-            identifier = storage.recovery_shares.fetch_group(first_entered_index)[
-                0
-            ].split(" ")[0:2]
+            identifier = storage.recovery_shares.fetch_group(
+                first_entered_index
+            )[0].split(" ")[:2]
+
             groups.add((remaining, tuple(identifier)))
 
     assert share  # share needs to be set

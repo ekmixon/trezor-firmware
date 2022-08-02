@@ -13,11 +13,6 @@ from .common import BIP32_WALLET_DEPTH
 from .keychain import validate_path_against_script_type, with_keychain
 from .sign_tx.layout import format_coin_amount
 
-if False:
-    from trezor import wire
-    from apps.common.coininfo import CoinInfo
-    from apps.common.keychain import Keychain
-
 _MAX_COORDINATOR_LEN = const(18)
 
 
@@ -25,8 +20,8 @@ _MAX_COORDINATOR_LEN = const(18)
 async def authorize_coinjoin(
     ctx: wire.Context, msg: AuthorizeCoinJoin, keychain: Keychain, coin: CoinInfo
 ) -> Success:
-    if len(msg.coordinator) > _MAX_COORDINATOR_LEN or not all(
-        32 <= ord(x) <= 126 for x in msg.coordinator
+    if len(msg.coordinator) > _MAX_COORDINATOR_LEN or any(
+        (32 <= ord(x) <= 126 for x in msg.coordinator)
     ):
         raise wire.DataError("Invalid coordinator name.")
 

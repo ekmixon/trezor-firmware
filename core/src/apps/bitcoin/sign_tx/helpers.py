@@ -23,10 +23,6 @@ from .. import common
 from ..writers import TX_HASH_SIZE
 from . import layout
 
-if False:
-    from typing import Any, Awaitable
-    from trezor.enums import AmountUnit
-
 
 # Machine instructions
 # ===
@@ -351,7 +347,7 @@ def sanitize_sign_tx(tx: SignTx, coin: CoinInfo) -> SignTx:
             raise wire.DataError("Version group ID must be set.")
         if tx.branch_id is None:
             raise wire.DataError("Branch ID must be set.")
-    elif not coin.overwintered:
+    else:
         if tx.version_group_id is not None:
             raise wire.DataError("Version group ID not enabled on this coin.")
         if tx.branch_id is not None:
@@ -408,9 +404,11 @@ def sanitize_tx_input(txi: TxInput, coin: CoinInfo) -> TxInput:
     if not coin.decred and txi.decred_tree is not None:
         raise wire.DataError("Decred details provided but Decred coin not specified.")
 
-    if txi.script_type in common.SEGWIT_INPUT_SCRIPT_TYPES or txi.witness is not None:
-        if not coin.segwit:
-            raise wire.DataError("Segwit not enabled on this coin.")
+    if (
+        txi.script_type in common.SEGWIT_INPUT_SCRIPT_TYPES
+        or txi.witness is not None
+    ) and not coin.segwit:
+        raise wire.DataError("Segwit not enabled on this coin.")
 
     if txi.script_type == InputScriptType.SPENDTAPROOT and not coin.taproot:
         raise wire.DataError("Taproot not enabled on this coin")
@@ -447,9 +445,11 @@ def sanitize_tx_output(txo: TxOutput, coin: CoinInfo) -> TxOutput:
     if txo.amount is None:
         raise wire.DataError("Missing amount field.")
 
-    if txo.script_type in common.SEGWIT_OUTPUT_SCRIPT_TYPES:
-        if not coin.segwit:
-            raise wire.DataError("Segwit not enabled on this coin.")
+    if (
+        txo.script_type in common.SEGWIT_OUTPUT_SCRIPT_TYPES
+        and not coin.segwit
+    ):
+        raise wire.DataError("Segwit not enabled on this coin.")
 
     if txo.script_type == OutputScriptType.PAYTOTAPROOT and not coin.taproot:
         raise wire.DataError("Taproot not enabled on this coin")

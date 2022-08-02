@@ -8,9 +8,6 @@ from trezor.ui.layouts import confirm_action
 from apps.base import reload_settings_from_storage
 from apps.common import safety_checks
 
-if False:
-    from trezor.messages import ApplySettings
-
 
 def validate_homescreen(homescreen: bytes) -> None:
     if homescreen == b"":

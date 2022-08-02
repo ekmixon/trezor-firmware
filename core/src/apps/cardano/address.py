@@ -15,15 +15,6 @@ from .helpers.paths import SCHEMA_STAKING_ANY_ACCOUNT
 from .helpers.utils import get_public_key_hash, variable_length_encode
 from .seed import is_byron_path, is_shelley_path
 
-if False:
-    from typing import Any
-
-    from trezor.messages import (
-        CardanoAddressParametersType,
-        CardanoBlockchainPointerType,
-    )
-    from . import seed
-
 ADDRESS_TYPES_SHELLEY = (
     CardanoAddressType.BASE,
     CardanoAddressType.BASE_SCRIPT_KEY,
@@ -194,13 +185,15 @@ def _validate_base_address_staking_info(
     if staking_key_hash and staking_path:
         raise INVALID_ADDRESS_PARAMETERS
 
-    if staking_key_hash:
-        if len(staking_key_hash) != ADDRESS_KEY_HASH_SIZE:
-            raise INVALID_ADDRESS_PARAMETERS
-    elif staking_path:
-        if not SCHEMA_STAKING_ANY_ACCOUNT.match(staking_path):
-            raise INVALID_ADDRESS_PARAMETERS
-    else:
+    if (
+        staking_key_hash
+        and len(staking_key_hash) != ADDRESS_KEY_HASH_SIZE
+        or not staking_key_hash
+        and staking_path
+        and not SCHEMA_STAKING_ANY_ACCOUNT.match(staking_path)
+        or not staking_key_hash
+        and not staking_path
+    ):
         raise INVALID_ADDRESS_PARAMETERS
 
 
@@ -234,7 +227,7 @@ def _validate_address_and_get_type(
     Validates Cardano address and returns its type
     for the convenience of outward-facing functions.
     """
-    if address is None or len(address) == 0:
+    if address is None or not address:
         raise INVALID_ADDRESS
 
     address_bytes = get_address_bytes_unsafe(address)
@@ -316,15 +309,16 @@ def _get_bech32_hrp_for_address(
         raise ValueError
 
     if address_type in (CardanoAddressType.REWARD, CardanoAddressType.REWARD_SCRIPT):
-        if network_ids.is_mainnet(network_id):
-            return bech32.HRP_REWARD_ADDRESS
-        else:
-            return bech32.HRP_TESTNET_REWARD_ADDRESS
+        return (
+            bech32.HRP_REWARD_ADDRESS
+            if network_ids.is_mainnet(network_id)
+            else bech32.HRP_TESTNET_REWARD_ADDRESS
+        )
+
+    if network_ids.is_mainnet(network_id):
+        return bech32.HRP_ADDRESS
     else:
-        if network_ids.is_mainnet(network_id):
-            return bech32.HRP_ADDRESS
-        else:
-            return bech32.HRP_TESTNET_ADDRESS
+        return bech32.HRP_TESTNET_ADDRESS
 
 
 def _validate_address_network_id(address: bytes, network_id: int) -> None:
@@ -370,12 +364,11 @@ def derive_address_bytes(
 ) -> bytes:
     is_byron_address = parameters.address_type == CardanoAddressType.BYRON
 
-    if is_byron_address:
-        address = derive_byron_address(keychain, parameters.address_n, protocol_magic)
-    else:
-        address = _derive_shelley_address(keychain, parameters, network_id)
-
-    return address
+    return (
+        derive_byron_address(keychain, parameters.address_n, protocol_magic)
+        if is_byron_address
+        else _derive_shelley_address(keychain, parameters, network_id)
+    )
 
 
 def _derive_shelley_address(

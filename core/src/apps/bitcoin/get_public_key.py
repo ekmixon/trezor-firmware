@@ -5,9 +5,6 @@ from trezor.messages import HDNodeType, PublicKey
 from apps.common import coininfo, paths
 from apps.common.keychain import get_keychain
 
-if False:
-    from trezor.messages import GetPublicKey
-
 
 async def get_public_key(ctx: wire.Context, msg: GetPublicKey) -> PublicKey:
     coin_name = msg.coin_name or "Bitcoin"

@@ -9,17 +9,17 @@ def read_setting() -> SafetyCheckLevel:
     """
     Returns the effective safety check level.
     """
-    temporary_safety_check_level = storage.cache.get(APP_COMMON_SAFETY_CHECKS_TEMPORARY)
-    if temporary_safety_check_level:
+    if temporary_safety_check_level := storage.cache.get(
+        APP_COMMON_SAFETY_CHECKS_TEMPORARY
+    ):
         return int.from_bytes(temporary_safety_check_level, "big")  # type: ignore
+    stored = storage.device.safety_check_level()
+    if stored == SAFETY_CHECK_LEVEL_STRICT:
+        return SafetyCheckLevel.Strict
+    elif stored == SAFETY_CHECK_LEVEL_PROMPT:
+        return SafetyCheckLevel.PromptAlways
     else:
-        stored = storage.device.safety_check_level()
-        if stored == SAFETY_CHECK_LEVEL_STRICT:
-            return SafetyCheckLevel.Strict
-        elif stored == SAFETY_CHECK_LEVEL_PROMPT:
-            return SafetyCheckLevel.PromptAlways
-        else:
-            raise ValueError("Unknown SafetyCheckLevel")
+        raise ValueError("Unknown SafetyCheckLevel")
 
 
 def apply_setting(level: SafetyCheckLevel) -> None:

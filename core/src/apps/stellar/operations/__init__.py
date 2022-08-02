@@ -1,10 +1,6 @@
 from .. import consts, writers
 from . import layout, serialize
 
-if False:
-    from trezor.utils import Writer
-    from trezor.wire import Context
-
 
 async def process_operation(
     ctx: Context, w: Writer, op: consts.StellarMessageType

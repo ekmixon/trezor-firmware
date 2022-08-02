@@ -7,9 +7,6 @@ from apps.common import mnemonic
 
 from .reset_device import backup_seed, layout
 
-if False:
-    from trezor.messages import BackupDevice
-
 
 async def backup_device(ctx: wire.Context, msg: BackupDevice) -> Success:
     if not storage.device.is_initialized():

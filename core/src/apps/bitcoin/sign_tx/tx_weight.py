@@ -12,9 +12,6 @@ from trezor.enums import InputScriptType
 
 from .. import common, ownership
 
-if False:
-    from trezor.messages import TxInput
-
 # transaction header size: 4 byte version
 _TXSIZE_HEADER = const(4)
 # transaction footer size: 4 byte lock time
@@ -126,9 +123,7 @@ class TxWeightCalculator:
     def varint_size(length: int) -> int:
         if length < 253:
             return 1
-        if length < 0x1_0000:
-            return 3
-        return 5
+        return 3 if length < 0x1_0000 else 5
 
     @staticmethod
     def op_push_size(length: int) -> int:
@@ -136,6 +131,4 @@ class TxWeightCalculator:
             return 1
         if length < 0x100:
             return 2
-        if length < 0x1_0000:
-            return 3
-        return 5
+        return 3 if length < 0x1_0000 else 5

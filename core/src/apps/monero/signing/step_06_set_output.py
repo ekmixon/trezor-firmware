@@ -2,6 +2,7 @@
 Output destinations are streamed one by one.
 Computes destination one-time address, amount key, range proof + HMAC, out_pk, ecdh_info.
 """
+
 import gc
 
 from trezor import utils
@@ -11,16 +12,6 @@ from apps.monero.signing import offloading_keys
 from apps.monero.xmr import crypto, serialize
 
 from .state import State
-
-if False:
-    from apps.monero.xmr.types import Sc25519, Ge25519
-    from apps.monero.xmr.serialize_messages.tx_ecdh import EcdhTuple
-    from apps.monero.xmr.serialize_messages.tx_rsig_bulletproof import Bulletproof
-    from trezor.messages import (
-        MoneroTransactionDestinationEntry,
-        MoneroTransactionSetOutputAck,
-        MoneroTransactionRsigData,
-    )
 
 
 async def set_output(
@@ -250,7 +241,7 @@ def _range_proof(
         raise signing.Error("Rsig expected, not provided")
 
     # Batch not finished, skip range sig generation now
-    mask = state.output_masks[-1] if not state.is_processing_offloaded else None
+    mask = None if state.is_processing_offloaded else state.output_masks[-1]
     offload_mask = mask and state.rsig_offload
 
     # If not last, do not proceed to the BP processing.
@@ -269,11 +260,7 @@ def _range_proof(
         # Bulletproof calculation in Trezor
         rsig = _rsig_bp(state)
 
-    elif not state.is_processing_offloaded:
-        # Bulletproof offloaded to the host, deterministic masks. Nothing here, waiting for offloaded BP.
-        pass
-
-    else:
+    elif state.is_processing_offloaded:
         # Bulletproof offloaded to the host, check BP, hash it.
         _rsig_process_bp(state, rsig_data)
 
@@ -430,7 +417,7 @@ def _serialize_ecdh(ecdh_info: EcdhTuple) -> bytes:
     """
     # Since HF10 the amount is serialized to 8B and mask is deterministic
     ecdh_info_bin = bytearray(8)
-    ecdh_info_bin[:] = ecdh_info.amount[0:8]
+    ecdh_info_bin[:] = ecdh_info.amount[:8]
     return ecdh_info_bin
 
 
@@ -439,7 +426,7 @@ def _ecdh_hash(shared_sec: bytes) -> bytes:
     Generates ECDH hash for amount masking for Bulletproof2
     """
     data = bytearray(38)
-    data[0:6] = b"amount"
+    data[:6] = b"amount"
     data[6:] = shared_sec
     return crypto.cn_fast_hash(data)
 
@@ -503,20 +490,21 @@ def _set_out_derivation(
     change_addr = state.change_address()
     if change_addr and addr_eq(dst_entr.addr, change_addr):
         # sending change to yourself; derivation = a*R
-        derivation = crypto.generate_key_derivation(
+        return crypto.generate_key_derivation(
             state.tx_pub, state.creds.view_key_private
         )
 
-    else:
+
         # sending to the recipient; derivation = r*A (or s*C in the subaddress scheme)
-        if dst_entr.is_subaddress and state.need_additional_txkeys:
-            deriv_priv = additional_txkey_priv
-        else:
-            deriv_priv = state.tx_priv
-        derivation = crypto.generate_key_derivation(
-            crypto.decodepoint(dst_entr.addr.view_public_key), deriv_priv
-        )
-    return derivation
+    deriv_priv = (
+        additional_txkey_priv
+        if dst_entr.is_subaddress and state.need_additional_txkeys
+        else state.tx_priv
+    )
+
+    return crypto.generate_key_derivation(
+        crypto.decodepoint(dst_entr.addr.view_public_key), deriv_priv
+    )
 
 
 def _is_last_in_batch(state: State, idx: int, bidx: int) -> bool:

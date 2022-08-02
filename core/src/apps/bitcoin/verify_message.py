@@ -15,9 +15,6 @@ from .addresses import (
     address_to_cashaddr,
 )
 
-if False:
-    from trezor.messages import VerifyMessage
-
 
 async def verify_message(ctx: wire.Context, msg: VerifyMessage) -> Success:
     message = msg.message

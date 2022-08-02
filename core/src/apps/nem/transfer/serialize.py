@@ -98,9 +98,7 @@ def _encrypt(node, public_key: bytes, payload: bytes) -> bytes:
 
 
 def _get_version(network, mosaics=None) -> int:
-    if mosaics:
-        return network << 24 | 2
-    return network << 24 | 1
+    return network << 24 | 2 if mosaics else network << 24 | 1
 
 
 def canonicalize_mosaics(mosaics: list):
@@ -111,9 +109,7 @@ def canonicalize_mosaics(mosaics: list):
 
 
 def are_mosaics_equal(a: NEMMosaic, b: NEMMosaic) -> bool:
-    if a.namespace == b.namespace and a.mosaic == b.mosaic:
-        return True
-    return False
+    return a.namespace == b.namespace and a.mosaic == b.mosaic
 
 
 def merge_mosaics(mosaics: list) -> list:

@@ -4,14 +4,6 @@ from trezor import utils
 
 from apps.monero.xmr import crypto
 
-if False:
-    from apps.monero.xmr.types import Sc25519
-    from trezor.messages import (
-        MoneroTransactionDestinationEntry,
-        MoneroTransactionSourceEntry,
-    )
-
-
 _SECRET_LENGTH = const(32)
 _DISCRIMINATOR_LENGTH = const(12)
 _INDEX_LENGTH = const(4)
@@ -150,8 +142,7 @@ def gen_hmac_vini(
     kwriter.write(vini_bin)
 
     hmac_key_vini = hmac_key_txin(key, idx)
-    hmac_vini = crypto.compute_hmac(hmac_key_vini, kwriter.get_digest())
-    return hmac_vini
+    return crypto.compute_hmac(hmac_key_vini, kwriter.get_digest())
 
 
 def gen_hmac_vouti(
@@ -168,8 +159,7 @@ def gen_hmac_vouti(
     kwriter.write(tx_out_bin)
 
     hmac_key_vouti = hmac_key_txout(key, idx)
-    hmac_vouti = crypto.compute_hmac(hmac_key_vouti, kwriter.get_digest())
-    return hmac_vouti
+    return crypto.compute_hmac(hmac_key_vouti, kwriter.get_digest())
 
 
 def gen_hmac_tsxdest(
@@ -185,8 +175,7 @@ def gen_hmac_tsxdest(
     kwriter.write(protobuf.dump_message_buffer(dst_entr))
 
     hmac_key = hmac_key_txdst(key, idx)
-    hmac_tsxdest = crypto.compute_hmac(hmac_key, kwriter.get_digest())
-    return hmac_tsxdest
+    return crypto.compute_hmac(hmac_key, kwriter.get_digest())
 
 
 def get_ki_from_vini(vini_bin: bytes) -> bytes:

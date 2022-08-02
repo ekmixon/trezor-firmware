@@ -6,10 +6,6 @@ from apps.common.keychain import auto_keychain
 
 from . import helpers
 
-if False:
-    from trezor.wire import Context
-    from apps.common.keychain import Keychain
-
 
 @auto_keychain(__name__)
 async def get_address(

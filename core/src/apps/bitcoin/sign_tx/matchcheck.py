@@ -4,16 +4,9 @@ from trezor.utils import ensure
 from .. import multisig
 from ..common import BIP32_WALLET_DEPTH
 
-if False:
-    from typing import Any, Generic, TypeVar
-
-    from trezor.messages import TxInput, TxOutput
-
-    T = TypeVar("T")
-else:
-    # mypy cheat: Generic[T] will be `object` which is a valid parent type
-    Generic = [object]  # type: ignore
-    T = 0  # type: ignore
+# mypy cheat: Generic[T] will be `object` which is a valid parent type
+Generic = [object]  # type: ignore
+T = 0  # type: ignore
 
 
 class MatchChecker(Generic[T]):
@@ -58,12 +51,14 @@ class MatchChecker(Generic[T]):
             return  # There was a mismatch in previous inputs.
 
         added_attribute = self.attribute_from_tx(txi)
-        if not added_attribute:
+        if (
+            not added_attribute
+            or self.attribute is not self.UNDEFINED
+            and self.attribute != added_attribute
+        ):
             self.attribute = self.MISMATCH  # The added input is invalid for matching.
         elif self.attribute is self.UNDEFINED:
             self.attribute = added_attribute  # This is the first input.
-        elif self.attribute != added_attribute:
-            self.attribute = self.MISMATCH
 
     def check_input(self, txi: TxInput) -> None:
         if self.attribute is self.MISMATCH:
@@ -92,6 +87,4 @@ class WalletPathChecker(MatchChecker):
 
 class MultisigFingerprintChecker(MatchChecker):
     def attribute_from_tx(self, txio: TxInput | TxOutput) -> Any:
-        if not txio.multisig:
-            return None
-        return multisig.multisig_fingerprint(txio.multisig)
+        return multisig.multisig_fingerprint(txio.multisig) if txio.multisig else None

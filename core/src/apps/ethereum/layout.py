@@ -17,10 +17,6 @@ from trezor.ui.layouts.tt.altcoin import confirm_total_ethereum
 from . import networks, tokens
 from .helpers import address_from_bytes, decode_typed_data, get_type_name
 
-if False:
-    from typing import Awaitable, Iterable, Optional
-    from trezor.wire import Context
-
 
 def require_confirm_tx(
     ctx: Context,
@@ -85,7 +81,7 @@ async def require_confirm_eip1559_fee(
 def require_confirm_unknown_token(
     ctx: Context, address_bytes: bytes
 ) -> Awaitable[None]:
-    contract_address_hex = "0x" + hexlify(address_bytes).decode()
+    contract_address_hex = f"0x{hexlify(address_bytes).decode()}"
     return confirm_address(
         ctx,
         "Unknown token",
@@ -114,7 +110,7 @@ async def confirm_hash(ctx: Context, message_hash: bytes) -> None:
         ctx,
         "confirm_hash",
         title="Confirm hash",
-        data="0x" + hexlify(message_hash).decode(),
+        data=f"0x{hexlify(message_hash).decode()}",
         hold=True,
     )
 
@@ -227,7 +223,7 @@ def format_ethereum_amount(
 
     # Don't want to display wei values for tokens with small decimal numbers
     if decimals > 9 and value < 10 ** (decimals - 9):
-        suffix = "Wei " + suffix
+        suffix = f"Wei {suffix}"
         decimals = 0
 
     return f"{format_amount(value, decimals)} {suffix}"
@@ -235,7 +231,4 @@ def format_ethereum_amount(
 
 def limit_str(s: str, limit: int = 16) -> str:
     """Shortens string to show the last <limit> characters."""
-    if len(s) <= limit + 2:
-        return s
-
-    return ".." + s[-limit:]
+    return s if len(s) <= limit + 2 else f"..{s[-limit:]}"

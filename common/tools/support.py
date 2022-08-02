@@ -174,7 +174,7 @@ def process_erc20(coins_dict):
     }
     for device, supported, unsupported in all_support_dicts():
         nondups = set()
-        dups = set(key for key, value in erc20_dict.items() if value)
+        dups = {key for key, value in erc20_dict.items() if value}
         for key in supported:
             if key not in erc20_dict:
                 continue
@@ -241,10 +241,8 @@ def fix(dry_run):
 
 
 @cli.command()
-# fmt: off
 @click.option("-T", "--check-tokens", is_flag=True, help="Also check unsupported ERC20 tokens, ignored by default")
 @click.option("-m", "--ignore-missing", is_flag=True, help="Do not fail on missing supportinfo")
-# fmt: on
 def check(check_tokens, ignore_missing):
     """Check validity of support information.
 
@@ -264,8 +262,7 @@ def check(check_tokens, ignore_missing):
     coins_dict = all_coins.as_dict()
     checks_ok = True
 
-    errors = check_support_values()
-    if errors:
+    if errors := check_support_values():
         for error in errors:
             print(error)
         checks_ok = False
@@ -298,14 +295,12 @@ def check(check_tokens, ignore_missing):
 
 
 @cli.command()
-# fmt: off
 @click.option("--v1", help="Version for T1 release (default: guess from latest)")
 @click.option("--v2", help="Version for TT release (default: guess from latest)")
 @click.option("-n", "--dry-run", is_flag=True, help="Do not write changes")
 @click.option("-f", "--force", is_flag=True, help="Proceed even with bad version/device info")
 @click.option("-v", "--verbose", is_flag=True, help="Be more verbose")
 @click.option("--skip-testnets/--no-skip-testnets", default=True, help="Automatically exclude testnets")
-# fmt: on
 @click.pass_context
 def release(
     ctx,
@@ -343,7 +338,7 @@ def release(
     for number in "1", "2":
         device = f"trezor{number}"
         version = versions[device]
-        if not force and not version.startswith(number + "."):
+        if not force and not version.startswith(f"{number}."):
             raise click.ClickException(
                 f"Device trezor{device} should not be version {version}. "
                 "Use --force to proceed anyway."

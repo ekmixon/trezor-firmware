@@ -19,9 +19,6 @@ from trezor.wire import DataError, ProcessError
 
 from .. import writers
 
-if False:
-    from trezor.utils import Writer
-
 
 def write_account_merge_op(w: Writer, msg: StellarAccountMergeOp) -> None:
     writers.write_pubkey(w, msg.destination_account)

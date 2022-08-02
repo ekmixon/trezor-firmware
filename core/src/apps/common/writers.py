@@ -1,9 +1,5 @@
 from trezor.utils import ensure
 
-if False:
-    from typing import Union
-    from trezor.utils import Writer
-
 
 def write_uint8(w: Writer, n: int) -> int:
     ensure(0 <= n <= 0xFF)

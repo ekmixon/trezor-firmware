@@ -44,8 +44,9 @@ async def get_address(ctx, msg, keychain):
         await show_address(
             ctx,
             address=addr.decode(),
-            address_qr="monero:" + addr.decode(),
+            address_qr=f"monero:{addr.decode()}",
             title=title,
         )
+
 
     return MoneroAddress(address=addr)

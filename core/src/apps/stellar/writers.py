@@ -10,23 +10,13 @@ from .helpers import public_key_from_address
 write_uint32 = write_uint32_be
 write_uint64 = write_uint64_be
 
-if False:
-    from typing import AnyStr
-
-    from trezor.utils import Writer
-
 
 def write_string(w: Writer, s: AnyStr) -> None:
     """Write XDR string padded to a multiple of 4 bytes."""
-    if isinstance(s, str):
-        buf = s.encode()
-    else:
-        buf = s
+    buf = s.encode() if isinstance(s, str) else s
     write_uint32(w, len(buf))
     write_bytes_unchecked(w, buf)
-    # if len isn't a multiple of 4, add padding bytes
-    remainder = len(buf) % 4
-    if remainder:
+    if remainder := len(buf) % 4:
         write_bytes_unchecked(w, bytes([0] * (4 - remainder)))
 
 

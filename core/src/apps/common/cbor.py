@@ -2,6 +2,7 @@
 Minimalistic CBOR implementation, supports only what we need in cardano.
 """
 
+
 import ustruct as struct
 from micropython import const
 
@@ -9,17 +10,9 @@ from trezor import log, utils
 
 from . import readers
 
-if False:
-    from typing import Any, Generic, Iterator, Tuple, TypeVar, Union
-
-    K = TypeVar("K")
-    V = TypeVar("V")
-    Value = Any
-    CborSequence = Union[list[Value], Tuple[Value, ...]]
-else:
-    # mypy cheat: Generic[K, V] will be `object` which is a valid parent type
-    Generic = {(0, 0): object}  # type: ignore
-    K = V = 0  # type: ignore
+# mypy cheat: Generic[K, V] will be `object` which is a valid parent type
+Generic = {(0, 0): object}  # type: ignore
+K = V = 0  # type: ignore
 
 _CBOR_TYPE_MASK = const(0xE0)
 _CBOR_INFO_BITS = const(0x1F)
@@ -154,14 +147,13 @@ def _cbor_decode(r: utils.BufferReader) -> Value:
                 if item == _CBOR_PRIMITIVE + _CBOR_BREAK:
                     break
                 res.append(item)
-            return res
         else:
             ln = _read_length(r, fb_aux)
             res = []
             for _ in range(ln):
                 item = _cbor_decode(r)
                 res.append(item)
-            return res
+        return res
     elif fb_type == _CBOR_MAP:
         res = {}
         if fb_aux == _CBOR_VAR_FOLLOWS:
@@ -185,10 +177,7 @@ def _cbor_decode(r: utils.BufferReader) -> Value:
     elif fb_type == _CBOR_TAG:
         val = _read_length(r, fb_aux)
         item = _cbor_decode(r)
-        if val == _CBOR_RAW_TAG:  # only tag 24 (0x18) is supported
-            return item
-        else:
-            return Tagged(val, item)
+        return item if val == _CBOR_RAW_TAG else Tagged(val, item)
     elif fb_type == _CBOR_PRIMITIVE:
         if fb_aux == _CBOR_FALSE:
             return False

@@ -10,9 +10,6 @@ from . import seed
 from .helpers.paths import SCHEMA_MINT, SCHEMA_PUBKEY
 from .helpers.utils import derive_public_key
 
-if False:
-    from trezor.messages import CardanoGetPublicKey
-
 
 @seed.with_keychain
 async def get_public_key(

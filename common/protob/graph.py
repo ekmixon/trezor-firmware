@@ -20,10 +20,7 @@ class Message:
             attrs = attrs
         else:
             raise ValueError(f"wrong message type in message {name}")
-        self.next = []
-        for a in attrs:
-            if a[0] == "next":
-                self.next.append(a[1])
+        self.next = [a[1] for a in attrs if a[0] == "next"]
 
     def __repr__(self):
         return f'{self.name}(type={self.typ}, fname="{self.fname}", next={self.next})'
@@ -33,7 +30,7 @@ def generate_messages(files):
     attrs = []
     msgs = {}
     for f in files:
-        for line in open(f, "rt").readlines():
+        for line in open(f, "rt"):
             line = line.rstrip()
             if line.startswith(" * @"):
                 attrs.append(line[4:].split(" "))

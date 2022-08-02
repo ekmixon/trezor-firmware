@@ -13,9 +13,6 @@ from .common import ecdsa_hash_pubkey, encode_bech32_address
 from .multisig import multisig_get_pubkeys, multisig_pubkey_index
 from .scripts import output_script_native_segwit, write_output_script_multisig
 
-if False:
-    from trezor.crypto import bip32
-
 
 def get_address(
     script_type: InputScriptType,
@@ -161,7 +158,7 @@ def address_to_cashaddr(address: str, coin: CoinInfo) -> str:
 
 def address_short(coin: CoinInfo, address: str) -> str:
     if coin.cashaddr_prefix is not None and address.startswith(
-        coin.cashaddr_prefix + ":"
+        f"{coin.cashaddr_prefix}:"
     ):
         return address[len(coin.cashaddr_prefix) + 1 :]
     else:

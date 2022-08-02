@@ -1,14 +1,6 @@
 from apps.monero.xmr import crypto, monero
 from apps.monero.xmr.serialize.int_serialize import dump_uvarint_b
 
-if False:
-    from apps.monero.xmr.types import Ge25519, Sc25519
-    from apps.monero.xmr.credentials import AccountCreds
-    from trezor.messages import MoneroTransferDetails
-
-    Subaddresses = dict[bytes, tuple[int, int]]
-    Sig = list[list[Sc25519]]
-
 
 def compute_hash(rr: MoneroTransferDetails) -> bytes:
     kck = crypto.get_keccak()
@@ -115,10 +107,7 @@ def generate_ring_signature(
 
     sum = crypto.sc_0()
     k = crypto.sc_0()
-    sig = []
-
-    for _ in range(len(pubs)):
-        sig.append([crypto.sc_0(), crypto.sc_0()])  # c, r
+    sig = [[crypto.sc_0(), crypto.sc_0()] for _ in pubs]
 
     for i in range(len(pubs)):
         if i == sec_idx:

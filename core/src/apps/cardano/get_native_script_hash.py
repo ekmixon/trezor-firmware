@@ -5,9 +5,6 @@ from trezor.messages import CardanoNativeScriptHash
 from . import native_script, seed
 from .layout import show_native_script, show_script_hash
 
-if False:
-    from trezor.messages import CardanoGetNativeScriptHash
-
 
 @seed.with_keychain
 async def get_native_script_hash(

@@ -19,10 +19,6 @@ from .scripts import (
     write_input_script_p2wsh_in_p2sh,
 )
 
-if False:
-    from typing import Sequence
-    from apps.common.coininfo import CoinInfo
-
 
 class SignatureVerifier:
     def __init__(
@@ -51,9 +47,10 @@ class SignatureVerifier:
             elif len(script_pubkey) == 34 and script_pubkey[0] == OP_0:  # P2WSH
                 script, self.signatures = parse_witness_multisig(witness)
                 script_hash = sha256(script).digest()
-                if output_script_native_segwit(0, script_hash) != script_pubkey:
+                if output_script_native_segwit(0, script_hash) == script_pubkey:
+                    self.public_keys, self.threshold = parse_output_script_multisig(script)
+                else:
                     raise wire.DataError("Invalid script hash")
-                self.public_keys, self.threshold = parse_output_script_multisig(script)
             elif len(script_pubkey) == 34 and script_pubkey[0] == OP_1:  # P2TR
                 self.is_taproot = True
                 self.public_keys = [parse_output_script_p2tr(script_pubkey)]
@@ -86,22 +83,21 @@ class SignatureVerifier:
                 self.public_keys, self.threshold = parse_output_script_multisig(script)
             else:
                 raise wire.DataError("Unsupported signature script")
+        elif len(script_pubkey) == 25:  # P2PKH
+            public_key, signature, hash_type = parse_input_script_p2pkh(script_sig)
+            pubkey_hash = ecdsa_hash_pubkey(public_key, coin)
+            if output_script_p2pkh(pubkey_hash) != script_pubkey:
+                raise wire.DataError("Invalid public key hash")
+            self.public_keys = [public_key]
+            self.signatures = [(signature, hash_type)]
+        elif len(script_pubkey) == 23:  # P2SH
+            script, self.signatures = parse_input_script_multisig(script_sig)
+            script_hash = coin.script_hash(script).digest()
+            if output_script_p2sh(script_hash) != script_pubkey:
+                raise wire.DataError("Invalid script hash")
+            self.public_keys, self.threshold = parse_output_script_multisig(script)
         else:
-            if len(script_pubkey) == 25:  # P2PKH
-                public_key, signature, hash_type = parse_input_script_p2pkh(script_sig)
-                pubkey_hash = ecdsa_hash_pubkey(public_key, coin)
-                if output_script_p2pkh(pubkey_hash) != script_pubkey:
-                    raise wire.DataError("Invalid public key hash")
-                self.public_keys = [public_key]
-                self.signatures = [(signature, hash_type)]
-            elif len(script_pubkey) == 23:  # P2SH
-                script, self.signatures = parse_input_script_multisig(script_sig)
-                script_hash = coin.script_hash(script).digest()
-                if output_script_p2sh(script_hash) != script_pubkey:
-                    raise wire.DataError("Invalid script hash")
-                self.public_keys, self.threshold = parse_output_script_multisig(script)
-            else:
-                raise wire.DataError("Unsupported signature script")
+            raise wire.DataError("Unsupported signature script")
 
         if self.threshold != len(self.signatures):
             raise wire.DataError("Invalid signature")

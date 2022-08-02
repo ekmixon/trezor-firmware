@@ -21,15 +21,6 @@ from . import common
 from .credential import CRED_ID_MAX_LENGTH, Credential, Fido2Credential, U2fCredential
 from .resident_credentials import find_by_rp_id_hash, store_resident_credential
 
-if False:
-    from typing import (
-        Any,
-        Callable,
-        Coroutine,
-        Iterable,
-        Iterator,
-    )
-
 _CID_BROADCAST = const(0xFFFF_FFFF)  # broadcast channel id
 
 # types of frame
@@ -460,11 +451,10 @@ async def read_cmd(iface: io.HID) -> Cmd | None:
                             "U2FHID: received init frame for different CID, _ERR_CHANNEL_BUSY",
                         )
                     await send_cmd(cmd_error(cfrm.cid, _ERR_CHANNEL_BUSY), iface)
-                else:
-                    if __debug__:
-                        log.warning(
-                            __name__, "U2FHID: received cont frame for different CID"
-                        )
+                elif __debug__:
+                    log.warning(
+                        __name__, "U2FHID: received cont frame for different CID"
+                    )
                 continue
 
             if cfrm.seq != seq:
@@ -647,24 +637,23 @@ class U2fConfirmRegister(U2fState):
         super().__init__(cid, iface, req_data, cred)
 
     async def confirm_dialog(self) -> bool:
-        if self._cred.rp_id_hash in _BOGUS_APPIDS:
-            if self.cid == _last_good_auth_check_cid:
-                await show_popup(
-                    title="U2F",
-                    subtitle="Already registered.",
-                    description="This device is already\nregistered with this\napplication.",
-                    timeout_ms=_POPUP_TIMEOUT_MS,
-                )
-            else:
-                await show_popup(
-                    title="U2F",
-                    subtitle="Not registered.",
-                    description="This device is not\nregistered with this\napplication.",
-                    timeout_ms=_POPUP_TIMEOUT_MS,
-                )
-            return False
-        else:
+        if self._cred.rp_id_hash not in _BOGUS_APPIDS:
             return await confirm_webauthn(None, self)
+        if self.cid == _last_good_auth_check_cid:
+            await show_popup(
+                title="U2F",
+                subtitle="Already registered.",
+                description="This device is already\nregistered with this\napplication.",
+                timeout_ms=_POPUP_TIMEOUT_MS,
+            )
+        else:
+            await show_popup(
+                title="U2F",
+                subtitle="Not registered.",
+                description="This device is not\nregistered with this\napplication.",
+                timeout_ms=_POPUP_TIMEOUT_MS,
+            )
+        return False
 
     def get_header(self) -> str:
         return "U2F Register"
@@ -766,9 +755,8 @@ class Fido2Unlock(Fido2State):
         resp = self.process_func(self.req, self.dialog_mgr)
         if isinstance(resp, State):
             return resp
-        else:
-            self.resp = resp
-            return True
+        self.resp = resp
+        return True
 
     async def on_confirm(self) -> None:
         if self.resp:
@@ -996,9 +984,7 @@ class DialogManager:
         self._clear()
 
     def get_cid(self) -> int:
-        if self.state is None:
-            return 0
-        return self.state.cid
+        return 0 if self.state is None else self.state.cid
 
     def is_busy(self) -> bool:
         if utime.ticks_ms() >= self.deadline:
@@ -1446,13 +1432,12 @@ def cbor_make_credential(req: Cmd, dialog_mgr: DialogManager) -> Cmd | None:
     else:
         resp = Fido2Unlock(cbor_make_credential_process, req, dialog_mgr)
 
-    if isinstance(resp, State):
-        if dialog_mgr.set_state(resp):
-            return None
-        else:
-            return cmd_error(req.cid, _ERR_CHANNEL_BUSY)
-    else:
+    if not isinstance(resp, State):
         return resp
+    if dialog_mgr.set_state(resp):
+        return None
+    else:
+        return cmd_error(req.cid, _ERR_CHANNEL_BUSY)
 
 
 def cbor_make_credential_process(req: Cmd, dialog_mgr: DialogManager) -> State | Cmd:
@@ -1626,13 +1611,12 @@ def cbor_get_assertion(req: Cmd, dialog_mgr: DialogManager) -> Cmd | None:
     else:
         resp = Fido2Unlock(cbor_get_assertion_process, req, dialog_mgr)
 
-    if isinstance(resp, State):
-        if dialog_mgr.set_state(resp):
-            return None
-        else:
-            return cmd_error(req.cid, _ERR_CHANNEL_BUSY)
-    else:
+    if not isinstance(resp, State):
         return resp
+    if dialog_mgr.set_state(resp):
+        return None
+    else:
+        return cmd_error(req.cid, _ERR_CHANNEL_BUSY)
 
 
 def cbor_get_assertion_process(req: Cmd, dialog_mgr: DialogManager) -> State | Cmd:
@@ -1646,8 +1630,7 @@ def cbor_get_assertion_process(req: Cmd, dialog_mgr: DialogManager) -> State | C
         rp_id = param[_GETASSERT_CMD_RP_ID]
         rp_id_hash = hashlib.sha256(rp_id).digest()
 
-        allow_list = param.get(_GETASSERT_CMD_ALLOW_LIST, [])
-        if allow_list:
+        if allow_list := param.get(_GETASSERT_CMD_ALLOW_LIST, []):
             # Get all credentials from the allow list that belong to this authenticator.
             allowed_creds = credentials_from_descriptor_list(allow_list, rp_id_hash)
             cred_list = distinguishable_cred_list(allowed_creds)
@@ -1901,9 +1884,11 @@ def cbor_reset(req: Cmd, dialog_mgr: DialogManager) -> Cmd | None:
         # Return success, because the authenticator is already in factory default state.
         return cbor_error(req.cid, _ERR_NONE)
 
-    if not dialog_mgr.set_state(Fido2ConfirmReset(req.cid, dialog_mgr.iface)):
-        return cmd_error(req.cid, _ERR_CHANNEL_BUSY)
-    return None
+    return (
+        None
+        if dialog_mgr.set_state(Fido2ConfirmReset(req.cid, dialog_mgr.iface))
+        else cmd_error(req.cid, _ERR_CHANNEL_BUSY)
+    )
 
 
 def cmd_keepalive(cid: int, status: int) -> Cmd:

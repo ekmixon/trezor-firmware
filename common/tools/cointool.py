@@ -47,14 +47,13 @@ USE_COLORS = False
 def crayon(color, string, bold=False, dim=False):
     if not termcolor or not USE_COLORS:
         return string
+    if bold:
+        attrs = ["bold"]
+    elif dim:
+        attrs = ["dark"]
     else:
-        if bold:
-            attrs = ["bold"]
-        elif dim:
-            attrs = ["dark"]
-        else:
-            attrs = []
-        return termcolor.colored(string, color, attrs=attrs)
+        attrs = []
+    return termcolor.colored(string, color, attrs=attrs)
 
 
 def print_log(level, *args, **kwargs):
@@ -88,12 +87,9 @@ def c_str_filter(b):
 
 def black_repr_filter(val):
     if isinstance(val, str):
-        if '"' in val:
-            return repr(val)
-        else:
-            return c_str_filter(val)
+        return repr(val) if '"' in val else c_str_filter(val)
     elif isinstance(val, bytes):
-        return "b" + c_str_filter(val)
+        return f"b{c_str_filter(val)}"
     else:
         return repr(val)
 
@@ -170,7 +166,7 @@ def check_eth(coins):
     chains = find_collisions(coins, "chain")
     for key, bucket in chains.items():
         bucket_str = ", ".join(f"{coin['key']} ({coin['name']})" for coin in bucket)
-        chain_name_str = "colliding chain name " + crayon(None, key, bold=True) + ":"
+        chain_name_str = f"colliding chain name {crayon(None, key, bold=True)}:"
         print_log(logging.ERROR, chain_name_str, bucket_str)
         check_passed = False
     return check_passed
@@ -324,13 +320,7 @@ def check_dups(buckets, print_at_level=logging.WARNING):
             check_passed = False
         elif len(supported) > 1:
             # more than one supported coin in bucket
-            if cleared:
-                # some previous step has explicitly marked them as non-duplicate
-                level = logging.INFO
-            else:
-                # at most 1 non-token - we tentatively allow token collisions
-                # when explicitly marked as supported
-                level = logging.WARNING
+            level = logging.INFO if cleared else logging.WARNING
         else:
             # At most 1 supported coin, at most 1 non-token. This is informational only.
             level = logging.DEBUG
@@ -357,7 +347,7 @@ def check_backends(coins):
         for backend in backends:
             print("checking", backend, "... ", end="", flush=True)
             try:
-                j = requests.get(backend + "/api/block-index/0").json()
+                j = requests.get(f"{backend}/api/block-index/0").json()
                 if j["blockHash"] != genesis_block:
                     raise RuntimeError("genesis block mismatch")
             except Exception as e:
@@ -413,11 +403,9 @@ def check_key_uniformity(coins):
     for coin in rest:
         key = coin["key"]
         keyset = set(coin.keys()) | IGNORE_NONUNIFORM_KEYS
-        missing = ", ".join(reference_keyset - keyset)
-        if missing:
+        if missing := ", ".join(reference_keyset - keyset):
             print_log(logging.ERROR, f"coin {key} has missing keys: {missing}")
-        additional = ", ".join(keyset - reference_keyset)
-        if additional:
+        if additional := ", ".join(keyset - reference_keyset):
             print_log(
                 logging.ERROR,
                 f"coin {key} has superfluous keys: {additional}",
@@ -427,16 +415,15 @@ def check_key_uniformity(coins):
 
 
 def check_segwit(coins):
+    segwit_fields = [
+        "bech32_prefix",
+        "xpub_magic_segwit_native",
+        "xpub_magic_segwit_p2sh",
+        "xpub_magic_multisig_segwit_native",
+        "xpub_magic_multisig_segwit_p2sh",
+    ]
     for coin in coins:
-        segwit = coin["segwit"]
-        segwit_fields = [
-            "bech32_prefix",
-            "xpub_magic_segwit_native",
-            "xpub_magic_segwit_p2sh",
-            "xpub_magic_multisig_segwit_native",
-            "xpub_magic_multisig_segwit_p2sh",
-        ]
-        if segwit:
+        if segwit := coin["segwit"]:
             for field in segwit_fields:
                 if coin[field] is None:
                     print_log(
@@ -477,14 +464,14 @@ def check_fido(apps):
     u2fs = find_collisions((u for a in apps if "u2f" in a for u in a["u2f"]), "app_id")
     for key, bucket in u2fs.items():
         bucket_str = ", ".join(u2f["label"] for u2f in bucket)
-        app_id_str = "colliding U2F app ID " + crayon(None, key, bold=True) + ":"
+        app_id_str = f"colliding U2F app ID {crayon(None, key, bold=True)}:"
         print_log(logging.ERROR, app_id_str, bucket_str)
         check_passed = False
 
     webauthn_domains = find_collisions((a for a in apps if "webauthn" in a), "webauthn")
     for key, bucket in webauthn_domains.items():
         bucket_str = ", ".join(app["key"] for app in bucket)
-        webauthn_str = "colliding WebAuthn domain " + crayon(None, key, bold=True) + ":"
+        webauthn_str = f"colliding WebAuthn domain {crayon(None, key, bold=True)}:"
         print_log(logging.ERROR, webauthn_str, bucket_str)
         check_passed = False
 
@@ -496,8 +483,7 @@ def check_fido(apps):
     for app in apps:
         if "u2f" in app:
             for u2f in app["u2f"]:
-                domain = domain_hashes.get(bytes.fromhex(u2f["app_id"]))
-                if domain:
+                if domain := domain_hashes.get(bytes.fromhex(u2f["app_id"])):
                     print_log(
                         logging.ERROR,
                         "colliding WebAuthn domain "
@@ -528,8 +514,7 @@ def check_fido(apps):
             print_log(logging.ERROR, app["key"], ": no U2F nor WebAuthn addresses")
             check_passed = False
 
-        unknown_keys = set(app.keys()) - FIDO_KNOWN_KEYS
-        if unknown_keys:
+        if unknown_keys := set(app.keys()) - FIDO_KNOWN_KEYS:
             print_log(logging.ERROR, app["key"], ": unrecognized keys:", unknown_keys)
             check_passed = False
 
@@ -580,11 +565,9 @@ def cli(colors):
 
 
 @cli.command()
-# fmt: off
 @click.option("--backend/--no-backend", "-b", default=False, help="Check blockbook/bitcore responses")
 @click.option("--icons/--no-icons", default=True, help="Check icon files")
 @click.option("-d", "--show-duplicates", type=click.Choice(("all", "nontoken", "errors")), default="errors", help="How much information about duplicate shortcuts should be shown.")
-# fmt: on
 def check(backend, icons, show_duplicates):
     """Validate coin definitions.
 
@@ -647,12 +630,13 @@ def check(backend, icons, show_duplicates):
     if not check_dups(buckets, dup_level):
         all_checks_passed = False
 
-    nontoken_dups = [coin for coin in defs.as_list() if "dup_key_nontoken" in coin]
-    if nontoken_dups:
+    if nontoken_dups := [
+        coin for coin in defs.as_list() if "dup_key_nontoken" in coin
+    ]:
         nontoken_dup_str = ", ".join(
             highlight_key(coin, "red") for coin in nontoken_dups
         )
-        print_log(logging.ERROR, "Non-token duplicate keys: " + nontoken_dup_str)
+        print_log(logging.ERROR, f"Non-token duplicate keys: {nontoken_dup_str}")
         all_checks_passed = False
 
     if icons:
@@ -688,7 +672,6 @@ def check(backend, icons, show_duplicates):
 
 
 @cli.command()
-# fmt: off
 @click.option("-o", "--outfile", type=click.File(mode="w"), default="-")
 @click.option("-s/-S", "--support/--no-support", default=True, help="Include support data for each coin")
 @click.option("-p", "--pretty", is_flag=True, help="Generate nicely formatted JSON")
@@ -701,7 +684,6 @@ def check(backend, icons, show_duplicates):
 @click.option("-F", "--filter-exclude", metavar="FIELD=FILTER", multiple=True, help="Exclude coins that match a filter")
 @click.option("-t", "--exclude-tokens", is_flag=True, help="Exclude ERC20 tokens. Equivalent to '-E erc20'")
 @click.option("-d", "--device", metavar="NAME", help="Only include coins supported on a given device")
-# fmt: on
 def dump(
     outfile,
     support,
@@ -804,11 +786,7 @@ def dump(
     for key, coinlist in coins_dict.items():
         coins_dict[key] = [modify_coin(c) for c in coinlist if should_include_coin(c)]
 
-    if flat_list:
-        output = sum(coins_dict.values(), [])
-    else:
-        output = coins_dict
-
+    output = sum(coins_dict.values(), []) if flat_list else coins_dict
     with outfile:
         indent = 4 if pretty else None
         json.dump(output, outfile, indent=indent, sort_keys=True)

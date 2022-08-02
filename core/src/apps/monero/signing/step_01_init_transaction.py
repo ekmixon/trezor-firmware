@@ -2,21 +2,12 @@
 Initializes a new transaction.
 """
 
+
 import gc
 
 from apps.monero import layout, misc, signing
 from apps.monero.signing.state import State
 from apps.monero.xmr import crypto, monero
-
-if False:
-    from apps.monero.xmr.types import Sc25519, Ge25519
-    from trezor.messages import (
-        MoneroAccountPublicAddress,
-        MoneroTransactionData,
-        MoneroTransactionDestinationEntry,
-        MoneroTransactionInitAck,
-        MoneroTransactionRsigData,
-    )
 
 
 async def init_transaction(
@@ -36,7 +27,7 @@ async def init_transaction(
     if state.client_version == 0:
         raise ValueError("Client version not supported")
 
-    state.fee = state.fee if state.fee > 0 else 0
+    state.fee = max(state.fee, 0)
     state.tx_priv = crypto.random_scalar()
     state.tx_pub = crypto.scalarmult_base(state.tx_priv)
     state.mem_trace(1)
@@ -254,12 +245,7 @@ def _check_change(state: State, outputs: list[MoneroTransactionDestinationEntry]
         state.mem_trace("Sweep tsx" if __debug__ else None)
         return
 
-    found = False
-    for out in outputs:
-        if addr_eq(out.addr, change_addr):
-            found = True
-            break
-
+    found = any(addr_eq(out.addr, change_addr) for out in outputs)
     if not found:
         raise signing.ChangeAddressError("Change address not found in outputs")
 

@@ -11,27 +11,6 @@ from apps.common.paths import PATTERN_BIP44, PathSchema
 from . import authorization
 from .common import BITCOIN_NAMES
 
-if False:
-    from typing import Awaitable, Callable, Iterable, TypeVar
-    from typing_extensions import Protocol
-
-    from trezor.protobuf import MessageType
-
-    from apps.common.keychain import Keychain, MsgOut, Handler
-    from apps.common.paths import Bip32Path
-
-    class MsgWithCoinName(Protocol):
-        coin_name: str
-
-    class MsgWithAddressScriptType(Protocol):
-        # XXX should be Bip32Path but that fails
-        address_n: list[int] = ...
-        script_type: InputScriptType = ...
-
-    MsgIn = TypeVar("MsgIn", bound=MsgWithCoinName)
-    HandlerWithCoinInfo = Callable[..., Awaitable[MsgOut]]
-
-
 # BIP-45 for multisig: https://github.com/bitcoin/bips/blob/master/bip-0045.mediawiki
 PATTERN_BIP45 = "m/45'/[0-100]/change/address_index"
 
@@ -85,7 +64,7 @@ def validate_path_against_script_type(
         assert address_n is None and script_type is None
         address_n = msg.address_n
         script_type = msg.script_type or InputScriptType.SPENDADDRESS
-        multisig = bool(getattr(msg, "multisig", False))
+        multisig = getattr(msg, "multisig", False)
 
     else:
         assert address_n is not None and script_type is not None
@@ -93,9 +72,7 @@ def validate_path_against_script_type(
     if script_type == InputScriptType.SPENDADDRESS and not multisig:
         patterns.append(PATTERN_BIP44)
         if coin.slip44 == SLIP44_BITCOIN:
-            patterns.append(PATTERN_GREENADDRESS_A)
-            patterns.append(PATTERN_GREENADDRESS_B)
-
+            patterns.extend((PATTERN_GREENADDRESS_A, PATTERN_GREENADDRESS_B))
     elif (
         script_type in (InputScriptType.SPENDADDRESS, InputScriptType.SPENDMULTISIG)
         and multisig
@@ -106,20 +83,22 @@ def validate_path_against_script_type(
         ):
             patterns.append(PATTERN_BIP45)
         if coin.slip44 == SLIP44_BITCOIN:
-            patterns.append(PATTERN_GREENADDRESS_A)
-            patterns.append(PATTERN_GREENADDRESS_B)
+            patterns.extend((PATTERN_GREENADDRESS_A, PATTERN_GREENADDRESS_B))
         if coin.coin_name in BITCOIN_NAMES:
-            patterns.append(PATTERN_UNCHAINED_HARDENED)
-            patterns.append(PATTERN_UNCHAINED_UNHARDENED)
-            patterns.append(PATTERN_UNCHAINED_DEPRECATED)
+            patterns.extend(
+                (
+                    PATTERN_UNCHAINED_HARDENED,
+                    PATTERN_UNCHAINED_UNHARDENED,
+                    PATTERN_UNCHAINED_DEPRECATED,
+                )
+            )
 
     elif coin.segwit and script_type == InputScriptType.SPENDP2SHWITNESS:
         patterns.append(PATTERN_BIP49)
         if multisig:
             patterns.append(PATTERN_BIP48_P2SHSEGWIT)
         if coin.slip44 == SLIP44_BITCOIN:
-            patterns.append(PATTERN_GREENADDRESS_A)
-            patterns.append(PATTERN_GREENADDRESS_B)
+            patterns.extend((PATTERN_GREENADDRESS_A, PATTERN_GREENADDRESS_B))
         if coin.coin_name in BITCOIN_NAMES:
             patterns.append(PATTERN_CASA)
 
@@ -128,9 +107,7 @@ def validate_path_against_script_type(
         if multisig:
             patterns.append(PATTERN_BIP48_SEGWIT)
         if coin.slip44 == SLIP44_BITCOIN:
-            patterns.append(PATTERN_GREENADDRESS_A)
-            patterns.append(PATTERN_GREENADDRESS_B)
-
+            patterns.extend((PATTERN_GREENADDRESS_A, PATTERN_GREENADDRESS_B))
     elif coin.taproot and script_type == InputScriptType.SPENDTAPROOT:
         patterns.append(PATTERN_BIP86)
 

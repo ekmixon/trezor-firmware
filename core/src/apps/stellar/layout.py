@@ -11,11 +11,6 @@ from trezor.wire import DataError
 
 from . import consts
 
-if False:
-    from trezor.wire import Context
-
-    from trezor.messages import StellarAsset
-
 
 async def require_confirm_init(
     ctx: Context,
@@ -36,8 +31,7 @@ async def require_confirm_init(
         icon=ui.ICON_SEND,
     )
 
-    network = get_network_warning(network_passphrase)
-    if network:
+    if network := get_network_warning(network_passphrase):
         await confirm_metadata(
             ctx,
             "confirm_init_network",
@@ -106,7 +100,8 @@ async def require_confirm_final(ctx: Context, fee: int, num_operations: int) -> 
         ctx,
         "confirm_final",
         title="Final confirm",
-        content="Sign this transaction made up of " + op_str + " and pay {}\nfor fee?",
+        content=f"Sign this transaction made up of {op_str}"
+        + " and pay {}\nfor fee?",
         param=format_amount(fee),
         hide_continue=True,
         hold=True,
@@ -116,10 +111,9 @@ async def require_confirm_final(ctx: Context, fee: int, num_operations: int) -> 
 def format_asset(asset: StellarAsset | None) -> str:
     if asset is None or asset.type == StellarAssetType.NATIVE:
         return "XLM"
-    else:
-        if asset.code is None:
-            raise DataError("Stellar asset code is missing")
-        return asset.code
+    if asset.code is None:
+        raise DataError("Stellar asset code is missing")
+    return asset.code
 
 
 def format_amount(amount: int, asset: StellarAsset | None = None) -> str:

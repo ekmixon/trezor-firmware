@@ -64,13 +64,12 @@ async def sign_tx(
 
     if utils.BITCOIN_ONLY or coin.coin_name in BITCOIN_NAMES:
         signer_class: type[SignerClass] = bitcoin.Bitcoin
+    elif coin.decred:
+        signer_class = decred.Decred
+    elif coin.overwintered:
+        signer_class = zcash.Zcashlike
     else:
-        if coin.decred:
-            signer_class = decred.Decred
-        elif coin.overwintered:
-            signer_class = zcash.Zcashlike
-        else:
-            signer_class = bitcoinlike.Bitcoinlike
+        signer_class = bitcoinlike.Bitcoinlike
 
     signer = signer_class(msg, keychain, coin, approver).signer()
 

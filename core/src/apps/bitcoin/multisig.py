@@ -10,10 +10,7 @@ from .writers import write_bytes_fixed, write_uint32
 
 
 def multisig_fingerprint(multisig: MultisigRedeemScriptType) -> bytes:
-    if multisig.nodes:
-        pubnodes = multisig.nodes
-    else:
-        pubnodes = [hd.node for hd in multisig.pubkeys]
+    pubnodes = multisig.nodes or [hd.node for hd in multisig.pubkeys]
     m = multisig.m
     n = len(pubnodes)
 
@@ -83,7 +80,4 @@ def multisig_get_pubkeys(multisig: MultisigRedeemScriptType) -> list[bytes]:
 
 
 def multisig_get_pubkey_count(multisig: MultisigRedeemScriptType) -> int:
-    if multisig.nodes:
-        return len(multisig.nodes)
-    else:
-        return len(multisig.pubkeys)
+    return len(multisig.nodes) if multisig.nodes else len(multisig.pubkeys)

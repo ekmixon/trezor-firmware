@@ -9,13 +9,6 @@ from . import addresses
 from .keychain import validate_path_against_script_type, with_keychain
 from .multisig import multisig_pubkey_index
 
-if False:
-    from trezor.messages import GetAddress
-    from trezor.messages import HDNodeType
-    from trezor import wire
-    from apps.common.keychain import Keychain
-    from apps.common.coininfo import CoinInfo
-
 
 def _get_xpubs(
     coin: CoinInfo, xpub_magic: int, pubnodes: list[HDNodeType]
@@ -78,10 +71,7 @@ async def get_address(
 
     if msg.show_display:
         if msg.multisig:
-            if msg.multisig.nodes:
-                pubnodes = msg.multisig.nodes
-            else:
-                pubnodes = [hd.node for hd in msg.multisig.pubkeys]
+            pubnodes = msg.multisig.nodes or [hd.node for hd in msg.multisig.pubkeys]
             multisig_index = multisig_pubkey_index(msg.multisig, node.public_key())
 
             title = f"Multisig {msg.multisig.m} of {len(pubnodes)}"

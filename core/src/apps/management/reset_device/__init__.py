@@ -14,9 +14,6 @@ from . import layout
 if __debug__:
     import storage.debug
 
-if False:
-    from trezor.messages import ResetDevice
-
 _DEFAULT_BACKUP_TYPE = BackupType.Bip39
 
 
@@ -178,9 +175,8 @@ def _validate_reset_device(msg: ResetDevice) -> None:
     if backup_types.is_slip39_backup_type(msg.backup_type):
         if msg.strength not in (128, 256):
             raise wire.ProcessError("Invalid strength (has to be 128 or 256 bits)")
-    else:  # BIP-39
-        if msg.strength not in (128, 192, 256):
-            raise wire.ProcessError("Invalid strength (has to be 128, 192 or 256 bits)")
+    elif msg.strength not in (128, 192, 256):
+        raise wire.ProcessError("Invalid strength (has to be 128, 192 or 256 bits)")
     if msg.display_random and (msg.skip_backup or msg.no_backup):
         raise wire.ProcessError("Can't show internal entropy when backup is skipped")
     if storage.device.is_initialized():
@@ -197,8 +193,7 @@ def _compute_secret_from_entropy(
     entropy = ehash.digest()
     # take a required number of bytes
     strength = strength_in_bytes // 8
-    secret = entropy[:strength]
-    return secret
+    return entropy[:strength]
 
 
 async def backup_seed(

@@ -3,10 +3,7 @@ def length(address_type: int) -> int:
         return 1
     if address_type <= 0xFFFF:
         return 2
-    if address_type <= 0xFF_FFFF:
-        return 3
-    # else
-    return 4
+    return 3 if address_type <= 0xFF_FFFF else 4
 
 
 def tobytes(address_type: int) -> bytes:

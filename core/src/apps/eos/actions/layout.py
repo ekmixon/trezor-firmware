@@ -4,26 +4,6 @@ from trezor.ui.layouts import confirm_properties
 
 from .. import helpers
 
-if False:
-    from trezor import wire
-    from trezor.messages import (
-        EosActionBuyRam,
-        EosActionBuyRamBytes,
-        EosActionCommon,
-        EosActionDelegate,
-        EosActionDeleteAuth,
-        EosActionLinkAuth,
-        EosActionNewAccount,
-        EosActionRefund,
-        EosActionSellRam,
-        EosActionTransfer,
-        EosActionUndelegate,
-        EosActionUnlinkAuth,
-        EosActionUpdateAuth,
-        EosActionVoteProducer,
-        EosAuthorization,
-    )
-
 
 async def confirm_action_buyram(ctx: wire.Context, msg: EosActionBuyRam) -> None:
     await confirm_properties(
@@ -297,9 +277,7 @@ async def confirm_action_unknown(
 
 
 def authorization_fields(auth: EosAuthorization) -> list[tuple[str, str | None]]:
-    fields = []
-    fields.append(("Threshold:", str(auth.threshold)))
-
+    fields = [("Threshold:", str(auth.threshold))]
     for i, key in enumerate(auth.keys, 1):
         _key = helpers.public_key_to_wif(bytes(key.key))
         _weight = str(key.weight)
@@ -307,9 +285,7 @@ def authorization_fields(auth: EosAuthorization) -> list[tuple[str, str | None]]
         header = f"Key #{i}:"
         w_header = f"Key #{i} Weight:"
 
-        fields.append((header, _key))
-        fields.append((w_header, _weight))
-
+        fields.extend(((header, _key), (w_header, _weight)))
     for i, account in enumerate(auth.accounts, 1):
         _account = helpers.eos_name_to_string(account.account.actor)
         _permission = helpers.eos_name_to_string(account.account.permission)
@@ -319,16 +295,12 @@ def authorization_fields(auth: EosAuthorization) -> list[tuple[str, str | None]]
         w_header = f"Account #{i} weight:"
 
         fields.append((a_header, _account))
-        fields.append((p_header, _permission))
-        fields.append((w_header, str(account.weight)))
-
+        fields.extend(((p_header, _permission), (w_header, str(account.weight))))
     for i, wait in enumerate(auth.waits, 1):
         _wait = str(wait.wait_sec)
         _weight = str(wait.weight)
 
         header = f"Delay #{i}"
         w_header = f"Delay #{i} weight:"
-        fields.append((header, f"{_wait} sec"))
-        fields.append((w_header, _weight))
-
+        fields.extend(((header, f"{_wait} sec"), (w_header, _weight)))
     return fields

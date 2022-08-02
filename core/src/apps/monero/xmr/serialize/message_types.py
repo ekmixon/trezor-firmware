@@ -47,10 +47,7 @@ class BlobType(XmrType):
 
     @classmethod
     def load(cls, reader) -> bytearray:
-        if cls.FIX_SIZE:
-            size = cls.SIZE
-        else:
-            size = load_uvarint(reader)
+        size = cls.SIZE if cls.FIX_SIZE else load_uvarint(reader)
         elem = bytearray(size)
         reader.readinto(elem)
         return elem
@@ -82,10 +79,7 @@ class ContainerType(XmrType):
     def load(cls, reader, elem_type=None):
         if elem_type is None:
             elem_type = cls.ELEM_TYPE
-        if cls.FIX_SIZE:
-            size = cls.SIZE
-        else:
-            size = load_uvarint(reader)
+        size = cls.SIZE if cls.FIX_SIZE else load_uvarint(reader)
         elems = []
         for _ in range(size):
             elem = elem_type.load(reader)

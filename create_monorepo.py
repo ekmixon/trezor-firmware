@@ -40,7 +40,9 @@ def lines(s):
 
 def git(args):
     print("+ git:", args)
-    return subprocess.check_output("git " + args, universal_newlines=True, shell=True)
+    return subprocess.check_output(
+        f"git {args}", universal_newlines=True, shell=True
+    )
 
 
 def move_to_subtree(remote, dst):
@@ -126,11 +128,11 @@ def main():
         os.symlink(symlink_target, submodule)
         git(f"add {submodule}")
 
-    git(f"commit -m 'MONOREPO RELINK SUBMODULES'")
+    git("commit -m 'MONOREPO RELINK SUBMODULES'")
 
     for remote in PUBLISHED_SUBREPOS:
         generate_subrepo_file(remote)
-    git(f"commit -m 'MONOREPO SUBREPO FILES'")
+    git("commit -m 'MONOREPO SUBREPO FILES'")
 
 
 if __name__ == "__main__":

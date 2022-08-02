@@ -10,10 +10,6 @@
 from trezor.crypto import monero as tcry, random
 from trezor.crypto.hashlib import sha3_256
 
-if False:
-    from apps.monero.xmr.types import Sc25519, Ge25519
-
-
 NULL_KEY_ENC = b"\x00" * 32
 
 random_bytes = random.bytes
@@ -30,7 +26,7 @@ keccak_hash_into = tcry.xmr_fast_hash
 
 
 def keccak_2hash(inp, buff=None):
-    buff = buff if buff else bytearray(32)
+    buff = buff or bytearray(32)
     keccak_hash_into(buff, inp)
     keccak_hash_into(buff, buff)
     return buff
@@ -174,8 +170,7 @@ def ge25519_double_scalarmult_base_vartime(a, A, b) -> Ge25519:
     void ge25519_double_scalarmult_vartime(ge25519 *r, const ge25519 *p1, const bignum256modm s1, const bignum256modm s2);
     r = a * A + b * B
     """
-    R = tcry.ge25519_double_scalarmult_vartime(A, a, b)
-    return R
+    return tcry.ge25519_double_scalarmult_vartime(A, a, b)
 
 
 ge25519_double_scalarmult_vartime2 = tcry.xmr_add_keys3
@@ -183,7 +178,7 @@ ge25519_double_scalarmult_vartime2 = tcry.xmr_add_keys3
 
 def identity(byte_enc=False) -> Ge25519 | bytes:
     idd = tcry.ge25519_set_neutral()
-    return idd if not byte_enc else encodepoint(idd)
+    return encodepoint(idd) if byte_enc else idd
 
 
 identity_into = tcry.ge25519_set_neutral

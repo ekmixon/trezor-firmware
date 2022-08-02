@@ -12,11 +12,6 @@ from apps.common.keychain import auto_keychain
 from . import consts, helpers, layout, writers
 from .operations import process_operation
 
-if False:
-    from trezor.wire import Context
-
-    from apps.common.keychain import Keychain
-
 
 @auto_keychain(__name__)
 async def sign_tx(

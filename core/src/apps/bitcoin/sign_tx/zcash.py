@@ -23,14 +23,6 @@ from ..writers import (
 from . import approvers, helpers
 from .bitcoinlike import Bitcoinlike
 
-if False:
-    from typing import Sequence
-    from apps.common import coininfo
-    from .sig_hasher import SigHasher
-    from .tx_info import OriginalTxInfo, TxInfo
-    from ..common import SigHashType
-    from ..writers import Writer
-
 OVERWINTERED = const(0x8000_0000)
 
 

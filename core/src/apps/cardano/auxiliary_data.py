@@ -16,24 +16,6 @@ from .helpers.paths import SCHEMA_STAKING_ANY_ACCOUNT
 from .helpers.utils import derive_public_key
 from .layout import confirm_catalyst_registration, show_auxiliary_data_hash
 
-if False:
-    from typing import Union
-    from trezor import wire
-
-    from trezor.messages import (
-        CardanoCatalystRegistrationParametersType,
-        CardanoTxAuxiliaryData,
-    )
-
-    CatalystRegistrationPayload = dict[int, Union[bytes, int]]
-    SignedCatalystRegistrationPayload = tuple[CatalystRegistrationPayload, bytes]
-    CatalystRegistrationSignature = dict[int, bytes]
-    CatalystRegistration = dict[
-        int, Union[CatalystRegistrationPayload, CatalystRegistrationSignature]
-    ]
-
-    from . import seed
-
 AUXILIARY_DATA_HASH_SIZE = 32
 CATALYST_VOTING_PUBLIC_KEY_LENGTH = 32
 CATALYST_REGISTRATION_HASH_SIZE = 32

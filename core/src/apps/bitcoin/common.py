@@ -7,13 +7,7 @@ from trezor.crypto.hashlib import sha256
 from trezor.enums import InputScriptType, OutputScriptType
 from trezor.utils import HashWriter, ensure
 
-if False:
-    from enum import IntEnum
-    from typing import Tuple
-    from apps.common.coininfo import CoinInfo
-    from trezor.messages import TxInput
-else:
-    IntEnum = object  # type: ignore
+IntEnum = object  # type: ignore
 
 
 BITCOIN_NAMES = ("Bitcoin", "Regtest", "Testnet")
@@ -98,8 +92,7 @@ NONSEGWIT_INPUT_SCRIPT_TYPES = (
 
 def ecdsa_sign(node: bip32.HDNode, digest: bytes) -> bytes:
     sig = secp256k1.sign(node.private_key(), digest)
-    sigder = der.encode_seq((sig[1:33], sig[33:65]))
-    return sigder
+    return der.encode_seq((sig[1:33], sig[33:65]))
 
 
 def bip340_sign(node: bip32.HDNode, digest: bytes) -> bytes:

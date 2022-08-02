@@ -6,9 +6,6 @@ from apps.common import cbor
 from .helpers import INVALID_ADDRESS, NETWORK_MISMATCH, protocol_magics
 from .helpers.utils import derive_public_key
 
-if False:
-    from . import seed
-
 PROTOCOL_MAGIC_KEY = 2
 
 
@@ -40,13 +37,11 @@ def derive_byron_address(
 
 
 def get_address_attributes(protocol_magic: int) -> dict:
-    # protocol magic is included in Byron addresses only on testnets
-    if protocol_magics.is_mainnet(protocol_magic):
-        address_attributes = {}
-    else:
-        address_attributes = {PROTOCOL_MAGIC_KEY: cbor.encode(protocol_magic)}
-
-    return address_attributes
+    return (
+        {}
+        if protocol_magics.is_mainnet(protocol_magic)
+        else {PROTOCOL_MAGIC_KEY: cbor.encode(protocol_magic)}
+    )
 
 
 def validate_byron_address(address: bytes, protocol_magic: int) -> None:
@@ -112,8 +107,7 @@ def _validate_address_data_protocol_magic(
 def _address_hash(data: list) -> bytes:
     cbor_data = cbor.encode(data)
     sha_data_hash = hashlib.sha3_256(cbor_data).digest()
-    res = hashlib.blake2b(data=sha_data_hash, outlen=28).digest()
-    return res
+    return hashlib.blake2b(data=sha_data_hash, outlen=28).digest()
 
 
 def _get_address_root(

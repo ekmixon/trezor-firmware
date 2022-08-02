@@ -17,14 +17,6 @@ from .layout import (
     require_confirm_unknown_token,
 )
 
-if False:
-    from typing import Tuple
-
-    from apps.common.keychain import Keychain
-
-    from .keychain import EthereumSignTxAny
-
-
 # Maximum chain_id which returns the full signature_v (which must fit into an uint32).
 # chain_ids larger than this will only return one bit and the caller must recalculate
 # the full value: v = 2 * chain_id + 35 + v_bit
@@ -88,9 +80,7 @@ async def sign_tx(
     rlp.write(sha, 0)
 
     digest = sha.get_digest()
-    result = sign_digest(msg, keychain, digest)
-
-    return result
+    return sign_digest(msg, keychain, digest)
 
 
 async def handle_erc20(
@@ -100,7 +90,7 @@ async def handle_erc20(
     address_bytes = recipient = bytes_from_address(msg.to)
     value = int.from_bytes(msg.value, "big")
     if (
-        len(msg.to) in (40, 42)
+        len(msg.to) in {40, 42}
         and len(msg.value) == 0
         and msg.data_length == 68
         and len(msg.data_initial_chunk) == 68
@@ -145,11 +135,7 @@ def get_total_length(msg: EthereumSignTx, data_total: int) -> int:
 async def send_request_chunk(ctx: wire.Context, data_left: int) -> EthereumTxAck:
     # TODO: layoutProgress ?
     req = EthereumTxRequest()
-    if data_left <= 1024:
-        req.data_length = data_left
-    else:
-        req.data_length = 1024
-
+    req.data_length = min(data_left, 1024)
     return await ctx.call(req, EthereumTxAck)
 
 

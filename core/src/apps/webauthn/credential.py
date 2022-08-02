@@ -12,9 +12,6 @@ from apps.common.paths import HARDENED
 
 from . import common
 
-if False:
-    from typing import Iterable
-
 # Credential ID values
 _CRED_ID_VERSION = b"\xf1\xd0\x02\x00"
 CRED_ID_MIN_LENGTH = const(33)
@@ -171,12 +168,13 @@ class Fido2Credential(Credential):
     def from_cred_id(
         cls, cred_id: bytes, rp_id_hash: bytes | None
     ) -> "Fido2Credential":
-        if len(cred_id) < CRED_ID_MIN_LENGTH or cred_id[0:4] != _CRED_ID_VERSION:
+        if len(cred_id) < CRED_ID_MIN_LENGTH or cred_id[:4] != _CRED_ID_VERSION:
             raise ValueError  # invalid length or version
 
         key = seed.derive_slip21_node_without_passphrase(
-            [b"SLIP-0022", cred_id[0:4], b"Encryption key"]
+            [b"SLIP-0022", cred_id[:4], b"Encryption key"]
         ).key()
+
         iv = cred_id[4:16]
         ciphertext = cred_id[16:-16]
         tag = cred_id[-16:]
@@ -267,10 +265,7 @@ class Fido2Credential(Credential):
         from . import knownapps
 
         app = knownapps.by_rp_id_hash(self.rp_id_hash)
-        if app is not None:
-            return app.label
-
-        return self.rp_id
+        return app.label if app is not None else self.rp_id
 
     def account_name(self) -> str | None:
         if self.user_name:
@@ -323,9 +318,7 @@ class Fido2Credential(Credential):
             common.COSE_ALG_EDDSA,
             common.COSE_CURVE_ED25519,
         ):
-            return ed25519.sign(
-                self._private_key(), b"".join(segment for segment in data)
-            )
+            return ed25519.sign(self._private_key(), b"".join(iter(data)))
 
         raise TypeError
 
@@ -350,15 +343,14 @@ class Fido2Credential(Credential):
             return None
 
         node = seed.derive_slip21_node_without_passphrase(
-            [b"SLIP-0022", self.id[0:4], b"hmac-secret", self.id]
+            [b"SLIP-0022", self.id[:4], b"hmac-secret", self.id]
         )
+
 
         return node.key()
 
     def next_signature_counter(self) -> int:
-        if not self.use_sign_count:
-            return 0
-        return super().next_signature_counter()
+        return super().next_signature_counter() if self.use_sign_count else 0
 
 
 class U2fCredential(Credential):
@@ -368,16 +360,10 @@ class U2fCredential(Credential):
 
     def __lt__(self, other: "Credential") -> bool:
         # Sort U2F credentials after FIDO2 credentials.
-        if isinstance(other, Fido2Credential):
-            return False
-
-        # Sort U2F credentials lexicographically amongst each other.
-        return self.id < other.id
+        return False if isinstance(other, Fido2Credential) else self.id < other.id
 
     def _private_key(self) -> bytes:
-        if self.node is None:
-            return b""
-        return self.node.private_key()
+        return b"" if self.node is None else self.node.private_key()
 
     def public_key(self) -> bytes:
         return nist256p1.publickey(self._private_key(), False)
@@ -390,7 +376,7 @@ class U2fCredential(Credential):
 
     def generate_key_handle(self) -> None:
         # derivation path is m/U2F'/r'/r'/r'/r'/r'/r'/r'/r'
-        path = [HARDENED | random.uniform(0x8000_0000) for _ in range(0, 8)]
+        path = [HARDENED | random.uniform(0x8000_0000) for _ in range(8)]
         nodepath = [_U2F_KEY_PATH] + path
 
         # prepare signing key from random path, compute decompressed public key

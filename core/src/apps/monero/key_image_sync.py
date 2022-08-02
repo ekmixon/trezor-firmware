@@ -87,7 +87,7 @@ async def _sync_step(s, ctx, tds):
         ki, sig = key_image.export_key_image(s.creds, s.subaddresses, td)
 
         # Serialize into buff
-        crypto.encodepoint_into(buff_mv[0:32], ki)
+        crypto.encodepoint_into(buff_mv[:32], ki)
         crypto.encodeint_into(buff_mv[32:64], sig[0][0])
         crypto.encodeint_into(buff_mv[64:], sig[0][1])
 

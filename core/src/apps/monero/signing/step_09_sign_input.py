@@ -10,6 +10,7 @@ If deterministic masks cannot be used (client_version=0), the balancing is done 
 on output masks as pseudo outputs have to remain same.
 """
 
+
 import gc
 
 from trezor import utils
@@ -18,10 +19,6 @@ from apps.monero import layout
 from apps.monero.xmr import crypto
 
 from .state import State
-
-if False:
-    from trezor.messages import MoneroTransactionSourceEntry
-    from trezor.messages import MoneroTransactionSignInputAck
 
 
 async def sign_input(
@@ -105,11 +102,6 @@ async def sign_input(
         pseudo_out_c = crypto.gen_commitment(pseudo_out_alpha, state.input_last_amount)
 
     else:
-        if input_position + 1 == state.input_count:
-            utils.ensure(
-                crypto.sc_eq(state.sumpouts_alphas, state.sumout), "Sum eq error"
-            )
-
         # both pseudo_out and its mask were offloaded so we need to
         # validate pseudo_out's HMAC and decrypt the alpha
         pseudo_out_hmac_comp = crypto.compute_hmac(
@@ -246,10 +238,7 @@ def _protect_signature(state: State, mg_buffer: list[bytes]) -> list[bytes]:
     buff = bytearray(CHACHA_BLOCK)
     buff_len = 0  # valid bytes in the block buffer
 
-    mg_len = 0
-    for data in mg_buffer:
-        mg_len += len(data)
-
+    mg_len = sum(len(data) for data in mg_buffer)
     # Preallocate array of ciphertext blocks, ceil, add tag block
     mg_res = [None] * (1 + (mg_len + CHACHA_BLOCK - 1) // CHACHA_BLOCK)
     mg_res_c = 0
@@ -257,8 +246,7 @@ def _protect_signature(state: State, mg_buffer: list[bytes]) -> list[bytes]:
         data_ln = len(data)
         data_off = 0
         while data_ln > 0:
-            to_add = min(CHACHA_BLOCK - buff_len, data_ln)
-            if to_add:
+            if to_add := min(CHACHA_BLOCK - buff_len, data_ln):
                 buff[buff_len : buff_len + to_add] = data[data_off : data_off + to_add]
                 data_ln -= to_add
                 buff_len += to_add

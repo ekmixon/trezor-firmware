@@ -14,8 +14,7 @@ class Device:
         print(msg, flush=True, file=sys.stderr)
 
     def run_trezorctl(self, cmd: str, **kwargs):
-        full_cmd = "trezorctl "
-        full_cmd += cmd
+        full_cmd = "trezorctl " + cmd
         self.log(f"[software/trezorctl] Running '{full_cmd}'")
         return run(full_cmd, shell=True, check=True, **kwargs)
 

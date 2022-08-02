@@ -86,7 +86,7 @@ async def _refresh_step(s: LiveRefreshState, ctx, msg: MoneroLiveRefreshStepRequ
     del spend_priv  # spend_priv never leaves the device
 
     # Serialize into buff
-    buff[0:32] = ki_enc
+    buff[:32] = ki_enc
     crypto.encodeint_into(buff_mv[32:64], sig[0][0])
     crypto.encodeint_into(buff_mv[64:], sig[0][1])
 

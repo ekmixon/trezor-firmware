@@ -5,17 +5,14 @@ from trezor.messages import EosAsset
 
 def base58_encode(prefix: str, sig_prefix: str, data: bytes) -> str:
     b58 = base58.encode(data + base58.ripemd160_32(data + sig_prefix.encode()))
-    if sig_prefix:
-        return prefix + sig_prefix + "_" + b58
-    else:
-        return prefix + b58
+    return prefix + sig_prefix + "_" + b58 if sig_prefix else prefix + b58
 
 
 def eos_name_to_string(value: int) -> str:
     charmap = ".12345abcdefghijklmnopqrstuvwxyz"
     tmp = value
     string = ""
-    for i in range(0, 13):
+    for i in range(13):
         c = charmap[tmp & (0x0F if i == 0 else 0x1F)]
         string = c + string
         tmp >>= 4 if i == 0 else 5
@@ -29,15 +26,14 @@ def eos_asset_to_string(asset: EosAsset) -> str:
     symbol = bytes(reversed(symbol_bytes[:7])).rstrip(b"\x00").decode("ascii")
 
     amount_digits = f"{asset.amount:0{precision}d}"
-    if precision > 0:
-        integer = amount_digits[:-precision]
-        if integer == "":
-            integer = "0"
-        fraction = amount_digits[-precision:]
-
-        return f"{integer}.{fraction} {symbol}"
-    else:
+    if precision <= 0:
         return f"{amount_digits} {symbol}"
+    integer = amount_digits[:-precision]
+    if integer == "":
+        integer = "0"
+    fraction = amount_digits[-precision:]
+
+    return f"{integer}.{fraction} {symbol}"
 
 
 def public_key_to_wif(pub_key: bytes) -> str:

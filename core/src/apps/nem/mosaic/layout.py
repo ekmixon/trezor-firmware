@@ -31,9 +31,9 @@ async def ask_supply_change(
 ):
     await require_confirm_content(ctx, "Supply change", _supply_message(change))
     if change.type == NEMSupplyChangeType.SupplyChange_Decrease:
-        msg = "Decrease supply by " + str(change.delta) + " whole units?"
+        msg = f"Decrease supply by {str(change.delta)} whole units?"
     elif change.type == NEMSupplyChangeType.SupplyChange_Increase:
-        msg = "Increase supply by " + str(change.delta) + " whole units?"
+        msg = f"Increase supply by {str(change.delta)} whole units?"
     else:
         raise ValueError("Invalid supply change type")
     await require_confirm_text(ctx, msg)
@@ -63,17 +63,11 @@ async def require_confirm_properties(ctx, definition: NEMMosaicDefinition):
         properties.append(("Description:", definition.description))
 
     # transferable
-    if definition.transferable:
-        transferable = "Yes"
-    else:
-        transferable = "No"
+    transferable = "Yes" if definition.transferable else "No"
     properties.append(("Transferable?", transferable))
 
     # mutable_supply
-    if definition.mutable_supply:
-        imm = "mutable"
-    else:
-        imm = "immutable"
+    imm = "mutable" if definition.mutable_supply else "immutable"
     if definition.supply:
         properties.append(("Initial supply:", str(definition.supply) + "\n" + imm))
     else:
@@ -81,13 +75,15 @@ async def require_confirm_properties(ctx, definition: NEMMosaicDefinition):
 
     # levy
     if definition.levy:
-        properties.append(("Levy recipient:", definition.levy_address))
-
-        properties.append(("Levy fee:", str(definition.fee)))
-        properties.append(("Levy divisibility:", str(definition.divisibility)))
-
-        properties.append(("Levy namespace:", definition.levy_namespace))
-        properties.append(("Levy mosaic:", definition.levy_mosaic))
+        properties.extend(
+            (
+                ("Levy recipient:", definition.levy_address),
+                ("Levy fee:", str(definition.fee)),
+                ("Levy divisibility:", str(definition.divisibility)),
+                ("Levy namespace:", definition.levy_namespace),
+                ("Levy mosaic:", definition.levy_mosaic),
+            )
+        )
 
         if definition.levy == NEMMosaicLevy.MosaicLevy_Absolute:
             levy_type = "absolute"

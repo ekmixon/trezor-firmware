@@ -182,9 +182,7 @@ class ProtoField:
 
     @property
     def default_value(self):
-        if not self.orig.HasField("default_value"):
-            return None
-        return self.orig.default_value
+        return self.orig.default_value if self.orig.HasField("default_value") else None
 
     @property
     def default_value_repr(self):
@@ -198,7 +196,7 @@ class ProtoField:
         elif self.type == FieldDescriptor.TYPE_STRING:
             return repr(self.default_value)
         elif self.type == FieldDescriptor.TYPE_BYTES:
-            return "b" + repr(self.default_value)
+            return f"b{repr(self.default_value)}"
         elif self.type == FieldDescriptor.TYPE_BOOL:
             return "True" if self.default_value == "true" else "False"
         else:
@@ -214,10 +212,12 @@ class ProtoField:
 
     @classmethod
     def from_field(cls, descriptor, field):
-        if not field.type_name:
-            type_name = TYPE_NAMES[field.type]
-        else:
-            type_name = field.type_name.rsplit(".")[-1]
+        type_name = (
+            field.type_name.rsplit(".")[-1]
+            if field.type_name
+            else TYPE_NAMES[field.type]
+        )
+
         return cls(
             name=field.name,
             number=field.number,
@@ -267,14 +267,13 @@ class ProtoMessage:
 
 def protoc(files):
     """Compile code with protoc and return the data."""
-    include_dirs = set()
-    include_dirs.add(str(PROTOC_PREFIX / "include"))
+    include_dirs = {str(PROTOC_PREFIX / "include")}
     if "PROTOC_INCLUDE" in os.environ:
         include_dirs.add(os.environ["PROTOC_INCLUDE"])
 
     for file in files:
         include_dirs.add(os.path.dirname(file) or ".")
-    protoc_includes = ["-I" + dir for dir in include_dirs if dir]
+    protoc_includes = [f"-I{dir}" for dir in include_dirs if dir]
 
     return subprocess.check_output(
         [PROTOC, "--descriptor_set_out=/dev/stdout"] + protoc_includes + list(files)
@@ -312,7 +311,7 @@ def strip_enum_prefix(enum_name, value_name):
     for any variation of the above, the values returned would be "First_Value" and
     "SecondValue".
     """
-    leader = enum_name + "_"
+    leader = f"{enum_name}_"
     if value_name.startswith(leader):
         return value_name[len(leader) :]
 
@@ -444,10 +443,9 @@ class PythonRenderer:
 
         all_values = self.descriptor._filter_items(enum.value)
 
-        has_bitcoin_only_values = self.descriptor._get_extension(
+        if has_bitcoin_only_values := self.descriptor._get_extension(
             enum, "has_bitcoin_only_values"
-        )
-        if has_bitcoin_only_values:
+        ):
             values_always = [
                 v
                 for v in all_values
@@ -466,7 +464,7 @@ class PythonRenderer:
         )
 
     def write_to_file(self, item_name, content):
-        dest = self.out_dir / (item_name + "." + self.python_extension)
+        dest = self.out_dir / f"{item_name}.{self.python_extension}"
         dest.write_text(content)
 
     def generate_messages(self, template_src):
@@ -687,7 +685,6 @@ WritableDirectory = click.Path(exists=True, file_okay=False, writable=True)
 
 
 @click.command()
-# fmt: off
 @click.argument("proto", nargs=-1, type=ReadableFile, required=True)
 @click.option("--python-outdir", type=WritableDirectory, help="Output directory for Python classes (contents will be deleted)")
 @click.option("--python-extension", default="py", help="Use .pyi to generate type stubs")
@@ -699,7 +696,6 @@ WritableDirectory = click.Path(exists=True, file_okay=False, writable=True)
 @click.option("-v", "--verbose", is_flag=True)
 @click.option("-d", "--include-deprecated", is_flag=True, help="Include deprecated fields, messages and enums")
 @click.option("-b", "--bitcoin-only", type=int, default=0, help="Exclude fields, messages and enums that do not belong to bitcoin_only builds")
-# fmt: on
 def main(
     proto,
     python_outdir,
@@ -733,8 +729,8 @@ def main(
             renderer = PythonRenderer(descriptor, tmpdir_path, python_extension)
             renderer.generate_python()
 
-            for file in outdir.glob("*." + python_extension):
-                if file.name == "__init__." + python_extension:
+            for file in outdir.glob(f"*.{python_extension}"):
+                if file.name == f"__init__.{python_extension}":
                     continue
                 file.unlink()
 

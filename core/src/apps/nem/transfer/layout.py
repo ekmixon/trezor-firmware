@@ -98,14 +98,18 @@ async def ask_transfer_mosaic(
 
 def _get_xem_amount(transfer: NEMTransfer):
     # if mosaics are empty the transfer.amount denotes the xem amount
-    if not transfer.mosaics:
-        return transfer.amount
-    # otherwise xem amount is taken from the nem xem mosaic if present
-    for mosaic in transfer.mosaics:
-        if is_nem_xem_mosaic(mosaic.namespace, mosaic.mosaic):
-            return mosaic.quantity * transfer.amount // NEM_MOSAIC_AMOUNT_DIVISOR
-    # if there are mosaics but do not include xem, 0 xem is sent
-    return 0
+    return (
+        next(
+            (
+                mosaic.quantity * transfer.amount // NEM_MOSAIC_AMOUNT_DIVISOR
+                for mosaic in transfer.mosaics
+                if is_nem_xem_mosaic(mosaic.namespace, mosaic.mosaic)
+            ),
+            0,
+        )
+        if transfer.mosaics
+        else transfer.amount
+    )
 
 
 def _get_levy_msg(mosaic_definition, quantity: int, network: int) -> str:
@@ -131,7 +135,7 @@ async def ask_importance_transfer(
         m = "Activate"
     else:
         m = "Deactivate"
-    await require_confirm_text(ctx, m + " remote harvesting?")
+    await require_confirm_text(ctx, f"{m} remote harvesting?")
     await require_confirm_final(ctx, common.fee)
 
 

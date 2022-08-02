@@ -4,13 +4,6 @@ from ...common.paths import address_n_to_str
 from .paths import CHAIN_STAKING_KEY, SCHEMA_PAYMENT, SCHEMA_STAKING
 from .utils import format_key_hash, format_script_hash, to_account_path
 
-if False:
-    from trezor.messages import (
-        CardanoBlockchainPointerType,
-        CardanoAddressParametersType,
-    )
-    from trezor.ui.layouts import PropertyType
-
 
 class Credential:
     """

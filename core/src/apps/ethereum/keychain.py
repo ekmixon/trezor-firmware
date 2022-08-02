@@ -5,36 +5,6 @@ from apps.common.keychain import get_keychain
 
 from . import CURVE, networks
 
-if False:
-    from typing import Callable, Iterable, TypeVar, Union
-
-    from trezor.messages import (
-        EthereumGetAddress,
-        EthereumGetPublicKey,
-        EthereumSignMessage,
-        EthereumSignTx,
-        EthereumSignTxEIP1559,
-        EthereumSignTypedData,
-    )
-
-    from apps.common.keychain import MsgOut, Handler, HandlerWithKeychain
-
-    EthereumMessages = Union[
-        EthereumGetAddress,
-        EthereumGetPublicKey,
-        EthereumSignTx,
-        EthereumSignMessage,
-        EthereumSignTypedData,
-    ]
-    MsgIn = TypeVar("MsgIn", bound=EthereumMessages)
-
-    EthereumSignTxAny = Union[
-        EthereumSignTx,
-        EthereumSignTxEIP1559,
-    ]
-    MsgInChainId = TypeVar("MsgInChainId", bound=EthereumSignTxAny)
-
-
 # We believe Ethereum should use 44'/60'/a' for everything, because it is
 # account-based, rather than UTXO-based. Unfortunately, lot of Ethereum
 # tools (MEW, Metamask) do not use such scheme and set a = 0 and then

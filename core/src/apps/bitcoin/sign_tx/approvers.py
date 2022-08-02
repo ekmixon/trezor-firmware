@@ -10,15 +10,6 @@ from ..authorization import FEE_PER_ANONYMITY_DECIMALS
 from . import helpers, tx_weight
 from .tx_info import OriginalTxInfo, TxInfo
 
-if False:
-    from trezor.messages import SignTx
-    from trezor.messages import TxInput
-    from trezor.messages import TxOutput
-
-    from apps.common.coininfo import CoinInfo
-
-    from ..authorization import CoinJoinAuthorization
-
 
 # An Approver object computes the transaction totals and either prompts the user
 # to confirm transaction parameters (output addresses, amounts and fees) or uses
@@ -236,11 +227,6 @@ class BasicApprover(Approver):
                 await helpers.confirm_modify_fee(
                     spending - orig_spending, fee, self.coin, self.amount_unit
                 )
-            else:
-                # PayJoin and user is not spending more: When new external inputs are involved and
-                # the user is paying less, the scenario can be open to multiple interpretations and
-                # the dialog would likely cause more confusion than what it's worth, see PR #1292.
-                pass
         else:
             # Standard transaction.
             if tx_info.tx.lock_time > 0:

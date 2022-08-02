@@ -5,9 +5,6 @@ from trezor.crypto import bip32, hmac
 from . import mnemonic
 from .passphrase import get as get_passphrase
 
-if False:
-    from .paths import Bip32Path, Slip21Path
-
 
 class Slip21Node:
     """
@@ -29,7 +26,7 @@ class Slip21Node:
 
     def derive_path(self, path: Slip21Path) -> None:
         for label in path:
-            h = hmac(hmac.SHA512, self.data[0:32], b"\x00")
+            h = hmac(hmac.SHA512, self.data[:32], b"\x00")
             h.update(label)
             self.data = h.digest()
 

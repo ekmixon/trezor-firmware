@@ -31,7 +31,7 @@ class MemoryReaderWriter:
             self.woffset = len(buffer)
 
     def is_empty(self):
-        return self.offset == len(self.buffer) or self.offset == self.woffset
+        return self.offset in [len(self.buffer), self.woffset]
 
     def preallocate(self, size):
         self.buffer = bytearray(size)

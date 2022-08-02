@@ -5,9 +5,6 @@ from trezor.crypto.hashlib import blake256, sha256
 
 from apps.common.writers import write_bitcoin_varint
 
-if False:
-    from apps.common.coininfo import CoinInfo
-
 
 def message_digest(coin: CoinInfo, message: bytes) -> bytes:
     if not utils.BITCOIN_ONLY and coin.decred:

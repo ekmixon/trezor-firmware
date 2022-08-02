@@ -15,10 +15,6 @@ from .. import backup_types
 from . import word_validity
 from .recover import RecoveryAborted
 
-if False:
-    from typing import Callable
-    from trezor.enums import BackupType
-
 
 async def confirm_abort(ctx: wire.GenericContext, dry_run: bool = False) -> None:
     if dry_run:
@@ -145,10 +141,9 @@ async def homescreen_dialog(
     subtext: str | None = None,
     info_func: Callable | None = None,
 ) -> None:
-    while True:
-        if await continue_recovery(ctx, button_label, text, subtext, info_func):
-            # go forward in the recovery process
-            break
+    while not await continue_recovery(
+        ctx, button_label, text, subtext, info_func
+    ):
         # user has chosen to abort, confirm the choice
         dry_run = storage.recovery.is_dry_run()
         try:

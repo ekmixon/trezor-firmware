@@ -11,10 +11,7 @@ def is_enabled() -> bool:
 
 
 async def get(ctx: wire.Context) -> str:
-    if is_enabled():
-        return await _request_from_user(ctx)
-    else:
-        return ""
+    return await _request_from_user(ctx) if is_enabled() else ""
 
 
 async def _request_from_user(ctx: wire.Context) -> str:

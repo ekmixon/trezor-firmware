@@ -39,9 +39,7 @@ class Interval:
         self.max = max
 
     def __contains__(self, x: object) -> bool:
-        if not isinstance(x, int):
-            return False
-        return self.min <= x <= self.max
+        return self.min <= x <= self.max if isinstance(x, int) else False
 
 
 class PathSchema:
@@ -115,7 +113,7 @@ class PathSchema:
         if isinstance(container, Interval):
             return Interval(container.min + 0, container.max + 0)
         if isinstance(container, set):
-            return set(i + 0 for i in container)
+            return {i + 0 for i in container}
         if isinstance(container, tuple):
             return tuple(i + 0 for i in container)
         raise RuntimeError("Unsupported container for copy")
@@ -203,11 +201,11 @@ class PathSchema:
 
             elif "," in component:
                 # parse as a list of values
-                schema.append(set(parse(s) for s in component.split(",")))
+                schema.append({parse(s) for s in component.split(",")})
 
             elif component == "coin_type":
                 # substitute SLIP-44 ids
-                schema.append(set(parse(s) for s in slip44_id))
+                schema.append({parse(s) for s in slip44_id})
 
             else:
                 # plain constant
@@ -238,12 +236,7 @@ class PathSchema:
             if value not in expected:
                 return False
 
-        # iterate over remaining path components
-        for value in path_iter:
-            if value not in self.trailing_components:
-                return False
-
-        return True
+        return all(value in self.trailing_components for value in path_iter)
 
     if __debug__:
 
@@ -266,7 +259,7 @@ class PathSchema:
                     collection: Collection[int] = component  # type: ignore
                     component_str = ",".join(str(unharden(i)) for i in collection)
                     if len(collection) > 1:
-                        component_str = "[" + component_str + "]"
+                        component_str = f"[{component_str}]"
                     if next(iter(collection)) & HARDENED:
                         component_str += "'"
                     components.append(component_str)
@@ -338,12 +331,6 @@ def path_is_hardened(address_n: Bip32Path) -> bool:
 
 def address_n_to_str(address_n: Iterable[int]) -> str:
     def path_item(i: int) -> str:
-        if i & HARDENED:
-            return str(i ^ HARDENED) + "'"
-        else:
-            return str(i)
+        return str(i ^ HARDENED) + "'" if i & HARDENED else str(i)
 
-    if not address_n:
-        return "m"
-
-    return "m/" + "/".join(path_item(i) for i in address_n)
+    return "m/" + "/".join(path_item(i) for i in address_n) if address_n else "m"

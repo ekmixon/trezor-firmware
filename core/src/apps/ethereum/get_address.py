@@ -7,12 +7,6 @@ from . import networks
 from .helpers import address_from_bytes
 from .keychain import PATTERNS_ADDRESS, with_keychain_from_path
 
-if False:
-    from trezor.messages import EthereumGetAddress
-    from trezor.wire import Context
-
-    from apps.common.keychain import Keychain
-
 
 @with_keychain_from_path(*PATTERNS_ADDRESS)
 async def get_address(

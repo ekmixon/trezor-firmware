@@ -22,26 +22,6 @@ from . import approvers, helpers, progress
 from .sig_hasher import BitcoinSigHasher
 from .tx_info import OriginalTxInfo, TxInfo
 
-if False:
-    from typing import Sequence
-
-    from trezor.crypto import bip32
-
-    from trezor.messages import (
-        PrevInput,
-        PrevOutput,
-        PrevTx,
-        SignTx,
-        TxInput,
-        TxOutput,
-    )
-
-    from apps.common.coininfo import CoinInfo
-    from apps.common.keychain import Keychain
-
-    from .sig_hasher import SigHasher
-
-
 # the number of bytes to preallocate for serialized transaction chunks
 _MAX_SERIALIZED_CHUNK_SIZE = const(2048)
 _SERIALIZED_TX_BUFFER = empty_bytearray(_MAX_SERIALIZED_CHUNK_SIZE)
@@ -444,14 +424,14 @@ class Bitcoin:
         script_pubkey: bytes,
     ) -> bytes:
         if txi.witness:
-            if common.input_is_taproot(txi):
-                return tx_info.sig_hasher.hash341(
+            return (
+                tx_info.sig_hasher.hash341(
                     i,
                     tx_info.tx,
                     self.get_sighash_type(txi),
                 )
-            else:
-                return tx_info.sig_hasher.hash143(
+                if common.input_is_taproot(txi)
+                else tx_info.sig_hasher.hash143(
                     txi,
                     public_keys,
                     threshold,
@@ -459,9 +439,10 @@ class Bitcoin:
                     self.coin,
                     self.get_hash_type(txi),
                 )
-        else:
-            digest, _, _ = await self.get_legacy_tx_digest(i, tx_info, script_pubkey)
-            return digest
+            )
+
+        digest, _, _ = await self.get_legacy_tx_digest(i, tx_info, script_pubkey)
+        return digest
 
     async def verify_external_input(
         self, i: int, txi: TxInput, script_pubkey: bytes

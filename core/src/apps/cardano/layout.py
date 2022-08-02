@@ -35,22 +35,6 @@ from .helpers.utils import (
 )
 from .seed import is_minting_path, is_multisig_path
 
-if False:
-    from trezor import wire
-    from trezor.messages import (
-        CardanoNativeScript,
-        CardanoTxCertificate,
-        CardanoTxWithdrawal,
-        CardanoPoolParametersType,
-        CardanoPoolOwner,
-        CardanoPoolMetadataType,
-        CardanoToken,
-    )
-
-    from trezor.ui.layouts import PropertyType
-    from .helpers.credential import Credential
-
-
 ADDRESS_TYPE_NAMES = {
     CardanoAddressType.BYRON: "Legacy",
     CardanoAddressType.BASE: "Base",
@@ -269,11 +253,7 @@ async def _show_credential(
     # and reward address payment credential. In that case we don't want to
     # show some of the "props".
     if credential.is_set():
-        if is_change_output:
-            address_usage = "Change address"
-        else:
-            address_usage = "Address"
-
+        address_usage = "Change address" if is_change_output else "Address"
         credential_title = credential.get_title()
         props.append(
             (
@@ -451,21 +431,24 @@ async def confirm_stake_pool_owner(
 ) -> None:
     props: list[tuple[str, str | None]] = []
     if owner.staking_key_path:
-        props.append(("Pool owner:", address_n_to_str(owner.staking_key_path)))
-        props.append(
+        props.extend(
             (
-                derive_human_readable_address(
-                    keychain,
-                    CardanoAddressParametersType(
-                        address_type=CardanoAddressType.REWARD,
-                        address_n=owner.staking_key_path,
+                ("Pool owner:", address_n_to_str(owner.staking_key_path)),
+                (
+                    derive_human_readable_address(
+                        keychain,
+                        CardanoAddressParametersType(
+                            address_type=CardanoAddressType.REWARD,
+                            address_n=owner.staking_key_path,
+                        ),
+                        protocol_magic,
+                        network_id,
                     ),
-                    protocol_magic,
-                    network_id,
+                    None,
                 ),
-                None,
             )
         )
+
     else:
         assert owner.staking_key_hash is not None  # validate_pool_owners
         props.append(
@@ -658,9 +641,11 @@ async def show_cardano_address(
     address: str,
     protocol_magic: int,
 ) -> None:
-    network_name = None
-    if not protocol_magics.is_mainnet(protocol_magic):
-        network_name = protocol_magics.to_ui_string(protocol_magic)
+    network_name = (
+        None
+        if protocol_magics.is_mainnet(protocol_magic)
+        else protocol_magics.to_ui_string(protocol_magic)
+    )
 
     title = f"{ADDRESS_TYPE_NAMES[address_parameters.address_type]} address"
     address_extra = None

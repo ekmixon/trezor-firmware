@@ -15,22 +15,6 @@ from .helpers import ADDRESS_KEY_HASH_SIZE, INVALID_CERTIFICATE, LOVELACE_MAX_SU
 from .helpers.paths import SCHEMA_STAKING_ANY_ACCOUNT
 from .helpers.utils import validate_stake_credential
 
-if False:
-    from typing import Any
-
-    from trezor.messages import (
-        CardanoPoolMetadataType,
-        CardanoPoolOwner,
-        CardanoPoolParametersType,
-        CardanoPoolRelayParameters,
-        CardanoTxCertificate,
-    )
-
-    from apps.common.cbor import CborSequence
-
-    from . import seed
-    from .helpers.account_path_check import AccountPathChecker
-
 POOL_HASH_SIZE = 28
 VRF_KEY_HASH_SIZE = 32
 POOL_METADATA_HASH_SIZE = 32
@@ -70,9 +54,10 @@ def validate_certificate(
             certificate.path, certificate.script_hash, signing_mode, INVALID_CERTIFICATE
         )
 
-    if certificate.type == CardanoCertificateType.STAKE_DELEGATION:
-        if not certificate.pool or len(certificate.pool) != POOL_HASH_SIZE:
-            raise INVALID_CERTIFICATE
+    if certificate.type == CardanoCertificateType.STAKE_DELEGATION and (
+        not certificate.pool or len(certificate.pool) != POOL_HASH_SIZE
+    ):
+        raise INVALID_CERTIFICATE
 
     if certificate.type == CardanoCertificateType.STAKE_POOL_REGISTRATION:
         if certificate.pool_parameters is None:
@@ -261,7 +246,7 @@ def _cborize_ipv6_address(ipv6_address: bytes | None) -> bytes | None:
     assert len(ipv6_address) == IPV6_ADDRESS_SIZE
 
     result = b""
-    for i in range(0, 4):
+    for i in range(4):
         result += bytes(reversed(ipv6_address[i * 4 : i * 4 + 4]))
 
     return result
@@ -295,7 +280,4 @@ def cborize_pool_relay(
 def cborize_pool_metadata(
     pool_metadata: CardanoPoolMetadataType | None,
 ) -> CborSequence | None:
-    if not pool_metadata:
-        return None
-
-    return (pool_metadata.url, pool_metadata.hash)
+    return (pool_metadata.url, pool_metadata.hash) if pool_metadata else None

@@ -155,7 +155,7 @@ def _sc_mul(dst, a, b=None, b_raw=None):
 
 
 def _sc_muladd(dst, a, b, c, a_raw=None, b_raw=None, c_raw=None, raw=False):
-    dst = _ensure_dst_key(dst) if not raw else (dst if dst else crypto.new_scalar())
+    dst = dst or crypto.new_scalar() if raw else _ensure_dst_key(dst)
     if a:
         crypto.decodeint_into_noreduce(_tmp_sc_1, a)
     if b:
@@ -163,11 +163,12 @@ def _sc_muladd(dst, a, b, c, a_raw=None, b_raw=None, c_raw=None, raw=False):
     if c:
         crypto.decodeint_into_noreduce(_tmp_sc_3, c)
     crypto.sc_muladd_into(
-        _tmp_sc_4 if not raw else dst,
+        dst if raw else _tmp_sc_4,
         _tmp_sc_1 if a else a_raw,
         _tmp_sc_2 if b else b_raw,
         _tmp_sc_3 if c else c_raw,
     )
+
     if not raw:
         crypto.encodeint_into(dst, _tmp_sc_4)
     return dst
@@ -291,9 +292,8 @@ class KeyVBase:
     def __next__(self):
         if self.current_idx >= self.size:
             raise StopIteration
-        else:
-            self.current_idx += 1
-            return self[self.current_idx - 1]
+        self.current_idx += 1
+        return self[self.current_idx - 1]
 
     def __len__(self):
         return self.size
@@ -390,15 +390,16 @@ class KeyV(KeyVBase):
         idx = self.idxize(idx)
         if self.chunked:
             memcpy(
-                buff if buff else self.cur,
+                buff or self.cur,
                 offset,
                 self.d[idx >> _CHBITS],
                 (idx & (_CHSIZE - 1)) << 5,
                 32,
             )
+
         else:
-            memcpy(buff if buff else self.cur, offset, self.d, idx << 5, 32)
-        return buff if buff else self.cur
+            memcpy(buff or self.cur, offset, self.d, idx << 5, 32)
+        return buff or self.cur
 
     def read(self, idx, buff, offset=0):
         idx = self.idxize(idx)
@@ -426,28 +427,27 @@ class KeyV(KeyVBase):
         elif self.chunked and self.size < nsize:
             if nsize % _CHSIZE != 0 or realloc or chop:
                 raise ValueError("Unsupported")  # not needed
-            for i in range((nsize - self.size) // _CHSIZE):
+            for _ in range((nsize - self.size) // _CHSIZE):
                 self.d.append(bytearray(32 * _CHSIZE))
 
         elif self.chunked:
             if nsize % _CHSIZE != 0:
                 raise ValueError("Unsupported")  # not needed
-            for i in range((self.size - nsize) // _CHSIZE):
+            for _ in range((self.size - nsize) // _CHSIZE):
                 self.d.pop()
             if realloc:
                 for i in range(nsize // _CHSIZE):
                     self.d[i] = bytearray(self.d[i])
 
+        elif self.size > nsize and realloc:
+            gc.collect()
+            self.d = bytearray(self.d[: nsize << 5])
+        elif self.size > nsize and not chop:
+            gc.collect()
+            self.d = self.d[: nsize << 5]
         else:
-            if self.size > nsize and realloc:
-                gc.collect()
-                self.d = bytearray(self.d[: nsize << 5])
-            elif self.size > nsize and not chop:
-                gc.collect()
-                self.d = self.d[: nsize << 5]
-            else:
-                gc.collect()
-                self.d = bytearray(nsize << 5)
+            gc.collect()
+            self.d = bytearray(nsize << 5)
 
         self.size = nsize
         self._set_mv()
@@ -470,11 +470,11 @@ class KeyV(KeyVBase):
         if not self.chunked and not src.chunked:
             memcpy(self.d, 0, src.d, offset << 5, nsize << 5)
 
-        elif self.chunked and not src.chunked or self.chunked and src.chunked:
+        elif self.chunked and not src.chunked or self.chunked:
             for i in range(nsize):
                 self.read(i, src.to(i + offset))
 
-        elif not self.chunked and src.chunked:
+        else:
             for i in range(nsize >> _CHBITS):
                 memcpy(
                     self.d,
@@ -498,9 +498,9 @@ class KeyVEval(KeyVBase):
         self.raw = raw
         self.scalar = scalar
         self.buff = (
-            _ensure_dst_key()
-            if not raw
-            else (crypto.new_scalar() if scalar else crypto.new_point())
+            (crypto.new_scalar() if scalar else crypto.new_point())
+            if raw
+            else _ensure_dst_key()
         )
 
     def __getitem__(self, item):
@@ -519,7 +519,7 @@ class KeyVEval(KeyVBase):
                 raise ValueError("Not supported")
         else:
             memcpy(buff, offset, self.buff, 0, 32)
-        return buff if buff else self.buff
+        return buff or self.buff
 
 
 class KeyVSized(KeyVBase):
@@ -553,7 +553,7 @@ class KeyVConst(KeyVBase):
 
     def to(self, idx, buff=None, offset=0):
         memcpy(buff, offset, self.elem, 0, 32)
-        return buff if buff else self.elem
+        return buff or self.elem
 
 
 class KeyVPrecomp(KeyVBase):
@@ -580,10 +580,10 @@ class KeyVPrecomp(KeyVBase):
     def to(self, idx, buff=None, offset=0):
         item = self.idxize(idx)
         if item < len(self.precomp_prefix):
-            return self.precomp_prefix.to(item, buff if buff else self.buff, offset)
+            return self.precomp_prefix.to(item, buff or self.buff, offset)
         self.aux_comp_fnc(item, self.buff)
         memcpy(buff, offset, self.buff, 0, 32)
-        return buff if buff else self.buff
+        return buff or self.buff
 
 
 class KeyVSliced(KeyVBase):
@@ -623,9 +623,9 @@ class KeyVPowers(KeyVBase):
 
     def __init__(self, size, x, raw=False, **kwargs):
         super().__init__(size)
-        self.x = x if not raw else crypto.decodeint_into_noreduce(None, x)
+        self.x = crypto.decodeint_into_noreduce(None, x) if raw else x
         self.raw = raw
-        self.cur = bytearray(32) if not raw else crypto.new_scalar()
+        self.cur = crypto.new_scalar() if raw else bytearray(32)
         self.last_idx = 0
 
     def __getitem__(self, item):
@@ -635,33 +635,33 @@ class KeyVPowers(KeyVBase):
 
         if item == 0:
             return (
-                _copy_key(self.cur, _ONE)
-                if not self.raw
-                else crypto.decodeint_into_noreduce(None, _ONE)
+                crypto.decodeint_into_noreduce(None, _ONE)
+                if self.raw
+                else _copy_key(self.cur, _ONE)
             )
+
         elif item == 1:
             return (
-                _copy_key(self.cur, self.x)
-                if not self.raw
-                else crypto.sc_copy(self.cur, self.x)
+                crypto.sc_copy(self.cur, self.x)
+                if self.raw
+                else _copy_key(self.cur, self.x)
             )
+
         elif item == prev:
             return self.cur
         elif item == prev + 1:
             return (
-                _sc_mul(self.cur, self.cur, self.x)
-                if not self.raw
-                else crypto.sc_mul_into(self.cur, self.cur, self.x)
+                crypto.sc_mul_into(self.cur, self.cur, self.x)
+                if self.raw
+                else _sc_mul(self.cur, self.cur, self.x)
             )
+
         else:
             raise IndexError(f"Only linear scan allowed: {prev}, {item}")
 
     def set_state(self, idx, val):
         self.last_idx = idx
-        if self.raw:
-            return crypto.sc_copy(self.cur, val)
-        else:
-            return _copy_key(self.cur, val)
+        return crypto.sc_copy(self.cur, val) if self.raw else _copy_key(self.cur, val)
 
 
 class KeyR0(KeyVBase):
@@ -701,7 +701,7 @@ class KeyR0(KeyVBase):
         self.p2 = crypto.new_scalar()  # 2^{i \% N}
         self.res = crypto.new_scalar()  # tmp_sc_1
 
-        self.cur = bytearray(32) if not raw else None
+        self.cur = None if raw else bytearray(32)
         self.last_idx = 0
         self.reset()
 
@@ -728,10 +728,7 @@ class KeyR0(KeyVBase):
                 crypto.decodeint_into_noreduce(self.res, _TWO)  # p2
                 crypto.sc_mul_into(self.p2, self.p2, self.res)  # p2
 
-        elif item == prev:  # No advancing
-            pass
-
-        else:
+        elif item != prev:
             raise IndexError("Only linear scan allowed")
 
         # Eval r0[i]
@@ -753,9 +750,7 @@ class KeyR0(KeyVBase):
 
     def to(self, idx, buff=None, offset=0):
         r = self[idx]
-        if buff is None:
-            return r
-        return memcpy(buff, offset, r, 0, 32)
+        return r if buff is None else memcpy(buff, offset, r, 0, 32)
 
 
 def _ensure_dst_keyvect(dst=None, size=None):
@@ -874,11 +869,11 @@ def _hadamard_fold(v, a, b, into=None, into_offset=0, vR=None, vRoff=0):
     h = len(v) // 2
     crypto.decodeint_into_noreduce(_tmp_sc_1, a)
     crypto.decodeint_into_noreduce(_tmp_sc_2, b)
-    into = into if into else v
+    into = into or v
 
     for i in range(h):
         crypto.decodepoint_into(_tmp_pt_1, v.to(i))
-        crypto.decodepoint_into(_tmp_pt_2, v.to(h + i) if not vR else vR.to(i + vRoff))
+        crypto.decodepoint_into(_tmp_pt_2, vR.to(i + vRoff) if vR else v.to(h + i))
         crypto.add_keys3_into(_tmp_pt_3, _tmp_sc_1, _tmp_pt_1, _tmp_sc_2, _tmp_pt_2)
         crypto.encodepoint_into(_tmp_bf_0, _tmp_pt_3)
         into.read(i + into_offset, _tmp_bf_0)
@@ -896,7 +891,7 @@ def _hadamard_fold_linear(v, a, b, into=None, into_offset=0):
     v_i = a v_i + b v_{h + i}
     """
     h = len(v) // 2
-    into = into if into else v
+    into = into or v
 
     crypto.decodeint_into_noreduce(_tmp_sc_1, a)
     for i in range(h):
@@ -927,7 +922,7 @@ def _scalar_fold(v, a, b, into=None, into_offset=0):
     h = len(v) // 2
     crypto.decodeint_into_noreduce(_tmp_sc_1, a)
     crypto.decodeint_into_noreduce(_tmp_sc_2, b)
-    into = into if into else v
+    into = into or v
 
     for i in range(h):
         crypto.decodeint_into_noreduce(_tmp_sc_3, v.to(i))
@@ -1022,8 +1017,8 @@ class MultiExpSequential:
 
     def __init__(self, size=None, points=None, point_fnc=None):
         self.current_idx = 0
-        self.size = size if size else None
-        self.points = points if points else []
+        self.size = size or None
+        self.points = points or []
         self.point_fnc = point_fnc
         if points and size is None:
             self.size = len(points) if points else 0
@@ -1098,9 +1093,7 @@ class BulletProofBuilder:
                 r = _ONE if is_a else _ZERO
             else:
                 r = _ZERO if is_a else _MINUS_ONE
-            if d:
-                return memcpy(d, 0, r, 0, 32)
-            return r
+            return memcpy(d, 0, r, 0, 32) if d else r
 
         aL = KeyVEval(MN, lambda i, d: e_xL(i, d, True))
         aR = KeyVEval(MN, lambda i, d: e_xL(i, d, False))

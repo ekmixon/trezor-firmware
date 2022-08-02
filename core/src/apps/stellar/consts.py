@@ -2,43 +2,6 @@ from micropython import const
 
 from trezor.enums import MessageType
 
-if False:
-    from typing import Union
-    from trezor import protobuf
-
-    from trezor.messages import (
-        StellarAccountMergeOp,
-        StellarAllowTrustOp,
-        StellarBumpSequenceOp,
-        StellarChangeTrustOp,
-        StellarCreateAccountOp,
-        StellarCreatePassiveSellOfferOp,
-        StellarManageDataOp,
-        StellarManageBuyOfferOp,
-        StellarManageSellOfferOp,
-        StellarPathPaymentStrictReceiveOp,
-        StellarPathPaymentStrictSendOp,
-        StellarPaymentOp,
-        StellarSetOptionsOp,
-    )
-
-    StellarMessageType = Union[
-        StellarAccountMergeOp,
-        StellarAllowTrustOp,
-        StellarBumpSequenceOp,
-        StellarChangeTrustOp,
-        StellarCreateAccountOp,
-        StellarCreatePassiveSellOfferOp,
-        StellarManageDataOp,
-        StellarManageBuyOfferOp,
-        StellarManageSellOfferOp,
-        StellarPathPaymentStrictReceiveOp,
-        StellarPathPaymentStrictSendOp,
-        StellarPaymentOp,
-        StellarSetOptionsOp,
-    ]
-
-
 TX_TYPE = b"\x00\x00\x00\x02"
 
 # source: https://github.com/stellar/go/blob/a1db2a6b1f/xdr/Stellar-transaction.x#L35

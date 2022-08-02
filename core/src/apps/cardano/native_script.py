@@ -12,13 +12,6 @@ from .helpers.paths import SCHEMA_MINT
 from .helpers.utils import get_public_key_hash
 from .seed import Keychain, is_multisig_path
 
-if False:
-    from typing import Any
-
-    from trezor.messages import CardanoNativeScript
-
-    from apps.common.cbor import CborSequence
-
 SCRIPT_ADDRESS_TYPES = (
     CardanoAddressType.BASE_SCRIPT_KEY,
     CardanoAddressType.BASE_KEY_SCRIPT,

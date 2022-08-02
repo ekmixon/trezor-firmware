@@ -25,11 +25,6 @@ from .layout import (
     should_show_struct,
 )
 
-if False:
-    from apps.common.keychain import Keychain
-    from trezor.wire import Context
-
-
 # Maximum data size we support
 MAX_VALUE_BYTE_SIZE = 1024
 
@@ -51,7 +46,7 @@ async def sign_typed_data(
 
     return EthereumTypedDataSignature(
         address=address_from_bytes(node.ethereum_pubkeyhash()),
-        signature=signature[1:] + signature[0:1],
+        signature=signature[1:] + signature[:1],
     )
 
 
@@ -379,11 +374,7 @@ def write_leftpad32(w: HashWriter, value: bytes, signed: bool = False) -> None:
     assert len(value) <= 32
 
     # Values need to be sign-extended, so accounting for negative ints
-    if signed and value[0] & 0x80:
-        pad_value = 0xFF
-    else:
-        pad_value = 0x00
-
+    pad_value = 0xFF if signed and value[0] & 0x80 else 0x00
     for _ in range(32 - len(value)):
         w.append(pad_value)
     w.extend(value)
@@ -405,13 +396,12 @@ def validate_value(field: EthereumFieldType, value: bytes) -> None:
     """
     # Checking if the size corresponds to what is defined in types,
     # and also setting our maximum supported size in bytes
-    if field.size is not None:
-        if len(value) != field.size:
-            raise wire.DataError("Invalid length")
-    else:
+    if field.size is None:
         if len(value) > MAX_VALUE_BYTE_SIZE:
             raise wire.DataError(f"Invalid length, bigger than {MAX_VALUE_BYTE_SIZE}")
 
+    elif len(value) != field.size:
+        raise wire.DataError("Invalid length")
     # Specific tests for some data types
     if field.data_type == EthereumDataType.BOOL:
         if value not in (b"\x00", b"\x01"):
@@ -438,19 +428,18 @@ def validate_field_type(field: EthereumFieldType) -> None:
     if data_type == EthereumDataType.ARRAY:
         if field.entry_type is None:
             raise wire.DataError("Missing entry_type in array")
-        # We also need to validate it recursively
-        validate_field_type(field.entry_type)
-    else:
-        if field.entry_type is not None:
-            raise wire.DataError("Unexpected entry_type in nonarray")
+        else:
+            # We also need to validate it recursively
+            validate_field_type(field.entry_type)
+    elif field.entry_type is not None:
+        raise wire.DataError("Unexpected entry_type in nonarray")
 
     # struct_name is only for structs
     if data_type == EthereumDataType.STRUCT:
         if field.struct_name is None:
             raise wire.DataError("Missing struct_name in struct")
-    else:
-        if field.struct_name is not None:
-            raise wire.DataError("Unexpected struct_name in nonstruct")
+    elif field.struct_name is not None:
+        raise wire.DataError("Unexpected struct_name in nonstruct")
 
     # size is special for each type
     if data_type == EthereumDataType.STRUCT:

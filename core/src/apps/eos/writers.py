@@ -8,27 +8,6 @@ from apps.common.writers import (
     write_uvarint,
 )
 
-if False:
-    from trezor.messages import (
-        EosActionBuyRam,
-        EosActionBuyRamBytes,
-        EosActionCommon,
-        EosActionDelegate,
-        EosActionDeleteAuth,
-        EosActionLinkAuth,
-        EosActionNewAccount,
-        EosActionRefund,
-        EosActionSellRam,
-        EosActionTransfer,
-        EosActionUndelegate,
-        EosActionUpdateAuth,
-        EosActionVoteProducer,
-        EosAsset,
-        EosAuthorization,
-        EosTxHeader,
-    )
-    from trezor.utils import Writer
-
 
 def write_auth(w: Writer, auth: EosAuthorization) -> None:
     write_uint32_le(w, auth.threshold)

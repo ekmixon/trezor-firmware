@@ -12,7 +12,7 @@ async def require_confirm_fee(ctx, fee):
         "confirm_fee",
         title="Confirm fee",
         content="Transaction fee:\n{}",
-        param=format_amount(fee, helpers.DECIMALS) + " XRP",
+        param=f"{format_amount(fee, helpers.DECIMALS)} XRP",
         hide_continue=True,
         br_code=ButtonRequestType.ConfirmOutput,
     )

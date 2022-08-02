@@ -1,17 +1,9 @@
 from apps.common import cbor
 
-if False:
-    from typing import Any, Generic, TypeVar
-    from trezor.utils import HashContext
-
-    T = TypeVar("T")
-    K = TypeVar("K")
-    V = TypeVar("V")
-else:
-    T = 0  # type: ignore
-    K = 0  # type: ignore
-    V = 0  # type: ignore
-    Generic = {T: object, (K, V): object}  # type: ignore
+T = 0  # type: ignore
+K = 0  # type: ignore
+V = 0  # type: ignore
+Generic = {T: object, (K, V): object}  # type: ignore
 
 
 class HashBuilderCollection:

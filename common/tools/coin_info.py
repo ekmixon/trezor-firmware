@@ -236,13 +236,9 @@ def _load_ethereum_networks():
         shortcut = chain_data["nativeCurrency"]["symbol"]
         name = chain_data["name"]
         is_testnet = "testnet" in name.lower()
-        if is_testnet:
-            slip44 = 1
-        else:
-            slip44 = chain_data.get("slip44", 60)
-
+        slip44 = 1 if is_testnet else chain_data.get("slip44", 60)
         if is_testnet and not shortcut.lower().startswith("t"):
-            shortcut = "t" + shortcut
+            shortcut = f"t{shortcut}"
 
         rskip60 = shortcut in ("RBTC", "TRBTC")
 
@@ -316,11 +312,7 @@ def _load_fido_apps():
         app.setdefault("webauthn", [])
 
         icon_file = file.with_suffix(".png")
-        if not icon_file.exists():
-            icon_path = None
-        else:
-            icon_path = str(icon_file)
-
+        icon_path = str(icon_file) if icon_file.exists() else None
         app.update(key=app_name, icon=icon_path)
         apps.append(app)
 
@@ -347,7 +339,7 @@ def latest_releases():
     latest = {}
     for v in ("1", "2"):
         releases = requests.get(RELEASES_URL.format(v)).json()
-        latest["trezor" + v] = max(tuple(r["version"]) for r in releases)
+        latest[f"trezor{v}"] = max(tuple(r["version"]) for r in releases)
     return latest
 
 
@@ -370,12 +362,14 @@ def support_info_single(support_data, coin):
     support_info = {}
     key = coin["key"]
     for device, values in support_data.items():
-        if key in values["unsupported"]:
+        if (
+            key in values["unsupported"]
+            or key not in values["supported"]
+            and device in MISSING_SUPPORT_MEANS_NO
+        ):
             support_value = False
         elif key in values["supported"]:
             support_value = values["supported"][key]
-        elif device in MISSING_SUPPORT_MEANS_NO:
-            support_value = False
         else:
             support_value = None
         support_info[device] = support_value
@@ -400,11 +394,7 @@ def support_info(coins):
         coins = coins.values()
 
     support_data = get_support_data()
-    support = {}
-    for coin in coins:
-        support[coin["key"]] = support_info_single(support_data, coin)
-
-    return support
+    return {coin["key"]: support_info_single(support_data, coin) for coin in coins}
 
 
 # ====== data cleanup functions ======
@@ -554,10 +544,7 @@ def fill_blockchain_links(all_coins):
         for coin in coins:
             link = blockchain_links.get(coin["key"])
             coin["blockchain_link"] = link
-            if link and link["type"] == "blockbook":
-                coin["blockbook"] = link["url"]
-            else:
-                coin["blockbook"] = []
+            coin["blockbook"] = link["url"] if link and link["type"] == "blockbook" else []
 
 
 def _btc_sort_key(coin):

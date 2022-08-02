@@ -8,10 +8,6 @@ from ..common import NONSEGWIT_INPUT_SCRIPT_TYPES, SigHashType
 from . import helpers
 from .bitcoin import Bitcoin
 
-if False:
-    from typing import Sequence
-    from .tx_info import OriginalTxInfo, TxInfo
-
 
 class Bitcoinlike(Bitcoin):
     async def sign_nonsegwit_bip143_input(self, i_sign: int) -> None:

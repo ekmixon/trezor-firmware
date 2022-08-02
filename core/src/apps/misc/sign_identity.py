@@ -9,11 +9,6 @@ from apps.common import coininfo
 from apps.common.keychain import get_keychain
 from apps.common.paths import HARDENED, AlwaysMatchingSchema
 
-if False:
-    from trezor.messages import IdentityType, SignIdentity
-
-    from apps.common.paths import Bip32Path
-
 # This module implements the SLIP-0013 authentication using a deterministic hierarchy, see
 # https://github.com/satoshilabs/slips/blob/master/slip-0013.md.
 
@@ -89,13 +84,13 @@ async def require_confirm_sign_identity(
 def serialize_identity(identity: IdentityType) -> str:
     s = ""
     if identity.proto:
-        s += identity.proto + "://"
+        s += f"{identity.proto}://"
     if identity.user:
-        s += identity.user + "@"
+        s += f"{identity.user}@"
     if identity.host:
         s += identity.host
     if identity.port:
-        s += ":" + identity.port
+        s += f":{identity.port}"
     if identity.path:
         s += identity.path
     return s
@@ -112,9 +107,7 @@ def serialize_identity_without_proto(identity: IdentityType) -> str:
 def get_identity_path(identity: str, index: int) -> Bip32Path:
     identity_hash = sha256(pack("<I", index) + identity.encode()).digest()
 
-    address_n = [HARDENED | x for x in (13,) + unpack("<IIII", identity_hash[:16])]
-
-    return address_n
+    return [HARDENED | x for x in (13,) + unpack("<IIII", identity_hash[:16])]
 
 
 def sign_challenge(

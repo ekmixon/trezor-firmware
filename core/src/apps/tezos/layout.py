@@ -102,7 +102,7 @@ async def require_confirm_register_delegate(ctx, address, fee):
 
 def format_tezos_amount(value):
     formatted_value = format_amount(value, TEZOS_AMOUNT_DECIMALS)
-    return formatted_value + " XTZ"
+    return f"{formatted_value} XTZ"
 
 
 async def require_confirm_ballot(ctx, proposal, ballot):
@@ -120,17 +120,14 @@ async def require_confirm_ballot(ctx, proposal, ballot):
 
 
 async def require_confirm_proposals(ctx, proposals):
-    if len(proposals) > 1:
-        title = "Submit proposals"
-    else:
-        title = "Submit proposal"
-
+    title = "Submit proposals" if len(proposals) > 1 else "Submit proposal"
     await confirm_properties(
         ctx,
         "confirm_proposals",
         title=title,
         props=[
-            ("Proposal " + str(i), proposal) for i, proposal in enumerate(proposals, 1)
+            (f"Proposal {str(i)}", proposal)
+            for i, proposal in enumerate(proposals, 1)
         ],
         icon_color=ui.PURPLE,
         br_code=ButtonRequestType.SignTx,

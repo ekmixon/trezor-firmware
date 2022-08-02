@@ -8,13 +8,10 @@ Mostly ported from official Monero client, but also inspired by Mininero.
 Author: Dusan Klinec, ph4r05, 2018
 """
 
+
 import gc
 
 from apps.monero.xmr import crypto
-
-if False:
-    from apps.monero.xmr.types import Sc25519
-    from apps.monero.xmr.serialize_messages.tx_rsig_bulletproof import Bulletproof
 
 
 def prove_range_bp_batch(amounts: list[int], masks: list[Sc25519]) -> Bulletproof:

@@ -20,10 +20,11 @@ async def require_confirm_transfer(ctx, msg: BinanceTransferMsg):
             items.append(
                 (
                     direction,
-                    format_amount(coin.amount, helpers.DECIMALS) + " " + coin.denom,
+                    f"{format_amount(coin.amount, helpers.DECIMALS)} {coin.denom}",
                     msg.address,
                 )
             )
+
 
     for txinput in msg.inputs:
         make_input_output_pages(txinput, "Confirm input")

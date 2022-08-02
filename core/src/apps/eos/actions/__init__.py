@@ -5,10 +5,6 @@ from trezor.utils import HashWriter
 from .. import helpers, writers
 from . import layout
 
-if False:
-    from trezor import wire
-    from trezor.utils import Writer
-
 
 async def process_action(
     ctx: wire.Context, sha: HashWriter, action: EosTxActionAck

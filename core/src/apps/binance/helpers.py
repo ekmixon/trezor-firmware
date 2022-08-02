@@ -29,7 +29,10 @@ def produce_json_for_signing(envelope: BinanceSignTx, msg) -> str:
     elif BinanceCancelMsg.is_type_of(msg):
         json_msg = produce_cancel_json(msg)
     else:
-        raise ValueError("input message unrecognized, is of type " + type(msg).__name__)
+        raise ValueError(
+            f"input message unrecognized, is of type {type(msg).__name__}"
+        )
+
 
     if envelope.source is None or envelope.source < 0:
         raise ValueError("source missing or invalid")

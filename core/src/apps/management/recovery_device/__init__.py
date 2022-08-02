@@ -14,10 +14,6 @@ from apps.common.request_pin import (
 
 from .homescreen import recovery_homescreen, recovery_process
 
-if False:
-    from trezor.messages import RecoveryDevice
-
-
 # List of RecoveryDevice fields that can be set when doing dry-run recovery.
 # All except `dry_run` are allowed for T1 compatibility, but their values are ignored.
 # If set, `enforce_wordlist` must be True, because we do not support non-enforcing.

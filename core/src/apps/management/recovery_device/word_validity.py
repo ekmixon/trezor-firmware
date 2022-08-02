@@ -71,26 +71,28 @@ def check_slip39_advanced(
         share_list = next(s for s in previous_mnemonics if s)[0].split(" ")
         if share_list[current_index] != current_word:
             raise IdentifierMismatch
-    # check if we reached threshold in group
     elif current_index == 2:
         for i, group in enumerate(previous_mnemonics):
-            if len(group) > 0:
-                if current_word == group[0].split(" ")[current_index]:
-                    remaining_shares = storage.recovery.fetch_slip39_remaining_shares()
-                    # if backup_type is not None, some share was already entered -> remaining needs to be set
-                    assert remaining_shares is not None
-                    if remaining_shares[i] == 0:
-                        raise ThresholdReached
+            if (
+                len(group) > 0
+                and current_word == group[0].split(" ")[current_index]
+            ):
+                remaining_shares = storage.recovery.fetch_slip39_remaining_shares()
+                # if backup_type is not None, some share was already entered -> remaining needs to be set
+                assert remaining_shares is not None
+                if remaining_shares[i] == 0:
+                    raise ThresholdReached
 
-    # check if share was already added for group
     elif current_index == 3:
         # we use the 3rd word from previously entered shares to find the group id
         group_identifier_word = partial_mnemonic[2]
         group_index = None
         for i, group in enumerate(previous_mnemonics):
-            if len(group) > 0:
-                if group_identifier_word == group[0].split(" ")[2]:
-                    group_index = i
+            if (
+                len(group) > 0
+                and group_identifier_word == group[0].split(" ")[2]
+            ):
+                group_index = i
 
         if group_index is not None:
             group = previous_mnemonics[group_index]

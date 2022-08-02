@@ -89,18 +89,19 @@ def _suite_support(coin, support):
     Otherwise it's probably working with a custom backend, which means don't
     link to our wallet.
     """
-    if not support.get("suite"):
-        return False
-    return any(".trezor.io" in url for url in coin["blockbook"])
+    return (
+        any(".trezor.io" in url for url in coin["blockbook"])
+        if support.get("suite")
+        else False
+    )
 
 
 def dict_merge(orig, new):
-    if isinstance(new, dict) and isinstance(orig, dict):
-        for k, v in new.items():
-            orig[k] = dict_merge(orig.get(k), v)
-        return orig
-    else:
+    if not isinstance(new, dict) or not isinstance(orig, dict):
         return new
+    for k, v in new.items():
+        orig[k] = dict_merge(orig.get(k), v)
+    return orig
 
 
 def update_simple(coins, support_info, type):
@@ -271,10 +272,7 @@ def apply_overrides(coins):
 
 def finalize_wallets(coins):
     def sort_key(w):
-        if "trezor.io" in w["url"]:
-            return 0, w["name"]
-        else:
-            return 1, w["name"]
+        return (0, w["name"]) if "trezor.io" in w["url"] else (1, w["name"])
 
     for coin in coins.values():
         wallets_list = [
@@ -285,12 +283,10 @@ def finalize_wallets(coins):
 
 
 @click.command()
-# fmt: off
 @click.option("-r", "--refresh", "refresh", flag_value=True, default=None, help="Force refresh market cap info")
 @click.option("-R", "--no-refresh", "refresh", flag_value=False, default=None, help="Force use cached market cap info")
 @click.option("-A", "--api-key", required=True, envvar="COINMARKETCAP_API_KEY", help="Coinmarketcap API key")
 @click.option("-v", "--verbose", is_flag=True, help="Display more info")
-# fmt: on
 def main(refresh, api_key, verbose):
     # setup logging
     log_level = logging.DEBUG if verbose else logging.WARNING
@@ -306,7 +302,7 @@ def main(refresh, api_key, verbose):
     support_info = coin_info.support_info(defs)
 
     coins = {}
-    coins.update(update_bitcoin(defs.bitcoin, support_info))
+    coins |= update_bitcoin(defs.bitcoin, support_info)
     coins.update(update_erc20(defs.erc20, defs.eth, support_info))
     coins.update(update_ethereum_networks(defs.eth, support_info))
     coins.update(update_nem_mosaics(defs.nem, support_info))

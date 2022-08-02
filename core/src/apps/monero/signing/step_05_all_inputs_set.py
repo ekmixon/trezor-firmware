@@ -3,13 +3,11 @@ All inputs set. Defining range signature parameters.
 If in the applicable offloading mode, generate commitment masks.
 """
 
+
 from apps.monero import layout
 from apps.monero.xmr import crypto
 
 from .state import State
-
-if False:
-    from trezor.messages import MoneroTransactionAllInputsSetAck
 
 
 async def all_inputs_set(state: State) -> MoneroTransactionAllInputsSetAck:
@@ -27,5 +25,4 @@ async def all_inputs_set(state: State) -> MoneroTransactionAllInputsSetAck:
     # The sum of the masks must match the input masks sum.
     state.sumout = crypto.sc_init(0)
     state.last_step = state.STEP_ALL_IN
-    resp = MoneroTransactionAllInputsSetAck()
-    return resp
+    return MoneroTransactionAllInputsSetAck()

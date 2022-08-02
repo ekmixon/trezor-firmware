@@ -12,7 +12,7 @@ EXPECTED_PREFIX_RE = re.compile(r"messages-(\w+)(?:-.*)?\.proto")
 
 for fn in sorted(glob(os.path.join(MYDIR, "messages-*.proto"))):
     with open(fn, "rt") as f:
-        prefix = EXPECTED_PREFIX_RE.search(fn).group(1).capitalize()
+        prefix = EXPECTED_PREFIX_RE.search(fn)[1].capitalize()
         if prefix in ["Bitcoin", "Bootloader", "Common", "Crypto", "Management"]:
             continue
         if prefix == "Nem":
@@ -24,7 +24,7 @@ for fn in sorted(glob(os.path.join(MYDIR, "messages-*.proto"))):
             if line[0] not in ["enum", "message"]:
                 continue
             if not line[1].startswith(prefix) and not line[1].startswith(
-                "Debug" + prefix
+                f"Debug{prefix}"
             ):
                 print("ERROR:", fn, line[1])
                 error = True

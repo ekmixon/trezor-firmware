@@ -16,7 +16,7 @@ class Coverage:
         self.__files = {}
 
     def line_tick(self, filename, lineno):
-        if not filename in self.__files:
+        if filename not in self.__files:
             self.__files[filename] = set()
         self.__files[filename].add(lineno)
 
@@ -25,7 +25,7 @@ class Coverage:
         lines = lines_execution["lines"]
         this_file = globals()["__file__"]
         for filename in self.__files:
-            if not filename == this_file:
+            if filename != this_file:
                 lines[PATH_PREFIX + filename] = list(self.__files[filename])
 
         return lines_execution
@@ -110,12 +110,8 @@ def atexit():
 sys.atexit(atexit)
 
 global __prof__
-if not "__prof__" in globals():
-    if getenv("TREZOR_MEMPERF") == "1":
-        __prof__ = AllocCounter()
-    else:
-        __prof__ = _Prof()
-
+if "__prof__" not in globals():
+    __prof__ = AllocCounter() if getenv("TREZOR_MEMPERF") == "1" else _Prof()
 sys.settrace(trace_handler)
 
 if isinstance(__prof__, AllocCounter):

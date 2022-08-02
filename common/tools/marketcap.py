@@ -97,15 +97,9 @@ def get_coin(coin):
 
 def marketcap(coin):
     data = get_coin(coin)
-    if data is None:
-        return None
-
-    return int(data["quote"]["USD"]["market_cap"])
+    return None if data is None else int(data["quote"]["USD"]["market_cap"])
 
 
 def fiat_price(coin_symbol):
     data = COINS_SEARCHABLE.get(coin_symbol)
-    if data is None:
-        return None
-
-    return data["quote"]["USD"]["price"]
+    return None if data is None else data["quote"]["USD"]["price"]

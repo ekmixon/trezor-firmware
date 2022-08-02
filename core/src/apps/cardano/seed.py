@@ -8,29 +8,6 @@ from apps.common.seed import derive_and_store_roots, get_seed
 
 from .helpers import paths
 
-if False:
-    from typing import Callable, Awaitable, TypeVar, Union
-
-    from apps.common.paths import Bip32Path
-    from apps.common.keychain import MsgOut, Handler
-
-    from trezor.messages import (
-        CardanoGetAddress,
-        CardanoGetPublicKey,
-        CardanoGetNativeScriptHash,
-        CardanoSignTxInit,
-    )
-
-    CardanoMessages = Union[
-        CardanoGetAddress,
-        CardanoGetPublicKey,
-        CardanoGetNativeScriptHash,
-        CardanoSignTxInit,
-    ]
-    MsgIn = TypeVar("MsgIn", bound=CardanoMessages)
-
-    HandlerWithKeychain = Callable[[wire.Context, MsgIn, "Keychain"], Awaitable[MsgOut]]
-
 
 class Keychain:
     """
@@ -175,10 +152,9 @@ async def get_keychain(
 ) -> Keychain:
     if mnemonic.is_bip39():
         return await _get_keychain_bip39(ctx, derivation_type)
-    else:
-        # derive the root node via SLIP-0023 https://github.com/satoshilabs/slips/blob/master/slip-0022.md
-        seed = await get_seed(ctx)
-        return Keychain(cardano.from_seed_slip23(seed))
+    # derive the root node via SLIP-0023 https://github.com/satoshilabs/slips/blob/master/slip-0022.md
+    seed = await get_seed(ctx)
+    return Keychain(cardano.from_seed_slip23(seed))
 
 
 def with_keychain(func: HandlerWithKeychain[MsgIn, MsgOut]) -> Handler[MsgIn, MsgOut]:

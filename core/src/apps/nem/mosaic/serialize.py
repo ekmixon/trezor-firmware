@@ -84,16 +84,14 @@ def serialize_mosaic_supply_change(
 
 
 def _write_property(w: bytearray, name: str, value):
-    if value is None:
-        if name in ("divisibility", "initialSupply"):
+    if name in {"divisibility", "initialSupply"}:
+        if value is None:
             value = 0
-        elif name in ("supplyMutable", "transferable"):
+    elif name in {"supplyMutable", "transferable"}:
+        if value is None:
             value = False
     if type(value) == bool:
-        if value:
-            value = "true"
-        else:
-            value = "false"
+        value = "true" if value else "false"
     elif type(value) == int:
         value = str(value)
     if type(value) != str:

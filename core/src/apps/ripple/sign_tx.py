@@ -53,8 +53,7 @@ def first_half_of_sha512(b):
 def ecdsa_sign(private_key: bytes, digest: bytes) -> bytes:
     """Signs and encodes signature into DER format"""
     signature = secp256k1.sign(private_key, digest)
-    sig_der = der.encode_seq((signature[1:33], signature[33:65]))
-    return sig_der
+    return der.encode_seq((signature[1:33], signature[33:65]))
 
 
 def set_canonical_flag(msg: RippleSignTx):

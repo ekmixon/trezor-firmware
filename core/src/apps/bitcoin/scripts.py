@@ -23,15 +23,6 @@ from .writers import (
     write_op_push,
 )
 
-if False:
-    from typing import Sequence
-
-    from trezor.messages import MultisigRedeemScriptType, TxInput
-
-    from apps.common.coininfo import CoinInfo
-
-    from .writers import Writer
-
 
 def write_input_script_prefixed(
     w: Writer,
@@ -85,7 +76,7 @@ def output_derive_script(address: str, coin: CoinInfo) -> bytes:
     if (
         not utils.BITCOIN_ONLY
         and coin.cashaddr_prefix is not None
-        and address.startswith(coin.cashaddr_prefix + ":")
+        and address.startswith(f"{coin.cashaddr_prefix}:")
     ):
         prefix, addr = address.split(":")
         version, data = cashaddr.decode(prefix, addr)
@@ -466,10 +457,7 @@ def write_input_script_multisig_prefixed(
     redeem_script_length = output_script_multisig_length(pubkeys, multisig.m)
 
     # length of the result
-    total_length = 1  # OP_FALSE
-    for s in signatures:
-        if s:
-            total_length += 1 + len(s) + 1  # length, signature, sighash_type
+    total_length = 1 + sum(1 + len(s) + 1 for s in signatures if s)
     total_length += op_push_length(redeem_script_length) + redeem_script_length
     write_bitcoin_varint(w, total_length)
 

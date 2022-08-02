@@ -21,10 +21,9 @@ def parse(data: bytes) -> str:
     if not is_valid(data):
         raise ValueError  # tried to parse data that fails validation
     tx_version, tx_type = unpack(">HH", data[4:8])
-    if tx_version == 0 and tx_type == 0 and len(data) == 20:  # OMNI simple send
-        currency, amount = unpack(">IQ", data[8:20])
-        suffix, decimals = currencies.get(currency, ("UNKN", 0))
-        return f"Simple send of {format_amount(amount, decimals)} {suffix}"
-    else:
+    if tx_version != 0 or tx_type != 0 or len(data) != 20:
         # unknown OMNI transaction
         return "Unknown transaction"
+    currency, amount = unpack(">IQ", data[8:20])
+    suffix, decimals = currencies.get(currency, ("UNKN", 0))
+    return f"Simple send of {format_amount(amount, decimals)} {suffix}"

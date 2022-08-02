@@ -11,15 +11,11 @@ If number of inputs is small, in-memory mode is used = alpha, pseudo_outs are ke
 Otherwise pseudo_outs are offloaded with HMAC, alpha is offloaded encrypted under chacha_poly with
 key derived for exactly this purpose.
 """
+
 from apps.monero import layout
 from apps.monero.xmr import crypto, monero, serialize
 
 from .state import State
-
-if False:
-    from apps.monero.xmr.types import Sc25519, Ge25519
-    from trezor.messages import MoneroTransactionSourceEntry
-    from trezor.messages import MoneroTransactionSetInputAck
 
 
 async def set_input(
@@ -149,7 +145,7 @@ def _absolute_output_offsets_to_relative(off: list[int]) -> list[int]:
 
     Example: absolute {7,11,15,20} is converted to {7,4,4,5}
     """
-    if len(off) == 0:
+    if not off:
         return off
     off.sort()
     for i in range(len(off) - 1, 0, -1):

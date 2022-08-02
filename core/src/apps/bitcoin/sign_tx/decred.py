@@ -22,22 +22,6 @@ OUTPUT_SCRIPT_NULL_SSTXCHANGE = (
     b"\xBD\x76\xA9\x14\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x88\xAC"
 )
 
-if False:
-    from typing import Sequence
-
-    from trezor.messages import (
-        SignTx,
-        TxInput,
-        TxOutput,
-        PrevTx,
-        PrevInput,
-    )
-
-    from apps.common.coininfo import CoinInfo
-    from apps.common.keychain import Keychain
-
-    from .sig_hasher import SigHasher
-
 
 class DecredApprover(BasicApprover):
     async def add_decred_sstx_submission(

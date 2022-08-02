@@ -7,16 +7,6 @@ from apps.common import authorization
 
 from .common import BIP32_WALLET_DEPTH
 
-if False:
-    from trezor.messages import (
-        GetOwnershipProof,
-        SignTx,
-        TxInput,
-    )
-    from trezor.protobuf import MessageType
-
-    from apps.common.coininfo import CoinInfo
-
 _ROUND_ID_LEN = const(32)
 FEE_PER_ANONYMITY_DECIMALS = const(9)
 

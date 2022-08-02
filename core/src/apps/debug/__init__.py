@@ -50,7 +50,7 @@ if __debug__:
 
     def screenshot() -> bool:
         if storage.save_screen:
-            display.save(storage.save_screen_directory + "/refresh-")
+            display.save(f"{storage.save_screen_directory}/refresh-")
             return True
         return False
 

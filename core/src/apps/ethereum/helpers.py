@@ -4,9 +4,6 @@ from trezor import wire
 from trezor.enums import EthereumDataType
 from trezor.messages import EthereumFieldType
 
-if False:
-    from .networks import NetworkInfo
-
 
 def address_from_bytes(address_bytes: bytes, network: NetworkInfo | None = None) -> str:
     """
@@ -16,7 +13,7 @@ def address_from_bytes(address_bytes: bytes, network: NetworkInfo | None = None)
     from trezor.crypto.hashlib import sha3_256
 
     if network is not None and network.rskip60:
-        prefix = str(network.chain_id) + "0x"
+        prefix = f"{str(network.chain_id)}0x"
     else:
         prefix = ""
 
@@ -27,16 +24,8 @@ def address_from_bytes(address_bytes: bytes, network: NetworkInfo | None = None)
         """Uppercase i-th letter only if the corresponding nibble has high bit set."""
         digest_byte = digest[i // 2]
         hex_letter = address_hex[i]
-        if i % 2 == 0:
-            # even letter -> high nibble
-            bit = 0x80
-        else:
-            # odd letter -> low nibble
-            bit = 0x08
-        if digest_byte & bit:
-            return hex_letter.upper()
-        else:
-            return hex_letter
+        bit = 0x80 if i % 2 == 0 else 0x08
+        return hex_letter.upper() if digest_byte & bit else hex_letter
 
     return "0x" + "".join(maybe_upper(i) for i in range(len(address_hex)))
 
@@ -46,11 +35,11 @@ def bytes_from_address(address: str) -> bytes:
         return unhexlify(address)
 
     elif len(address) == 42:
-        if address[0:2] not in ("0x", "0X"):
+        if address[:2] not in ("0x", "0X"):
             raise wire.ProcessError("Ethereum: invalid beginning of an address")
         return unhexlify(address[2:])
 
-    elif len(address) == 0:
+    elif not address:
         return bytes()
 
     raise wire.ProcessError("Ethereum: Invalid address length")
@@ -76,10 +65,7 @@ def get_type_name(field: EthereumFieldType) -> str:
     elif data_type == EthereumDataType.ARRAY:
         assert field.entry_type is not None  # validate_field_type
         type_name = get_type_name(field.entry_type)
-        if size is None:
-            return f"{type_name}[]"
-        else:
-            return f"{type_name}[{size}]"
+        return f"{type_name}[]" if size is None else f"{type_name}[{size}]"
     elif data_type in (EthereumDataType.UINT, EthereumDataType.INT):
         assert size is not None  # validate_field_type
         return TYPE_TRANSLATION_DICT[data_type] + str(size * 8)
@@ -114,12 +100,10 @@ def decode_typed_data(data: bytes, type_name: str) -> str:
 
 
 def from_bytes_bigendian_signed(b: bytes) -> int:
-    negative = b[0] & 0x80
-    if negative:
-        neg_b = bytearray(b)
-        for i in range(len(neg_b)):
-            neg_b[i] = ~neg_b[i] & 0xFF
-        result = int.from_bytes(neg_b, "big")
-        return -result - 1
-    else:
+    if not (negative := b[0] & 0x80):
         return int.from_bytes(b, "big")
+    neg_b = bytearray(b)
+    for i in range(len(neg_b)):
+        neg_b[i] = ~neg_b[i] & 0xFF
+    result = int.from_bytes(neg_b, "big")
+    return -result - 1

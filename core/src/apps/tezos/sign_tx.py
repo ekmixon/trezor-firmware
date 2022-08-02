@@ -198,14 +198,12 @@ def _get_operation_bytes(w: bytearray, msg):
                     _encode_manager_to_implicit_transfer(w, parameters_manager.transfer)
                 else:
                     _encode_manager_to_manager_transfer(w, parameters_manager.transfer)
+        elif msg.transaction.parameters:
+            helpers.write_bool(w, True)
+            helpers.check_tx_params_size(msg.transaction.parameters)
+            write_bytes_unchecked(w, msg.transaction.parameters)
         else:
-            if msg.transaction.parameters:
-                helpers.write_bool(w, True)
-                helpers.check_tx_params_size(msg.transaction.parameters)
-                write_bytes_unchecked(w, msg.transaction.parameters)
-            else:
-                helpers.write_bool(w, False)
-    # origination operation
+            helpers.write_bool(w, False)
     elif msg.origination is not None:
         _encode_common(w, msg.origination, "origination")
         _encode_zarith(w, msg.origination.balance)
@@ -215,7 +213,6 @@ def _get_operation_bytes(w: bytearray, msg):
         helpers.check_script_size(msg.origination.script)
         write_bytes_unchecked(w, msg.origination.script)
 
-    # delegation operation
     elif msg.delegation is not None:
         _encode_common(w, msg.delegation, "delegation")
         _encode_data_with_bool_prefix(

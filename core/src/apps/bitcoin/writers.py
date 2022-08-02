@@ -14,17 +14,6 @@ from apps.common.writers import (  # noqa: F401
     write_uint64_le,
 )
 
-if False:
-    from trezor.messages import (
-        PrevInput,
-        PrevOutput,
-        TxInput,
-        TxOutput,
-    )
-    from trezor.utils import HashWriter
-
-    from apps.common.writers import Writer
-
 write_uint16 = write_uint16_le
 write_uint32 = write_uint32_le
 write_uint64 = write_uint64_le

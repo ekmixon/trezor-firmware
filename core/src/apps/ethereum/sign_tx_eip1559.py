@@ -16,13 +16,6 @@ from .layout import (
 )
 from .sign_tx import check_common_fields, handle_erc20, send_request_chunk
 
-if False:
-    from typing import Tuple
-
-    from trezor.messages import EthereumSignTxEIP1559
-
-    from apps.common.keychain import Keychain
-
 TX_TYPE = 2
 
 
@@ -114,14 +107,10 @@ async def sign_tx_eip1559(
     write_access_list(sha, msg.access_list)
 
     digest = sha.get_digest()
-    result = sign_digest(msg, keychain, digest)
-
-    return result
+    return sign_digest(msg, keychain, digest)
 
 
 def get_total_length(msg: EthereumSignTxEIP1559, data_total: int) -> int:
-    length = 0
-
     fields: Tuple[rlp.RLPItem, ...] = (
         msg.nonce,
         msg.gas_limit,
@@ -131,9 +120,7 @@ def get_total_length(msg: EthereumSignTxEIP1559, data_total: int) -> int:
         msg.max_gas_fee,
         msg.max_priority_fee,
     )
-    for field in fields:
-        length += rlp.length(field)
-
+    length = sum(rlp.length(field) for field in fields)
     length += rlp.header_length(data_total, msg.data_initial_chunk)
     length += data_total
 

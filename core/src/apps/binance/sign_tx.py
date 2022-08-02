@@ -46,7 +46,10 @@ async def sign_tx(ctx, envelope, keychain: Keychain):
     elif BinanceCancelMsg.is_type_of(msg):
         await layout.require_confirm_cancel(ctx, msg)
     else:
-        raise ValueError("input message unrecognized, is of type " + type(msg).__name__)
+        raise ValueError(
+            f"input message unrecognized, is of type {type(msg).__name__}"
+        )
+
 
     signature_bytes = generate_content_signature(msg_json.encode(), node.private_key())
 

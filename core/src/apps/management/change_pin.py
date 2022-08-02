@@ -10,11 +10,6 @@ from apps.common.request_pin import (
     request_pin_confirm,
 )
 
-if False:
-    from typing import Awaitable
-
-    from trezor.messages import ChangePin
-
 
 async def change_pin(ctx: wire.Context, msg: ChangePin) -> Success:
     if not is_initialized():
@@ -27,16 +22,11 @@ async def change_pin(ctx: wire.Context, msg: ChangePin) -> Success:
     curpin, salt = await request_pin_and_sd_salt(ctx, "Enter old PIN")
 
     # if changing pin, pre-check the entered pin before getting new pin
-    if curpin and not msg.remove:
-        if not config.check_pin(curpin, salt):
-            await error_pin_invalid(ctx)
+    if curpin and not msg.remove and not config.check_pin(curpin, salt):
+        await error_pin_invalid(ctx)
 
     # get new pin
-    if not msg.remove:
-        newpin = await request_pin_confirm(ctx)
-    else:
-        newpin = ""
-
+    newpin = "" if msg.remove else await request_pin_confirm(ctx)
     # write into storage
     if not config.change_pin(curpin, newpin, salt, salt):
         if newpin:
@@ -82,7 +72,7 @@ def require_confirm_change_pin(ctx: wire.Context, msg: ChangePin) -> Awaitable[N
             reverse=True,
         )
 
-    if not msg.remove and not has_pin:  # setting new pin
+    if not msg.remove:  # setting new pin
         return confirm_action(
             ctx,
             "set_pin",

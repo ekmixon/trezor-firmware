@@ -9,10 +9,6 @@ from apps.common.signverify import decode_message
 from .helpers import address_from_bytes, bytes_from_address
 from .sign_message import message_digest
 
-if False:
-    from trezor.messages import EthereumVerifyMessage
-    from trezor.wire import Context
-
 
 async def verify_message(ctx: Context, msg: EthereumVerifyMessage) -> Success:
     digest = message_digest(msg.message)

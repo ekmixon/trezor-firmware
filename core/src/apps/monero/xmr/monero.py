@@ -1,12 +1,5 @@
 from apps.monero.xmr import crypto
 
-if False:
-    from apps.monero.xmr.types import Ge25519, Sc25519
-    from apps.monero.xmr.credentials import AccountCreds
-
-    Subaddresses = dict[bytes, tuple[int, int]]
-
-
 class XmrException(Exception):
     pass
 
@@ -37,8 +30,7 @@ def get_subaddress_spend_public_key(
 
     m = get_subaddress_secret_key(view_private, major=major, minor=minor)
     M = crypto.scalarmult_base(m)
-    D = crypto.point_add(spend_public, M)
-    return D
+    return crypto.point_add(spend_public, M)
 
 
 def derive_subaddress_public_key(
@@ -50,8 +42,7 @@ def derive_subaddress_public_key(
     crypto.check_ed25519point(out_key)
     scalar = crypto.derivation_to_scalar(derivation, output_index)
     point2 = crypto.scalarmult_base(scalar)
-    point4 = crypto.point_sub(out_key, point2)
-    return point4
+    return crypto.point_sub(out_key, point2)
 
 
 def generate_key_image(public_key: bytes, secret_key: Sc25519) -> Ge25519:
@@ -59,8 +50,7 @@ def generate_key_image(public_key: bytes, secret_key: Sc25519) -> Ge25519:
     Key image: secret_key * H_p(pub_key)
     """
     point = crypto.hash_to_point(public_key)
-    point2 = crypto.scalarmult(point, secret_key)
-    return point2
+    return crypto.scalarmult(point, secret_key)
 
 
 def is_out_to_account(
@@ -302,7 +292,7 @@ def commitment_mask(key: bytes, buff: Sc25519 | None = None) -> Sc25519:
     Generates deterministic commitment mask for Bulletproof2
     """
     data = bytearray(15 + 32)
-    data[0:15] = b"commitment_mask"
+    data[:15] = b"commitment_mask"
     data[15:] = key
     if buff:
         return crypto.hash_to_scalar_into(buff, data)

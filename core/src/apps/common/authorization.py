@@ -3,9 +3,6 @@ from trezor import protobuf
 from trezor.enums import MessageType
 from trezor.utils import ensure
 
-if False:
-    from typing import Iterable
-
 WIRE_TYPES: dict[int, tuple[int, ...]] = {
     MessageType.AuthorizeCoinJoin: (MessageType.SignTx, MessageType.GetOwnershipProof),
 }

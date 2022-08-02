@@ -9,11 +9,6 @@ from apps.common.request_pin import (
     request_pin_and_sd_salt,
 )
 
-if False:
-    from typing import Awaitable
-
-    from trezor.messages import ChangeWipeCode
-
 
 async def change_wipe_code(ctx: wire.Context, msg: ChangeWipeCode) -> Success:
     if not is_initialized():
@@ -80,7 +75,7 @@ def _require_confirm_action(
             icon=ui.ICON_CONFIG,
         )
 
-    if not msg.remove and not has_wipe_code:
+    if not msg.remove:
         return confirm_action(
             ctx,
             "set_wipe_code",

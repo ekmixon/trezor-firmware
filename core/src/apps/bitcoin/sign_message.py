@@ -10,12 +10,6 @@ from apps.common.signverify import decode_message, message_digest
 from .addresses import address_short, get_address
 from .keychain import validate_path_against_script_type, with_keychain
 
-if False:
-    from trezor.messages import SignMessage
-
-    from apps.common.coininfo import CoinInfo
-    from apps.common.keychain import Keychain
-
 
 @with_keychain
 async def sign_message(

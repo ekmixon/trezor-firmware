@@ -15,13 +15,6 @@ from .scripts import (  # noqa: F401
 )
 from .writers import op_push_length, write_bitcoin_varint, write_op_push
 
-if False:
-    from trezor.messages import MultisigRedeemScriptType
-
-    from apps.common.coininfo import CoinInfo
-
-    from .writers import Writer
-
 
 def write_input_script_prefixed(
     w: Writer,
@@ -66,10 +59,7 @@ def write_input_script_multisig_prefixed(
     redeem_script_length = scripts.output_script_multisig_length(pubkeys, multisig.m)
 
     # length of the result
-    total_length = 0
-    for s in signatures:
-        if s:
-            total_length += 1 + len(s) + 1  # length, signature, hash_type
+    total_length = sum(1 + len(s) + 1 for s in signatures if s)
     total_length += op_push_length(redeem_script_length) + redeem_script_length
     write_bitcoin_varint(w, total_length)
 

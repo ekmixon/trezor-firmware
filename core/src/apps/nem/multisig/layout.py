@@ -28,7 +28,7 @@ async def ask_aggregate_modification(
         else:
             action = "Remove"
         address = nem.compute_address(m.public_key, common.network)
-        await _require_confirm_address(ctx, action + " cosignatory", address)
+        await _require_confirm_address(ctx, f"{action} cosignatory", address)
 
     if mod.relative_change:
         if multisig:

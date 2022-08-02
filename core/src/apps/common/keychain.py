@@ -152,8 +152,8 @@ class Keychain:
         )
 
     def derive_slip21(self, path: paths.Slip21Path) -> Slip21Node:
-        if safety_checks.is_strict() and not any(
-            ns == path[: len(ns)] for ns in self.slip21_namespaces
+        if safety_checks.is_strict() and all(
+            ns != path[: len(ns)] for ns in self.slip21_namespaces
         ):
             raise FORBIDDEN_KEY_PATH
 
@@ -177,8 +177,7 @@ async def get_keychain(
     slip21_namespaces: Iterable[paths.Slip21Path] = (),
 ) -> Keychain:
     seed = await get_seed(ctx)
-    keychain = Keychain(seed, curve, schemas, slip21_namespaces)
-    return keychain
+    return Keychain(seed, curve, schemas, slip21_namespaces)
 
 
 def with_slip44_keychain(
@@ -190,11 +189,7 @@ def with_slip44_keychain(
     if not patterns:
         raise ValueError  # specify a pattern
 
-    if allow_testnet:
-        slip44_ids: int | tuple[int, int] = (slip44_id, 1)
-    else:
-        slip44_ids = slip44_id
-
+    slip44_ids = (slip44_id, 1) if allow_testnet else slip44_id
     schemas = []
     for pattern in patterns:
         schemas.append(paths.PathSchema.parse(pattern=pattern, slip44_id=slip44_ids))

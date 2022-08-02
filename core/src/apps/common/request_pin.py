@@ -6,9 +6,6 @@ from trezor import config, wire
 
 from .sdcard import SdCardUnavailable, request_sd_salt
 
-if False:
-    from typing import Any, NoReturn
-
 
 def can_lock_device() -> bool:
     """Return True if the device has a PIN set or SD-protect enabled."""

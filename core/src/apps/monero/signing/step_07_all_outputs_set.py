@@ -4,6 +4,7 @@ into the tx extra field and then hashes it into the prefix hash.
 The prefix hash is then complete.
 """
 
+
 import gc
 
 from trezor import utils
@@ -12,9 +13,6 @@ from apps.monero import layout
 from apps.monero.xmr import crypto
 
 from .state import State
-
-if False:
-    from trezor.messages import MoneroTransactionAllOutSetAck
 
 
 async def all_outputs_set(state: State) -> MoneroTransactionAllOutSetAck:
@@ -107,7 +105,6 @@ def _set_tx_extra(state: State) -> bytes:
     # Extra buffer length computation
     # TX_EXTRA_TAG_PUBKEY (1B) | tx_pub_key (32B)
     extra_size = 33
-    offset = 0
     num_keys = 0
     len_size = 0
 
@@ -124,8 +121,7 @@ def _set_tx_extra(state: State) -> bytes:
     extra = bytearray(extra_size)
     extra[0] = 1  # TX_EXTRA_TAG_PUBKEY
     crypto.encodepoint_into(memoryview(extra)[1:], state.tx_pub)
-    offset += 33
-
+    offset = 0 + 33
     if state.need_additional_txkeys:
         extra[offset] = 0x4  # TX_EXTRA_TAG_ADDITIONAL_PUBKEYS
         int_serialize.dump_uvarint_b_into(num_keys, extra, offset + 1)

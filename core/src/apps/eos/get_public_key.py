@@ -8,9 +8,6 @@ from apps.common.keychain import Keychain, auto_keychain
 from .helpers import public_key_to_wif
 from .layout import require_get_public_key
 
-if False:
-    from trezor.crypto import bip32
-
 
 def _get_public_key(node: bip32.HDNode) -> tuple[str, bytes]:
     seckey = node.private_key()

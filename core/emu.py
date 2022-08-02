@@ -87,7 +87,6 @@ def _from_env(name):
 @click.command(
     context_settings=dict(ignore_unknown_options=True, allow_interspersed_args=False)
 )
-# fmt: off
 @click.option("-a", "--disable-animation/--enable-animation", default=_from_env("TREZOR_DISABLE_ANIMATION"), help="Disable animation")
 @click.option("-c", "--command", "run_command", is_flag=True, help="Run command while emulator is running")
 @click.option("-d", "--production/--no-production", default=_from_env("PYOPT"), help="Production mode (debuglink disabled)")
@@ -109,7 +108,6 @@ def _from_env(name):
 @click.option("-t", "--temporary-profile", is_flag=True, help="Create an empty temporary profile")
 @click.option("-w", "--watch", is_flag=True, help="Restart emulator if sources change")
 @click.option("-X", "--extra-arg", "extra_args", multiple=True, help="Extra argument to pass to micropython")
-# fmt: on
 @click.argument("command", nargs=-1, type=click.UNPROCESSED)
 def cli(
     disable_animation,
@@ -149,11 +147,7 @@ def cli(
     By default, emulator output goes to stdout. If silenced with -q, it is redirected
     to $TREZOR_PROFILE_DIR/trezor.log. You can also specify a custom path with -o.
     """
-    if executable:
-        executable = Path(executable)
-    else:
-        executable = MICROPYTHON
-
+    executable = Path(executable) if executable else MICROPYTHON
     if command and not run_command:
         raise click.ClickException("Extra arguments found. Did you mean to use -c?")
 
@@ -190,11 +184,7 @@ def cli(
 
     tempdir = None
     if profile:
-        if "/" in profile:
-            profile_dir = Path(profile)
-        else:
-            profile_dir = PROFILE_BASE / profile
-
+        profile_dir = Path(profile) if "/" in profile else PROFILE_BASE / profile
     elif temporary_profile:
         tempdir = tempfile.TemporaryDirectory(prefix="trezor-emulator-")
         profile_dir = Path(tempdir.name)

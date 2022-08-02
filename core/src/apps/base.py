@@ -6,21 +6,6 @@ from trezor.messages import Success
 
 from . import workflow_handlers
 
-if False:
-    from trezor import protobuf
-    from typing import NoReturn
-    from trezor.messages import (
-        Features,
-        Initialize,
-        EndSession,
-        GetFeatures,
-        Cancel,
-        LockDevice,
-        Ping,
-        DoPreauthorized,
-        CancelAuthorization,
-    )
-
 
 def get_features() -> Features:
     import storage.recovery

@@ -29,9 +29,6 @@ from trezor.wire import DataError, ProcessError
 from .. import consts, helpers
 from ..layout import format_amount, format_asset
 
-if False:
-    from trezor.wire import Context
-
 
 async def confirm_source_account(ctx: Context, source_account: str) -> None:
     await confirm_address(
@@ -101,10 +98,7 @@ async def confirm_create_account_op(ctx: Context, op: StellarCreateAccountOp) ->
 async def confirm_create_passive_sell_offer_op(
     ctx: Context, op: StellarCreatePassiveSellOfferOp
 ) -> None:
-    if op.amount == 0:
-        text = "Delete Passive Offer"
-    else:
-        text = "New Passive Offer"
+    text = "Delete Passive Offer" if op.amount == 0 else "New Passive Offer"
     await _confirm_offer(ctx, text, op)
 
 
@@ -126,10 +120,7 @@ async def _confirm_manage_offer_op_common(
     if op.offer_id == 0:
         text = "New Offer"
     else:
-        if op.amount == 0:
-            text = "Delete"
-        else:
-            text = "Update"
+        text = "Delete" if op.amount == 0 else "Update"
         text += f" #{op.offer_id}"
     await _confirm_offer(ctx, text, op)
 
@@ -262,8 +253,7 @@ async def confirm_set_options_op(ctx: Context, op: StellarSetOptionsOp) -> None:
         t = _format_flags(op.set_flags)
         await confirm_text(ctx, "op_set_options", "Set flags", data=t)
 
-    thresholds = _format_thresholds(op)
-    if thresholds:
+    if thresholds := _format_thresholds(op):
         await confirm_properties(
             ctx, "op_thresholds", "Account Thresholds", props=thresholds
         )
@@ -275,10 +265,7 @@ async def confirm_set_options_op(ctx: Context, op: StellarSetOptionsOp) -> None:
         if op.signer_key is None or op.signer_weight is None:
             raise DataError("Stellar: invalid signer option data.")
 
-        if op.signer_weight > 0:
-            title = "Add Signer"
-        else:
-            title = "Remove Signer"
+        title = "Add Signer" if op.signer_weight > 0 else "Remove Signer"
         data: str | bytes = ""
         if op.signer_type == StellarSignerType.ACCOUNT:
             description = "Account:"

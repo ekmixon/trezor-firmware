@@ -10,12 +10,6 @@ from apps.common.signverify import decode_message
 from .helpers import address_from_bytes
 from .keychain import PATTERNS_ADDRESS, with_keychain_from_path
 
-if False:
-    from trezor.messages import EthereumSignMessage
-    from trezor.wire import Context
-
-    from apps.common.keychain import Keychain
-
 
 def message_digest(message: bytes) -> bytes:
     h = HashWriter(sha3_256(keccak=True))

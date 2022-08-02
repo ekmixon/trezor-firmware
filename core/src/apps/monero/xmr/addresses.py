@@ -2,11 +2,6 @@ from trezor.crypto import monero as tcry
 
 from apps.monero.xmr.networks import NetworkTypes, net_version
 
-if False:
-    from apps.monero.xmr.types import Ge25519
-    from trezor.messages import MoneroAccountPublicAddress
-    from trezor.messages import MoneroTransactionDestinationEntry
-
 
 def addr_to_hash(addr: MoneroAccountPublicAddress) -> bytes:
     """
@@ -32,7 +27,7 @@ def decode_addr(addr: bytes) -> tuple[int, bytes, bytes]:
     Given address, get version and public spend and view keys.
     """
     d, version = tcry.xmr_base58_addr_decode_check(bytes(addr))
-    pub_spend_key = d[0:32]
+    pub_spend_key = d[:32]
     pub_view_key = d[32:64]
     return version, pub_spend_key, pub_view_key
 

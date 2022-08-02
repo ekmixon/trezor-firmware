@@ -5,11 +5,6 @@ from trezor.errors import MnemonicError
 
 from .. import backup_types
 
-if False:
-    from trezor.enums import BackupType
-    from typing import Union
-
-
 class RecoveryAborted(Exception):
     pass
 
@@ -43,15 +38,12 @@ def process_slip39(words: str) -> tuple[bytes | None, slip39.Share]:
         )
         storage.recovery_shares.set(share.index, share.group_index, words)
 
-        # if share threshold and group threshold are 1
-        # we can calculate the secret right away
-        if share.threshold == 1 and share.group_threshold == 1:
-            _, _, secret = slip39.recover_ems([words])
-            return secret, share
-        else:
+        if share.threshold != 1 or share.group_threshold != 1:
             # we need more shares
             return None, share
 
+        _, _, secret = slip39.recover_ems([words])
+        return secret, share
     # These should be checked by UI before so it's a Runtime exception otherwise
     if share.identifier != storage.recovery.get_slip39_identifier():
         raise RuntimeError("Slip39: Share identifiers do not match")
@@ -91,8 +83,7 @@ def process_slip39(words: str) -> tuple[bytes | None, slip39.Share]:
     return secret, share
 
 
-if False:
-    Slip39State = Union[tuple[int, BackupType], tuple[None, None]]
+pass
 
 
 def load_slip39_state() -> Slip39State:
@@ -107,11 +98,11 @@ def load_slip39_state() -> Slip39State:
 
 
 def fetch_previous_mnemonics() -> list[list[str]] | None:
-    mnemonics = []
     if not storage.recovery.get_slip39_group_count():
         return None
-    for i in range(storage.recovery.get_slip39_group_count()):
-        mnemonics.append(storage.recovery_shares.fetch_group(i))
-    if not any(p for p in mnemonics):
-        return None
-    return mnemonics
+    mnemonics = [
+        storage.recovery_shares.fetch_group(i)
+        for i in range(storage.recovery.get_slip39_group_count())
+    ]
+
+    return mnemonics if any(mnemonics) else None

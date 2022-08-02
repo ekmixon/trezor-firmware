@@ -10,10 +10,6 @@ from apps.common.seed import remove_ed25519_prefix
 
 from . import ADDRESS_KEY_HASH_SIZE, SCRIPT_HASH_SIZE, bech32
 
-if False:
-    from trezor import wire
-    from .. import seed
-
 
 def variable_length_encode(number: int) -> bytes:
     """
@@ -44,10 +40,7 @@ def format_account_number(path: list[int]) -> str:
 
 
 def format_optional_int(number: int | None) -> str:
-    if number is None:
-        return "n/a"
-
-    return str(number)
+    return "n/a" if number is None else str(number)
 
 
 def format_stake_pool_id(pool_id_bytes: bytes) -> str:
@@ -84,7 +77,7 @@ def derive_public_key(
 ) -> bytes:
     node = keychain.derive(path)
     public_key = remove_ed25519_prefix(node.public_key())
-    return public_key if not extended else public_key + node.chain_code()
+    return public_key + node.chain_code() if extended else public_key
 
 
 def validate_stake_credential(
